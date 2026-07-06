@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Equipment / Part Detail</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+  :root{
+    --navy:#14253D; --navy-2:#1B3050; --ink:#2E3338; --muted:#8C97A4;
+    --line:#C5CCD6; --line-soft:#E3E7EC; --gold:#9A7430; --gold-line:#B68A3A;
+    --panel:#F4F6F8; --card:#fff; --bg:#EEF1F4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--bg);font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:940px;margin:0 auto;padding:20px 20px 64px;}
+
+  /* App header */
+  .appbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .appbar .mark{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;letter-spacing:.02em;}
+  .appbar h1{margin:0;font-size:15px;color:var(--navy);font-weight:800;}
+  .appbar .sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .appbar .tag{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);background:#F4F6F8;border:0.5px solid var(--gold-line);padding:4px 10px;border-radius:999px;}
+
+  /* Mockup shell */
+  #mockupRoot{color:var(--ink);}
+  #mockupRoot button{font-family:'Inter',Arial,Helvetica,sans-serif;transition:background .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease;}
+  #mockupRoot button:focus-visible,#mockupRoot input:focus-visible,#mockupRoot select:focus-visible,#mockupRoot textarea:focus-visible{outline:2px solid var(--navy);outline-offset:1px;}
+  #mockupRoot ::placeholder{color:#AAB2BC;}
+
+  .card{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,37,61,.05);}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
+  .lbl{font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .lbl-xs{font-size:10px;color:var(--muted);}
+
+  .selrow{display:flex;gap:6px;}
+  .sel{width:100%;height:34px;border:0.5px solid var(--line);border-radius:8px;padding:0 28px 0 10px;font-size:13px;color:var(--ink);cursor:pointer;
+       background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C97A4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 9px center;
+       -webkit-appearance:none;-moz-appearance:none;appearance:none;}
+  .sel:hover{border-color:#AAB4C0;}
+  .selrow .sel{flex:1;min-width:0;}
+
+  .txt{width:100%;height:30px;border:0.5px solid var(--line);border-radius:6px;padding:0 8px;font-size:13px;color:var(--ink);background:#fff;}
+  .ta{width:100%;border:0.5px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:#fff;resize:vertical;}
+
+  .iconsq{width:34px;height:34px;flex:none;border:0.5px solid var(--line);border-radius:8px;background:#fff;color:var(--navy);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+  .iconsq:hover{background:var(--panel);}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:0.5px solid var(--line);background:#fff;color:var(--navy);font-size:12px;cursor:pointer;}
+  .btn.ghost:hover{background:var(--panel);}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .btn.primary:hover{background:var(--navy-2);}
+
+  .panel{background:var(--panel);border-radius:10px;}
+  .divider{border-top:0.5px solid var(--line-soft);}
+  .qr{display:grid;grid-template-columns:repeat(8,1fr);overflow:hidden;background:#fff;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+
+  @media print{ #mockupRoot,.appbar{display:none!important;} #qrPrintOnly{display:block!important;} }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAG+klEQVR42u1ZXYxUZxl+3vf7zpkzsMMuA1iolIIFCg0haUVLtxcWtZCWQm2hXsiF9sKf1l7UYEz0ojHxkqSpJibGpgmYmJgSa6ItaPSS/kFbKKWtLSzrsmwX9m/2zOzOOXPOd97Xi7MsP1KdWWaNGN7kJJMz33zf+z7f8/4OcENuyA1pvxDlz5WfrwuF27m2CTEz1PhTlTBe0fPnlpcF82/eNqd865O2WJrPbKtQmVRxclWDMHODqLWl+i9v2QusF5QWe0FntwnmPer5c7aS9Tryb3X6CHXpRJrUX8ni6ktpHL6WxrVzksau2XPaYMCUwrZgbNCxyCt23e0FpUdMYe42Nn4ZBEAEqgKoJFAIGAyBgMAg9okYYAYUkCwZyxqTf0rj2h/SaPxNF08Mi2tks3YDxfm33ON3LPym9edsZ+stARGgCpUMgCQQCJgsQAyAr7KFACoQdWAwwD6xwYV9xKWDLqn/MZkY2RdV+l9vqwFEjPKKjZ8YP1gimQOQNaPwf5IrDDI+G4ssiQfHet+4WVWa2sQ2ZyaTQCokyYJcYfZnpPIVbASIcxByLxFJRCAVEBNUtI0GAExUBNgHmoRmRgaxZaJiK57ZHI4KqEj630gpKpK2EISaNUAUkArl0MzWDUi+v1SapU/TBqgKVLLBi7F9VrCfwiob1BZYys0GKknTj/OsOVs+oAKi/JwWIjw3qT+yNDoOIkBmiUICAVF+TgsZqulgmKX1E7NbDxKYueVzuElqwjUmeiECMNt2Ks5EsNYgU7XVsIo0nuhtxdW4WedyjXpN0qQHRLYdkcgYhjGMqNHA0MiYFAoFe/+XNvRapLVWgkWTFCKoOHVJ7UUiBiDuWtBWVYyHNYyHNaxcvgzP/PB77tUDv8FT33rkxTiOlLn5NN90JoYCyWRlv19a9OO8DmoNbQCoRw3U6xEWzO/Eww98Gbt2Poj7N3XDs0astXju2T37AYCZIdLOWkjz60wmx06oS2Mw+82gzYaRphnGw5wVa1d/Dju2fRWPPbwFt69cPr02TVO/0WjEBw8eeA9A08o3b8B0JIrSJKq+UOgoP6GSJnlt9G/QjiKUuzqx/YFN2LVzKzZv6kYxKOCCkqqASJZYa+2hQ4f2njx5MmkF/dYMmKrbk9rQLwqlBd+/pNmaRtu5i2ivWZWj/fWvXY52lmUgorw1hkKgICLeu2/fc63SZ0YdGbGlruUbPrC2sDr3NeIoijFZj1Ce34n77t2Ab+zcii2bulEsBhfRFgFxXu0Qmylm5ln93EBvz9p1d90ehqESEVR1digEyqNRUj2/m8vLXqmOhzHAwZrVK/DoQznaa1atmF7uXAqiPHWwvXiUZA614ZMY6j2SpMPHgp/v/fPuMAzVMCGT1mqtGY0DjBeYxavuObfxi3eWd+14EFu+ci/PmUI7cw4KhbXeZb+Ja0OoDBzHSO9hjJ09htpIn2hWF5dR9TvP/v2m0ZpzgEJbrBVt6wnIIEvj7PHH7nvqZz995nfOudhaEzjnYK2FmUI6cw1Uz3+E0b63MNJ3BNVzH6ExOQpVhbEFKNuk3LUo+O1f+58cqaYuR39WxypTDjvlZEuXLjUnTrw/UCp1LCAiJiKuh5+gcvZdjPS+ibGzx1Ef70eWxiC2MF4ANt4UhUSMgdRjN/rtPUc/O1ZNskui9ewOtlQVxhiEYai+Z965e93ix08d2d849erz9uSh59H/3ssIBz9EltbBtgDrz4Exfo6VCqAKJ9Lomuv5+/7Sv/3wB5XThgkywzZjRj6QTwcJvgH9avf61xd1yBccrHheYMnY6SboAqSqeWWjChDBdQTMfUPR4e/uOdadpJnqDNFvqZy+SmJGnKr++uWBHaWuhcxe0YEYKhkkyyCiyCRX3LNARwGYVwSYxA3VmH/50j92xkmmIJqx8tcwG82NYCacOV+vLV0UZGtvLW2ejFzChoxngaKXP6LAUBU4doZw8F0kvz9aKOz729BPek6fOdBqzG8bhS6bywIoz/PNCz+6q3dhp1kyESmPToBPDxM+HCR8fA4YqBCqEUSUhCkdqJ99+zZIkmkb2utrnnMzEUQVG9d95rb16+849VZPEg+GJqhGQKaAZwDfAIYkZusH4cD7K6PqUE+rQ9y2U+jSdoeIcHZosvLO2SCc1K6HNHNx4JMNPMAyAJUY1g+i8cEfTI72HZwaDrSnFW1fawiwsdS57POvsQ02qmYOIAuoIzI2S+M3Kn1vd6tk2s7RTBv/+8lR9YrzOjtvuXMMkiUgslB1YOOH/UfLaVQN20Wdawqjn0omIqRRNZwc7ukm6weiUiXrB5PDPd1pVA3bSZ3ZnI8AAEpL1jx90x2btbRkzdOXhazrRYgtlRavfYLYXmea/3/JDfBvyP+8/BOoWmUyUtUH8QAAAABJRU5ErkJggg==">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="appbar">
+    <div class="mark">DMS</div>
+    <div>
+      <h1>Equipment / Part Detail</h1>
+      <div class="sub">Taxonomy → asset → component → part, with make · model · part number, QR &amp; inventory</div>
+    </div>
+  </div>
+
+  <div id="mockupRoot">
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">Each part under a component shows make, model and part number, in addition to the existing taxonomy, asset profile, component inventory QR, per-part QR, document and quantity tracking features.</h2>
+
+  <!-- Equipment taxonomy -->
+  <div class="card">
+    <div class="eyebrow" style="margin-bottom:10px;">Equipment taxonomy · 3 cascading dropdowns</div>
+    <div class="grid3" style="gap:10px;">
+      <div>
+        <div class="lbl">1. Equipment category</div>
+        <div class="selrow">
+          <select id="catSel" class="sel"></select>
+          <button class="iconsq" style="width:30px;" aria-label="Add category" title="Add category"><i class="ti ti-plus" aria-hidden="true"></i></button>
+          <button class="iconsq" style="width:30px;" aria-label="Edit category" title="Edit category"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">2. Equipment type</div>
+        <div class="selrow">
+          <select id="typeSel" class="sel"></select>
+          <button class="iconsq" style="width:30px;" aria-label="Add type" title="Add type"><i class="ti ti-plus" aria-hidden="true"></i></button>
+          <button class="iconsq" style="width:30px;" aria-label="Edit type" title="Edit type"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">3. Specific equipment / asset</div>
+        <div class="selrow">
+          <select id="assetSel" class="sel"></select>
+          <button class="iconsq" style="width:30px;" aria-label="Add asset" title="Add asset"><i class="ti ti-plus" aria-hidden="true"></i></button>
+          <button class="iconsq" style="width:30px;" aria-label="Edit asset" title="Edit asset"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+    <div id="breadcrumb" style="margin-top:10px;font-size:12px;color:var(--gold);font-weight:700;"></div>
+  </div>
+
+  <!-- Specific equipment asset -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div class="eyebrow">Specific equipment asset</div>
+      <div style="display:flex;gap:6px;">
+        <button id="quickViewBtn" class="btn ghost" style="height:28px;padding:0 10px;font-size:11px;gap:5px;"><i class="ti ti-folder" aria-hidden="true" style="font-size:14px;"></i>View files</button>
+        <button id="assetEditBtn" class="btn ghost" style="height:28px;padding:0 10px;font-size:11px;gap:5px;"><i class="ti ti-edit" aria-hidden="true" style="font-size:14px;"></i>Edit</button>
+      </div>
+    </div>
+
+    <div id="quickViewPanel" style="display:none;background:var(--panel);border-radius:8px;padding:10px;margin-bottom:12px;"></div>
+
+    <div style="display:grid;grid-template-columns:96px 1fr;gap:16px;margin-bottom:10px;">
+      <div style="text-align:center;">
+        <div id="qrBox" class="qr" style="width:88px;height:88px;border:0.5px solid var(--line);border-radius:8px;margin:0 auto 6px;"></div>
+        <div id="qrLabel" style="font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;word-break:break-all;margin-bottom:6px;"></div>
+        <button id="printQrBtn" class="btn ghost" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-printer" aria-hidden="true" style="font-size:12px;"></i>Print</button>
+      </div>
+      <div id="aDisplayWrap" class="grid2">
+        <div><div class="lbl-xs">Make</div><div id="aMake" style="font-size:14px;font-weight:700;color:var(--navy);"></div></div>
+        <div><div class="lbl-xs">Model</div><div id="aModel" style="font-size:14px;font-weight:700;color:var(--navy);"></div></div>
+        <div><div class="lbl-xs">Serial number</div><div id="aSerial" style="font-size:13px;"></div></div>
+        <div><div class="lbl-xs">Internal asset number</div><div id="aAssetNo" style="font-size:13px;"></div></div>
+        <div><div class="lbl-xs">Location · facility</div><div id="aLocation" style="font-size:13px;"></div></div>
+      </div>
+      <div id="aEditWrap" class="grid2" style="display:none;">
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Make</div><input id="aMakeInput" class="txt"/></div>
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Model</div><input id="aModelInput" class="txt"/></div>
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Serial number</div><input id="aSerialInput" class="txt"/></div>
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Internal asset number</div><input id="aAssetNoInput" class="txt"/></div>
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Location · facility</div>
+          <select id="aLocationInput" class="sel" style="height:30px;">
+            <option>Production area</option><option>Warehouse</option><option>Hammermill area</option>
+            <option>Maintenance area</option><option>Yard</option><option>Office</option>
+            <option>Bathroom</option><option>Other / off-site</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <span class="lbl-xs">Quantity · how many of this asset exist</span>
+      <div id="aQtyStepper"></div>
+    </div>
+
+    <div class="divider" style="padding-top:10px;margin-bottom:12px;">
+      <div class="lbl-xs" style="margin-bottom:6px;">Asset status</div>
+      <div id="statusButtons" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="divider" style="padding-top:10px;margin-bottom:12px;">
+      <div class="lbl-xs" style="margin-bottom:4px;">Notes</div>
+      <div id="aNotesDisplay" style="font-size:13px;color:var(--ink);"></div>
+      <textarea id="aNotesInput" class="ta" style="display:none;min-height:54px;"></textarea>
+    </div>
+
+    <div id="aEditActions" style="display:none;gap:8px;margin-bottom:12px;">
+      <button id="assetSaveBtn" class="btn primary" style="height:30px;">Save</button>
+      <button id="assetCancelBtn" class="btn ghost" style="height:30px;color:var(--ink);">Cancel</button>
+    </div>
+
+    <div class="divider" style="padding-top:12px;margin-bottom:12px;">
+      <div class="lbl-xs" style="margin-bottom:6px;">Photos · select one as the main thumbnail</div>
+      <div id="photoGrid" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+
+    <div class="divider" style="padding-top:12px;">
+      <div class="lbl-xs" style="margin-bottom:6px;">Documents</div>
+      <div id="docList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        <button class="btn primary" style="height:30px;padding:0 10px;"><i class="ti ti-upload" aria-hidden="true" style="font-size:14px;"></i>Upload document</button>
+        <span style="font-size:11px;color:var(--muted);">Manual · SOP · Maintenance record · Warranty · Other</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Component hierarchy -->
+  <div class="card">
+    <div class="eyebrow" style="margin-bottom:10px;">Component hierarchy</div>
+    <div class="grid2" style="margin-bottom:12px;">
+      <div>
+        <div class="lbl">Component group</div>
+        <div class="selrow">
+          <select id="groupSel" class="sel"></select>
+          <button class="iconsq" aria-label="Add component group" title="Add component group"><i class="ti ti-plus" aria-hidden="true"></i></button>
+          <button class="iconsq" aria-label="Edit component group" title="Edit component group"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Specific component</div>
+        <div class="selrow">
+          <select id="partSel" class="sel"></select>
+          <button class="iconsq" aria-label="Add specific component" title="Add specific component"><i class="ti ti-plus" aria-hidden="true"></i></button>
+          <button class="iconsq" aria-label="Edit specific component" title="Edit specific component"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button id="tabGroup" class="btn" style="flex:1;background:#14253D;color:#fff;font-weight:700;">Group info</button>
+      <button id="tabPart" class="btn" style="flex:1;background:#F4F6F8;color:#2E3338;font-weight:700;">Component info</button>
+    </div>
+
+    <div class="panel" style="padding:12px 14px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div id="detailName" style="font-size:14px;font-weight:700;color:var(--navy);"></div>
+        <button id="compEditBtn" class="btn ghost" style="height:26px;padding:0 10px;font-size:11px;gap:5px;"><i class="ti ti-edit" aria-hidden="true" style="font-size:13px;"></i>Edit</button>
+      </div>
+
+      <div id="groupQtyRow" style="display:none;align-items:center;gap:10px;margin-bottom:10px;">
+        <span class="lbl-xs">Quantity · items in this group</span>
+        <div id="groupQtyStepper"></div>
+      </div>
+
+      <div id="compDisplayWrap" class="grid3" style="margin-bottom:8px;">
+        <div><div class="lbl-xs">Make</div><div id="dMake" style="font-size:13px;"></div></div>
+        <div><div class="lbl-xs">Model</div><div id="dModel" style="font-size:13px;"></div></div>
+        <div><div class="lbl-xs">Serial number</div><div id="dSerial" style="font-size:13px;"></div></div>
+      </div>
+      <div id="compEditWrap" class="grid3" style="display:none;margin-bottom:8px;">
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Make</div><input id="dMakeInput" class="txt" style="height:28px;font-size:12px;padding:0 6px;"/></div>
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Model</div><input id="dModelInput" class="txt" style="height:28px;font-size:12px;padding:0 6px;"/></div>
+        <div><div class="lbl-xs" style="margin-bottom:3px;">Serial number</div><input id="dSerialInput" class="txt" style="height:28px;font-size:12px;padding:0 6px;"/></div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <div class="lbl-xs">Notes</div>
+        <div id="dNotes" style="font-size:13px;color:var(--ink);"></div>
+        <textarea id="dNotesInput" class="ta" style="display:none;min-height:48px;font-size:12px;"></textarea>
+      </div>
+
+      <div class="divider" style="padding-top:10px;margin-bottom:10px;">
+        <div class="lbl-xs" style="margin-bottom:6px;">Inventory &amp; spare parts</div>
+
+        <div id="compQrRow" style="display:none;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:0.5px dashed var(--line-soft);">
+          <div id="compQrBox" class="qr" style="width:56px;height:56px;border:0.5px solid var(--line);border-radius:6px;flex:none;"></div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:11px;font-weight:700;color:var(--navy);">Inventory QR code</div>
+            <div class="lbl-xs">Scan to view spare part info, location, quantity &amp; reorder levels</div>
+            <div id="compQrLabel" style="font-size:9px;color:var(--muted);font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;margin-top:2px;"></div>
+          </div>
+          <button id="printCompQrBtn" class="btn ghost" style="height:26px;padding:0 8px;font-size:10px;gap:4px;flex:none;"><i class="ti ti-printer" aria-hidden="true" style="font-size:12px;"></i>Print</button>
+        </div>
+
+        <div id="invDisplay" style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+          <span id="invSpareBadge" style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;"></span>
+          <span style="font-size:12px;color:var(--ink);">Min level: <strong id="invMinView"></strong></span>
+          <span style="font-size:12px;color:var(--ink);">Max level: <strong id="invMaxView"></strong></span>
+          <span style="font-size:12px;color:var(--ink);">Location: <strong id="invLocationView"></strong></span>
+        </div>
+        <div id="invEdit" style="display:none;gap:14px;flex-wrap:wrap;align-items:center;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer;">
+            <input type="checkbox" id="invSpareInput" style="width:15px;height:15px;"/> Spare part
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);">
+            Min level <input type="number" min="0" id="invMinInput" class="txt" style="width:60px;height:26px;font-size:12px;padding:0 6px;"/>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);">
+            Max level <input type="number" min="0" id="invMaxInput" class="txt" style="width:60px;height:26px;font-size:12px;padding:0 6px;"/>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);">
+            Location <input type="text" id="invLocationInput" placeholder="e.g. Warehouse - Shelf B3" class="txt" style="width:180px;height:26px;font-size:12px;padding:0 6px;"/>
+          </label>
+        </div>
+        <div id="compQtyRow" style="display:none;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:0.5px dashed var(--line-soft);">
+          <span class="lbl-xs">Quantity of spare parts on hand for this component</span>
+          <div id="compQtyStepper"></div>
+        </div>
+      </div>
+
+      <div id="compEditActions" style="display:none;gap:8px;margin-bottom:10px;">
+        <button id="compSaveBtn" class="btn primary" style="height:28px;">Save</button>
+        <button id="compCancelBtn" class="btn ghost" style="height:28px;color:var(--ink);">Cancel</button>
+      </div>
+
+      <div id="componentsSection" class="divider" style="display:none;padding-top:10px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div class="lbl-xs">Components under this group</div>
+          <button id="addComponentBtn" class="btn primary" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-plus" aria-hidden="true" style="font-size:12px;"></i>Add component</button>
+        </div>
+        <div id="componentsList" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+      </div>
+
+      <div id="partsSection" class="divider" style="display:none;padding-top:10px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="lbl-xs">Parts under this component · make, model, part number &amp; QR per part</div>
+          <button id="addPartBtn" class="btn ghost" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-plus" aria-hidden="true" style="font-size:12px;"></i>Add part</button>
+        </div>
+
+        <div id="partsTable" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+
+        <div id="addPartForm" style="display:none;background:#fff;border:0.5px dashed var(--gold-line);border-radius:8px;padding:8px;margin-bottom:6px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px;">
+            <input id="newPartMake" class="txt" style="height:28px;font-size:12px;" placeholder="Make"/>
+            <input id="newPartModel" class="txt" style="height:28px;font-size:12px;" placeholder="Model"/>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 90px 50px;gap:6px;margin-bottom:6px;">
+            <input id="newPartName" class="txt" style="height:28px;font-size:12px;" placeholder="Part name"/>
+            <input id="newPartNo" class="txt" style="height:28px;font-size:12px;" placeholder="PN-0000"/>
+            <input id="newPartQty" type="number" min="1" value="1" class="txt" style="height:28px;font-size:12px;padding:0 6px;"/>
+          </div>
+          <div style="margin-bottom:6px;">
+            <input id="newPartLocation" class="txt" style="height:28px;font-size:12px;" placeholder="Storage location, e.g. Bin A-12"/>
+          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding-top:6px;border-top:0.5px dashed var(--line-soft);margin-bottom:6px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);cursor:pointer;">
+              <input type="checkbox" id="newPartSpare" style="width:14px;height:14px;"/> Spare part
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);">
+              Min <input type="number" min="0" value="0" id="newPartMin" class="txt" style="width:50px;height:24px;font-size:11px;padding:0 6px;"/>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);">
+              Max <input type="number" min="0" value="0" id="newPartMax" class="txt" style="width:50px;height:24px;font-size:11px;padding:0 6px;"/>
+            </label>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button id="newPartSave" class="btn primary" style="height:26px;font-size:11px;">Save part</button>
+            <button id="newPartCancel" class="btn ghost" style="height:26px;font-size:11px;color:var(--ink);">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="compDocsSection" class="divider" style="display:none;padding-top:10px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="lbl-xs">Documents for this component</div>
+          <button id="compUploadBtn" class="btn primary" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-upload" aria-hidden="true" style="font-size:12px;"></i>Upload document</button>
+        </div>
+        <div id="compDocsList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+        <div id="compDocForm" style="display:none;gap:6px;background:#fff;border:0.5px dashed var(--gold-line);border-radius:8px;padding:8px;">
+          <input id="newDocTitle" class="txt" style="height:28px;font-size:12px;margin-bottom:6px;" placeholder="File name, e.g. Piston_Spec_Sheet.pdf"/>
+          <select id="newDocType" class="sel" style="height:28px;font-size:12px;margin-bottom:6px;">
+            <option>Manual</option><option>Diagram</option><option>Maintenance record</option>
+            <option>Inspection report</option><option>Warranty</option><option>Replacement instructions</option><option>Other</option>
+          </select>
+          <div style="display:flex;gap:6px;">
+            <button id="newDocSave" class="btn primary" style="height:26px;font-size:11px;">Save document</button>
+            <button id="newDocCancel" class="btn ghost" style="height:26px;font-size:11px;color:var(--ink);">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="groupBottomRow" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="btn ghost" style="height:30px;padding:0 10px;"><i class="ti ti-photo" aria-hidden="true" style="font-size:15px;"></i>Add picture</button>
+        <button class="btn ghost" style="height:30px;padding:0 10px;"><i class="ti ti-upload" aria-hidden="true" style="font-size:15px;"></i>Upload document</button>
+        <span id="docChips" style="display:flex;gap:6px;flex-wrap:wrap;"></span>
+      </div>
+    </div>
+
+    <div class="lbl-xs" style="margin-bottom:6px;">Full hierarchy · click any row to jump to it above</div>
+    <div id="hierarchyTree" style="border:0.5px solid var(--line-soft);border-radius:8px;padding:10px 12px;max-height:260px;overflow-y:auto;"></div>
+  </div>
+  </div><!-- #mockupRoot -->
+
+  <div id="qrPrintOnly" style="display:none;">
+    <div id="printAssetName" style="font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;color:#14253D;text-align:center;margin-bottom:6px;"></div>
+    <div id="qrBoxPrint" class="qr" style="width:200px;height:200px;margin:0 auto;"></div>
+    <div id="qrLabelPrint" style="font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:11px;color:#2E3338;text-align:center;margin-top:8px;"></div>
+  </div>
+
+
+  <script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function hash(str){ var h = 0; for (var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) | 0; } return Math.abs(h); }
+  function hex(str,len){ var h = hash(str).toString(16); while(h.length<len) h += hash(h).toString(16); return h.slice(0,len); }
+
+  function drawQrInto(boxEl, seed){
+    boxEl.innerHTML = "";
+    var bits = hex(seed, 24);
+    for (var i=0;i<64;i++){
+      var d = document.createElement("div");
+      var on = parseInt(bits[i % bits.length],16) % 2 === 0;
+      d.style.background = on ? "#14253D" : "#fff";
+      boxEl.appendChild(d);
+    }
+  }
+
+  function printQr(seed, title){
+    drawQrInto($("qrBoxPrint"), seed);
+    var code = "INV-" + hex(seed,8) + hex(seed+"y",6).toUpperCase();
+    $("qrLabelPrint").textContent = code;
+    $("printAssetName").textContent = title;
+    window.print();
+  }
+
+  function makeStepper(getVal, setVal, min, ariaContext, after){
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:inline-flex;align-items:center;gap:6px;";
+    var dec = document.createElement("button");
+    dec.setAttribute("aria-label","Decrease " + ariaContext);
+    dec.textContent = "−";
+    dec.style.cssText = "width:24px;height:24px;border-radius:6px;border:0.5px solid #C5CCD6;background:#fff;color:#14253D;font-size:14px;line-height:1;cursor:pointer;";
+    var val = document.createElement("span");
+    val.style.cssText = "min-width:22px;text-align:center;font-size:13px;font-weight:700;color:#14253D;";
+    var inc = document.createElement("button");
+    inc.setAttribute("aria-label","Increase " + ariaContext);
+    inc.textContent = "+";
+    inc.style.cssText = dec.style.cssText;
+    function refresh(){ val.textContent = getVal(); }
+    dec.addEventListener("click", function(){ var v = Math.max(min, getVal() - 1); setVal(v); refresh(); if (after) after(); });
+    inc.addEventListener("click", function(){ var v = getVal() + 1; setVal(v); refresh(); if (after) after(); });
+    refresh();
+    wrap.appendChild(dec); wrap.appendChild(val); wrap.appendChild(inc);
+    return wrap;
+  }
+
+  var taxonomy = {
+    "Production Vehicles": { types: {
+      "Forklift": ["Toyota 8FGCU25 · 002", "Toyota 8FGCU25 · 001"],
+      "Bobcat": ["Bobcat S650 · 001"], "Front Loader": ["Cat 950M · 001"], "Skid Steer": ["Bobcat T770 · 001"], "Other": []
+    } },
+    "Over-the-Road Vehicles": { types: {
+      "Truck": ["Freightliner M2 106 · 001"], "Trailer": [],
+      "Utility Truck": ["Ford F-250 · 003"], "Car": ["Nissan Versa · 001"], "Other": []
+    } },
+    "Production Machinery": { types: {
+      "Wire Stripper": ["Wire Stripper · 001"], "Hydraulic Press": ["Hydraulic Press · 003"],
+      "Plasma Cutter": ["Plasma Cutter · 001"], "Cutting Torch": ["Cutting Torch · 002"],
+      "Industrial Shredder": ["Shred-Tech ST-15H · SHR-001"], "Conveyor": ["Vibrating Conveyor · 001"], "Magnet": ["Drum Magnet · 001"], "Other": []
+    } },
+    "Production Lines": { types: {
+      "Hammermill Line": ["Hammermill Line · 001"], "Chopping Line": ["Chopping Line · 001"],
+      "Sorting Line": ["Sorting Line · 001"], "Baling Line": ["Baling Line · 001"], "Other": []
+    } },
+    "Facilities": { types: {
+      "Bathroom": ["Bathroom · Main Bldg"], "Warehouse": ["Warehouse Area · 001"],
+      "Hammermill Area": ["Hammermill Area · 001"], "Production Area": ["Production Area · 001"],
+      "Office": ["Office · Front"], "Maintenance Area": ["Maintenance Area · 001"], "Yard": ["Yard · 001"], "Other": []
+    } },
+    "IT & Computer Equipment": { types: {
+      "Desktop Computer": ["Desktop · Office 1"], "Laptop": ["Laptop · Sales 1"], "Server": ["Server Rack · 002"],
+      "Printer": ["Printer · Front Office"], "Scanner": ["Ricoh fi-7900 · SCAN-001"],
+      "Network Equipment": ["Core Switch · 001"], "Security Camera": ["Camera · Gate 1"], "Other": []
+    } }
+  };
+
+  var assetOverrides = {
+    "Toyota 8FGCU25 · 002": { make:"Toyota", model:"8FGCU25", serial:"8FGCU25-19044", notes:"Primary day-shift forklift, LPG-fueled. Operator: Diego R. Garage stall 3.", location:"Production area" },
+    "Freightliner M2 106 · 001": { make:"Freightliner", model:"M2 106", serial:"1FUJHHDR8KL123456", notes:"2019 M2 106 box truck · Cummins B6.7 / Allison 2200 · mobile shredding route truck.", location:"Yard" },
+    "Hammermill Line · 001": { make:"DMS Fab", model:"Hammermill Line", serial:"HML-2023-001", notes:"Main shredding line, runs 2 shifts.", location:"Hammermill area" },
+    "Hydraulic Press · 003": { make:"Greenerd", model:"H-Frame 75T", serial:"GRN-75T-0884", notes:"Used for HDD flattening prior to granulation.", location:"Production area" },
+    "Warehouse Area · 001": { make:"Facility", model:"Warehouse", serial:"—", notes:"Main storage bay, north dock.", location:"Warehouse" },
+    "Server Rack · 002": { make:"Dell", model:"PowerEdge R740 (rack)", serial:"DLR740-2231", notes:"Hosts scanning workstation backups.", location:"Office" }
+  };
+
+  var assetQtyMap = { "Bathroom · Main Bldg": 3, "Desktop · Office 1": 5 };
+
+  var statusMap = { "Server Rack · 002": "Out of Service" };
+  var STATUS_OPTS = [
+    { v:"In Service", color:"#1B3050", bg:"#D7DCE1" },
+    { v:"Out of Service", color:"#9A7430", bg:"#F4F6F8" },
+    { v:"Asset No Longer Exists", color:"#B3261E", bg:"#FBF1F0" }
+  ];
+
+  function assetDetail(label){
+    if (assetOverrides[label]) {
+      var d = assetOverrides[label];
+      return { make:d.make, model:d.model, serial:d.serial, assetNo: (label.split(" · ")[1] || "—"), notes:d.notes, location:d.location };
+    }
+    var parts = label.split(" · ");
+    var name = parts[0]; var assetNo = parts[1] || "—";
+    var words = name.split(" ");
+    return { make: words[0], model: words.slice(1).join(" ") || "—", serial: "SN-" + hex(label,6).toUpperCase(), assetNo: assetNo, notes:"No notes yet. Use Edit to add condition, location or operating notes.", location:"Production area" };
+  }
+
+  function renderQr(seed, assetName){
+    drawQrInto($("qrBox"), seed);
+    var code = "EAM-" + hex(seed,8) + hex(seed+"x",8);
+    $("qrLabel").textContent = code;
+    drawQrInto($("qrBoxPrint"), seed);
+    $("qrLabelPrint").textContent = code;
+    $("printAssetName").textContent = assetName || "—";
+  }
+
+  var DOCS = {
+    "Toyota 8FGCU25 · 002": [["Manual","Toyota_8FGCU25_Owner_Manual.pdf"],["SOP","Forklift_PreOp_Inspection.pdf"],["Warranty","Toyota_Warranty_2024.pdf"]],
+    "default": [["Manual","Owner_Manual.pdf"],["Maintenance record","Last_Service_Report.pdf"]]
+  };
+  function docChip(type){
+    var colors = { "Manual":"#1B3050", "Diagram":"#27425F", "SOP":"#27425F", "Maintenance record":"#1B3050", "Inspection report":"#9A7430", "Warranty":"#9A7430", "Replacement instructions":"#9A7430", "Other":"#5A6470" };
+    var c = colors[type] || "#5A6470";
+    var s = document.createElement("span");
+    s.textContent = type;
+    s.style.cssText = "font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#F4F6F8;color:" + c + ";flex:none;";
+    return s;
+  }
+  function currentDocs(){ return DOCS[assetSel.value] || DOCS["default"]; }
+  function renderDocs(){
+    var list = $("docList");
+    list.innerHTML = "";
+    currentDocs().forEach(function(d){
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:center;gap:8px;padding:6px 8px;background:#F4F6F8;border-radius:8px;";
+      row.appendChild(docChip(d[0]));
+      var fn = document.createElement("span");
+      fn.textContent = d[1];
+      fn.style.cssText = "font-size:12px;color:#2E3338;flex:1;";
+      row.appendChild(fn);
+      var dl = document.createElement("i");
+      dl.className = "ti ti-download"; dl.setAttribute("aria-hidden","true");
+      dl.style.cssText = "font-size:14px;color:#8C97A4;";
+      row.appendChild(dl);
+      list.appendChild(row);
+    });
+  }
+
+  var photos = [ { key:"front", label:"Front", icon:"ti-photo" }, { key:"plate", label:"Serial plate", icon:"ti-id-badge-2" } ];
+  var mainPhotoKey = "front";
+  function renderPhotos(){
+    var grid = $("photoGrid");
+    grid.innerHTML = "";
+    photos.forEach(function(p){
+      var isMain = p.key === mainPhotoKey;
+      var tile = document.createElement("div");
+      tile.style.cssText = "position:relative;width:64px;height:64px;border-radius:8px;background:#F4F6F8;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8C97A4;" + (isMain ? "border:2px solid #B68A3A;" : "border:0.5px solid transparent;");
+      tile.innerHTML = '<i class="ti ' + p.icon + '" aria-hidden="true" style="font-size:18px;"></i><span style="font-size:9px;margin-top:2px;">' + p.label + '</span>';
+      var star = document.createElement("button");
+      star.setAttribute("aria-label", isMain ? p.label + " is the main photo" : "Set " + p.label + " as main photo");
+      star.title = isMain ? "Main photo" : "Set as main photo";
+      star.style.cssText = "position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:0.5px solid #C5CCD6;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:" + (isMain ? "#B68A3A" : "#C5CCD6") + ";";
+      star.innerHTML = '<i class="ti ti-star' + (isMain ? "-filled" : "") + '" aria-hidden="true" style="font-size:12px;"></i>';
+      star.addEventListener("click", function(){ mainPhotoKey = p.key; renderPhotos(); });
+      tile.appendChild(star);
+      if (isMain){
+        var badge = document.createElement("span");
+        badge.textContent = "Main";
+        badge.style.cssText = "position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:700;background:#B68A3A;color:#fff;padding:1px 6px;border-radius:999px;";
+        tile.appendChild(badge);
+      }
+      grid.appendChild(tile);
+    });
+    var addTile = document.createElement("button");
+    addTile.setAttribute("aria-label","Add picture");
+    addTile.style.cssText = "width:64px;height:64px;border-radius:8px;border:0.5px dashed #C5CCD6;background:#fff;color:#14253D;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;";
+    addTile.innerHTML = '<i class="ti ti-plus" aria-hidden="true" style="font-size:18px;"></i><span style="font-size:9px;margin-top:2px;">Add picture</span>';
+    grid.appendChild(addTile);
+  }
+
+  var catSel = $("catSel");
+  var typeSel = $("typeSel");
+  var assetSel = $("assetSel");
+  var breadcrumb = $("breadcrumb");
+
+  Object.keys(taxonomy).forEach(function(c){ var o = document.createElement("option"); o.value = c; o.textContent = c; catSel.appendChild(o); });
+  function fillTypes(){
+    typeSel.innerHTML = "";
+    var types = taxonomy[catSel.value].types;
+    Object.keys(types).forEach(function(t){ var o = document.createElement("option"); o.value = t; o.textContent = t; typeSel.appendChild(o); });
+  }
+  function fillAssets(){
+    assetSel.innerHTML = "";
+    var assets = taxonomy[catSel.value].types[typeSel.value];
+    if (!assets || assets.length === 0){
+      var o = document.createElement("option"); o.value = ""; o.textContent = "No assets yet — use Add"; assetSel.appendChild(o);
+    } else {
+      assets.forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; assetSel.appendChild(o); });
+    }
+  }
+  function exitAssetEdit(){
+    $("aDisplayWrap").style.display = "grid";
+    $("aEditWrap").style.display = "none";
+    $("aNotesDisplay").style.display = "block";
+    $("aNotesInput").style.display = "none";
+    $("aEditActions").style.display = "none";
+    $("quickViewPanel").style.display = "none";
+  }
+  function renderStatus(){
+    var current = statusMap[assetSel.value] || "In Service";
+    var wrap = $("statusButtons");
+    wrap.innerHTML = "";
+    STATUS_OPTS.forEach(function(opt){
+      var active = opt.v === current;
+      var btn = document.createElement("button");
+      btn.textContent = opt.v;
+      btn.style.cssText = "height:30px;padding:0 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:0.5px solid " + (active ? opt.color : "#C5CCD6") + ";background:" + (active ? opt.bg : "#fff") + ";color:" + (active ? opt.color : "#8C97A4") + ";";
+      btn.addEventListener("click", function(){ statusMap[assetSel.value] = opt.v; renderStatus(); });
+      wrap.appendChild(btn);
+    });
+  }
+  function renderAssetQty(){
+    var label = assetSel.value;
+    var container = $("aQtyStepper");
+    container.innerHTML = "";
+    container.appendChild(makeStepper(
+      function(){ return assetQtyMap[label] != null ? assetQtyMap[label] : 1; },
+      function(v){ assetQtyMap[label] = v; },
+      1,
+      "asset quantity"
+    ));
+  }
+  function renderAssetProfile(){
+    exitAssetEdit();
+    var label = assetSel.value;
+    var d = label ? assetDetail(label) : { make:"—", model:"—", serial:"—", assetNo:"—", notes:"—", location:"—" };
+    $("aMake").textContent = d.make;
+    $("aModel").textContent = d.model;
+    $("aSerial").textContent = d.serial;
+    $("aAssetNo").textContent = d.assetNo;
+    $("aLocation").textContent = d.location;
+    $("aNotesDisplay").textContent = d.notes;
+    renderQr(label || (catSel.value + typeSel.value), label || (catSel.value + " — " + typeSel.value));
+    renderDocs();
+    renderPhotos();
+    renderStatus();
+    renderAssetQty();
+  }
+  function updateBreadcrumb(){ breadcrumb.textContent = catSel.value + "  ›  " + typeSel.value + "  ›  " + (assetSel.value || "—"); }
+  catSel.addEventListener("change", function(){ fillTypes(); fillAssets(); updateBreadcrumb(); renderAssetProfile(); });
+  typeSel.addEventListener("change", function(){ fillAssets(); updateBreadcrumb(); renderAssetProfile(); });
+  assetSel.addEventListener("change", function(){ updateBreadcrumb(); renderAssetProfile(); });
+
+  $("assetEditBtn").addEventListener("click", function(){
+    $("aMakeInput").value = $("aMake").textContent;
+    $("aModelInput").value = $("aModel").textContent;
+    $("aSerialInput").value = $("aSerial").textContent;
+    $("aAssetNoInput").value = $("aAssetNo").textContent;
+    $("aLocationInput").value = $("aLocation").textContent;
+    $("aNotesInput").value = $("aNotesDisplay").textContent;
+    $("aDisplayWrap").style.display = "none";
+    $("aEditWrap").style.display = "grid";
+    $("aNotesDisplay").style.display = "none";
+    $("aNotesInput").style.display = "block";
+    $("aEditActions").style.display = "flex";
+  });
+  $("assetSaveBtn").addEventListener("click", function(){
+    $("aMake").textContent = $("aMakeInput").value;
+    $("aModel").textContent = $("aModelInput").value;
+    $("aSerial").textContent = $("aSerialInput").value;
+    $("aAssetNo").textContent = $("aAssetNoInput").value;
+    $("aLocation").textContent = $("aLocationInput").value;
+    $("aNotesDisplay").textContent = $("aNotesInput").value;
+    exitAssetEdit();
+  });
+  $("assetCancelBtn").addEventListener("click", exitAssetEdit);
+
+  $("quickViewBtn").addEventListener("click", function(){
+    var panel = $("quickViewPanel");
+    if (panel.style.display === "block"){ panel.style.display = "none"; return; }
+    panel.innerHTML = "";
+    var photoRow = document.createElement("div");
+    photoRow.style.cssText = "display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;";
+    photos.forEach(function(p){
+      var t = document.createElement("div");
+      t.style.cssText = "width:40px;height:40px;border-radius:6px;background:#fff;border:0.5px solid #C5CCD6;display:flex;align-items:center;justify-content:center;color:#8C97A4;";
+      t.innerHTML = '<i class="ti ' + p.icon + '" aria-hidden="true" style="font-size:15px;"></i>';
+      photoRow.appendChild(t);
+    });
+    panel.appendChild(photoRow);
+    currentDocs().forEach(function(d){
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;";
+      row.appendChild(docChip(d[0]));
+      var fn = document.createElement("span"); fn.textContent = d[1]; fn.style.color = "#2E3338";
+      row.appendChild(fn);
+      panel.appendChild(row);
+    });
+    panel.style.display = "block";
+  });
+
+  $("printQrBtn").addEventListener("click", function(){ window.print(); });
+
+  catSel.value = "Production Vehicles";
+  fillTypes();
+  typeSel.value = "Forklift";
+  fillAssets();
+  assetSel.value = "Toyota 8FGCU25 · 002";
+  updateBreadcrumb();
+  renderAssetProfile();
+
+  var groups = {
+    "Motor": { make:"Toyota", model:"4Y engine block", serial:"ENG-2024-0091", notes:"Gas 4-cylinder, rebuilt 2024.", sparePart:false, minLevel:0, maxLevel:0, location:"Maintenance shop · Engine bay", groupQty:1, documents:[],
+      parts: {
+        "Piston": { make:"Toyota OEM", model:"4Y-STD", serial:"— bulk part", notes:"Standard bore. Replace at 4,000 h.", sparePart:true, minLevel:2, maxLevel:8, location:"Maintenance crib · Bin A", spareQty:6,
+          items:[
+            {name:"Piston ring set",make:"Toyota OEM",model:"4Y-RING-STD",partNo:"PN-44021",qty:4,sparePart:true,minLevel:2,maxLevel:6,location:"Maintenance crib · Bin A12"},
+            {name:"Wrist pin",make:"Toyota OEM",model:"4Y-PIN-22",partNo:"PN-44022",qty:4,sparePart:true,minLevel:2,maxLevel:6,location:"Maintenance crib · Bin A13"}
+          ],
+          documents:[{type:"Manual",filename:"Toyota_4Y_Piston_Spec.pdf"},{type:"Maintenance record",filename:"Piston_Inspection_2025-11.pdf"}] },
+        "Crankshaft": { make:"Toyota OEM", model:"4Y-CRK", serial:"CRK-19204", notes:"Inspect at major overhaul only.", sparePart:false, minLevel:0, maxLevel:1, location:"Maintenance shop · Engine bay", spareQty:1,
+          items:[
+            {name:"Main bearings",make:"Toyota OEM",model:"4Y-BRG-STD",partNo:"PN-44101",qty:1,sparePart:true,minLevel:1,maxLevel:2,location:"Maintenance crib · Bin B04"},
+            {name:"Thrust washer",make:"Toyota OEM",model:"4Y-TWR-02",partNo:"PN-44102",qty:2,sparePart:false,minLevel:0,maxLevel:0,location:"Maintenance crib · Bin B05"}
+          ], documents:[] },
+        "Cylinder head": { make:"Toyota OEM", model:"4Y-HD2", serial:"— bulk part", notes:"Resurfaced 2024-02.", sparePart:true, minLevel:1, maxLevel:3, location:"Maintenance crib · Bin C", spareQty:2,
+          items:[
+            {name:"Head gasket",make:"Toyota OEM",model:"4Y-HDGSKT",partNo:"PN-44201",qty:1,sparePart:true,minLevel:1,maxLevel:3,location:"Maintenance crib · Bin C02"},
+            {name:"Valve set",make:"Toyota OEM",model:"4Y-VLV-SET",partNo:"PN-44202",qty:1,sparePart:false,minLevel:0,maxLevel:0,location:"Maintenance crib · Bin C03"}
+          ],
+          documents:[{type:"Diagram",filename:"4Y_Head_Torque_Sequence.pdf"}] }
+      } },
+    "Hydraulic system": { make:"Toyota", model:"Hyd. pump assy 2H", serial:"HYD-0317", notes:"Gear pump, 2,000 psi rated.", sparePart:false, minLevel:0, maxLevel:0, location:"Hydraulic shop", groupQty:1, documents:[],
+      parts: {
+        "Lift cylinder": { make:"Toyota OEM", model:"LFT-225", serial:"LC-88231", notes:"Seal kit replaced 2025-11.", sparePart:true, minLevel:1, maxLevel:2, location:"Hydraulic shop · Shelf 2", spareQty:3,
+          items:[
+            {name:"Seal kit",make:"Toyota OEM",model:"LFT-225-SK",partNo:"PN-55011",qty:1,sparePart:true,minLevel:2,maxLevel:5,location:"Hydraulic shop · Shelf 2"},
+            {name:"Barrel",make:"Toyota OEM",model:"LFT-225-BRL",partNo:"PN-55012",qty:1,sparePart:false,minLevel:0,maxLevel:0,location:"Hydraulic shop · Shelf 3"}
+          ],
+          documents:[{type:"Warranty",filename:"LiftCylinder_Warranty.pdf"}] },
+        "Tilt cylinder": { make:"Toyota OEM", model:"TLT-110", serial:"TC-44120", notes:"No leaks observed.", sparePart:true, minLevel:1, maxLevel:2, location:"Hydraulic shop · Shelf 2", spareQty:2,
+          items:[{name:"Seal kit",make:"Toyota OEM",model:"TLT-110-SK",partNo:"PN-55021",qty:1,sparePart:true,minLevel:1,maxLevel:3,location:"Hydraulic shop · Shelf 2"}], documents:[] }
+      } },
+    "Mast": { make:"Toyota", model:"2-stage FV", serial:"MST-5521", notes:"187 in. max lift height.", sparePart:false, minLevel:0, maxLevel:0, location:"Mast shop", groupQty:1, documents:[],
+      parts: { "Lift chain": { make:"Tsubaki", model:"BL644", serial:"— bulk part", notes:"Lubricate monthly.", sparePart:true, minLevel:1, maxLevel:4, location:"Mast shop · Drawer 1", spareQty:2,
+        items:[{name:"Chain anchor pin",make:"Tsubaki",model:"BL644-PIN",partNo:"PN-66011",qty:2,sparePart:false,minLevel:0,maxLevel:0,location:"Mast shop · Drawer 1"}], documents:[{type:"Inspection report",filename:"Mast_Chain_Annual_2026.pdf"}] } } },
+    "Transmission": { make:"Toyota", model:"Powershift T2", serial:"TRN-3309", notes:"2-speed, forward/reverse.", sparePart:false, minLevel:0, maxLevel:0, location:"Drivetrain shop", groupQty:1, documents:[],
+      parts: { "Torque converter": { make:"Toyota OEM", model:"TC-2S", serial:"TQ-90211", notes:"Fluid changed 2025-09.", sparePart:false, minLevel:0, maxLevel:1, location:"Drivetrain shop · Shelf 1", spareQty:1,
+        items:[
+          {name:"Stator",make:"Toyota OEM",model:"TC-2S-STA",partNo:"PN-77011",qty:1,sparePart:false,minLevel:0,maxLevel:0,location:"Drivetrain shop · Shelf 1"},
+          {name:"Impeller",make:"Toyota OEM",model:"TC-2S-IMP",partNo:"PN-77012",qty:1,sparePart:false,minLevel:0,maxLevel:0,location:"Drivetrain shop · Shelf 1"}
+        ], documents:[] } } },
+    "Tires": { make:"Solideal", model:"Cushion 18x7-8", serial:"—", notes:"Set of 4, non-marking.", sparePart:true, minLevel:4, maxLevel:8, location:"Warehouse · Tire rack", groupQty:4, documents:[],
+      parts: { "Front left": { make:"Solideal", model:"RES 550", serial:"— bulk part", notes:"60% tread remaining.", sparePart:true, minLevel:1, maxLevel:4, location:"Warehouse · Tire rack", spareQty:4, items:[], documents:[] } } },
+    "Electrical system": { make:"Toyota", model:"12V harness", serial:"ELC-1187", notes:"Sealed connectors, LPG-rated.", sparePart:false, minLevel:0, maxLevel:0, location:"Electrical crib", groupQty:1, documents:[],
+      parts: { "Ignition module": { make:"Denso", model:"IGM-7", serial:"IG-50213", notes:"Replaced 2024-06.", sparePart:true, minLevel:1, maxLevel:3, location:"Electrical crib · Drawer 4", spareQty:3,
+        items:[{name:"Spark plug set",make:"NGK",model:"BPR6ES",partNo:"PN-88011",qty:1,sparePart:true,minLevel:2,maxLevel:6,location:"Electrical crib · Drawer 4"}], documents:[{type:"Replacement instructions",filename:"Ignition_Module_Swap_Steps.pdf"}] } } }
+  };
+  var groupSel = $("groupSel");
+  var partSel = $("partSel");
+  var tabGroup = $("tabGroup");
+  var tabPart = $("tabPart");
+  var mode = "group";
+
+  Object.keys(groups).forEach(function(g){ var o = document.createElement("option"); o.value = g; o.textContent = g; groupSel.appendChild(o); });
+  function fillParts(){
+    var keep = partSel.value;
+    partSel.innerHTML = "";
+    var g = groups[groupSel.value];
+    Object.keys(g.parts).forEach(function(p){ var o = document.createElement("option"); o.value = p; o.textContent = p; partSel.appendChild(o); });
+    if (keep && g.parts[keep]) partSel.value = keep;
+  }
+  function chip(label){
+    var s = document.createElement("span");
+    s.textContent = label;
+    s.style.cssText = "font-size:11px;padding:3px 9px;border-radius:999px;background:#F4F6F8;color:#9A7430;font-weight:700;";
+    return s;
+  }
+  function currentCompRecord(){ var g = groups[groupSel.value]; return mode === "group" ? g : g.parts[partSel.value]; }
+  function exitCompEdit(){
+    $("compDisplayWrap").style.display = "grid";
+    $("compEditWrap").style.display = "none";
+    $("dNotes").style.display = "block";
+    $("dNotesInput").style.display = "none";
+    $("invDisplay").style.display = "flex";
+    $("invEdit").style.display = "none";
+    $("compEditActions").style.display = "none";
+  }
+  function renderComponentsList(){
+    var section = $("componentsSection");
+    var list = $("componentsList");
+    list.innerHTML = "";
+    if (mode !== "group"){ section.style.display = "none"; return; }
+    section.style.display = "block";
+    var g = groups[groupSel.value];
+    Object.keys(g.parts).forEach(function(p){
+      var s = document.createElement("button");
+      s.textContent = p;
+      s.style.cssText = "font-size:11px;padding:4px 10px;border-radius:999px;background:#F4F6F8;color:#14253D;border:0.5px solid #E3E7EC;cursor:pointer;";
+      s.addEventListener("click", function(){ partSel.value = p; mode = "part"; render(); });
+      list.appendChild(s);
+    });
+    if (Object.keys(g.parts).length === 0){
+      var none = document.createElement("span");
+      none.textContent = "No components added yet";
+      none.style.cssText = "font-size:11px;color:#8C97A4;";
+      list.appendChild(none);
+    }
+  }
+  function closeAddPartForm(){
+    $("addPartForm").style.display = "none";
+    $("newPartMake").value = "";
+    $("newPartModel").value = "";
+    $("newPartName").value = "";
+    $("newPartNo").value = "";
+    $("newPartQty").value = "1";
+    $("newPartLocation").value = "";
+    $("newPartSpare").checked = false;
+    $("newPartMin").value = "0";
+    $("newPartMax").value = "0";
+  }
+  function renderPartsList(){
+    var section = $("partsSection");
+    var table = $("partsTable");
+    table.innerHTML = "";
+    closeAddPartForm();
+    if (mode !== "part"){ section.style.display = "none"; return; }
+    section.style.display = "block";
+    var rec = currentCompRecord();
+    var items = rec.items || [];
+    if (items.length === 0){
+      var none = document.createElement("div");
+      none.textContent = "No parts added yet";
+      none.style.cssText = "font-size:11px;color:#8C97A4;padding:4px 8px;";
+      table.appendChild(none);
+    }
+    items.forEach(function(it, idx){
+      var card = document.createElement("div");
+      card.style.cssText = "background:#fff;border:0.5px solid #E3E7EC;border-radius:8px;padding:8px;";
+
+      var header = document.createElement("div");
+      header.style.cssText = "display:flex;align-items:center;gap:8px;margin-bottom:6px;";
+
+      var qrSeed = groupSel.value + " · " + (partSel.value || "") + " · " + it.name + " · part-inv";
+      var qrBtn = document.createElement("button");
+      qrBtn.type = "button";
+      qrBtn.title = "Print QR code for " + it.name;
+      qrBtn.setAttribute("aria-label","Print inventory QR code for " + it.name);
+      qrBtn.style.cssText = "width:28px;height:28px;flex:none;border:0.5px solid #C5CCD6;border-radius:6px;display:grid;grid-template-columns:repeat(8,1fr);overflow:hidden;padding:0;background:#fff;cursor:pointer;";
+      drawQrInto(qrBtn, qrSeed);
+      qrBtn.addEventListener("click", function(){ printQr(qrSeed, it.name + " — Part QR"); });
+      header.appendChild(qrBtn);
+
+      var nameWrap = document.createElement("div");
+      nameWrap.style.cssText = "flex:1;min-width:0;";
+      if (it._editing){
+        var nameInput = document.createElement("input");
+        nameInput.id = "partNameInput" + idx;
+        nameInput.value = it.name;
+        nameInput.style.cssText = "width:100%;height:26px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:12px;";
+        nameWrap.appendChild(nameInput);
+      } else {
+        var nameSpan = document.createElement("span");
+        nameSpan.textContent = it.name;
+        nameSpan.style.cssText = "font-size:12px;font-weight:700;color:#2E3338;";
+        nameWrap.appendChild(nameSpan);
+      }
+      header.appendChild(nameWrap);
+
+      var actions = document.createElement("div");
+      actions.style.cssText = "display:flex;gap:4px;flex:none;";
+      if (it._editing){
+        var saveBtn = document.createElement("button");
+        saveBtn.setAttribute("aria-label","Save " + it.name);
+        saveBtn.title = "Save part";
+        saveBtn.innerHTML = '<i class="ti ti-check" aria-hidden="true" style="font-size:13px;"></i>';
+        saveBtn.style.cssText = "width:24px;height:24px;border:0.5px solid #C5CCD6;border-radius:6px;background:#14253D;color:#fff;cursor:pointer;";
+        saveBtn.addEventListener("click", function(){
+          var nameVal = $("partNameInput" + idx).value.trim();
+          it.name = nameVal || it.name;
+          it.make = $("partMakeInput" + idx).value.trim();
+          it.model = $("partModelInput" + idx).value.trim();
+          it.partNo = $("partNoInput" + idx).value.trim() || "—";
+          it.qty = parseInt($("partQtyInput" + idx).value, 10) || 1;
+          it.location = $("partLocationInput" + idx).value.trim() || "—";
+          it._editing = false;
+          renderPartsList();
+          buildTree();
+        });
+        var cancelBtn = document.createElement("button");
+        cancelBtn.setAttribute("aria-label","Cancel edit");
+        cancelBtn.title = "Cancel";
+        cancelBtn.innerHTML = '<i class="ti ti-x" aria-hidden="true" style="font-size:13px;"></i>';
+        cancelBtn.style.cssText = "width:24px;height:24px;border:0.5px solid #C5CCD6;border-radius:6px;background:#fff;color:#2E3338;cursor:pointer;";
+        cancelBtn.addEventListener("click", function(){ it._editing = false; renderPartsList(); });
+        actions.appendChild(saveBtn); actions.appendChild(cancelBtn);
+      } else {
+        var editBtn = document.createElement("button");
+        editBtn.setAttribute("aria-label","Edit " + it.name);
+        editBtn.title = "Edit part";
+        editBtn.innerHTML = '<i class="ti ti-edit" aria-hidden="true" style="font-size:13px;"></i>';
+        editBtn.style.cssText = "width:24px;height:24px;border:0.5px solid #C5CCD6;border-radius:6px;background:#fff;color:#14253D;cursor:pointer;";
+        editBtn.addEventListener("click", function(){ it._editing = true; renderPartsList(); });
+        var delBtn = document.createElement("button");
+        delBtn.setAttribute("aria-label","Remove " + it.name);
+        delBtn.title = "Remove part";
+        delBtn.innerHTML = '<i class="ti ti-trash" aria-hidden="true" style="font-size:13px;"></i>';
+        delBtn.style.cssText = "width:24px;height:24px;border:0.5px solid #C5CCD6;border-radius:6px;background:#fff;color:#A32D2D;cursor:pointer;";
+        delBtn.addEventListener("click", function(){ items.splice(idx,1); renderPartsList(); buildTree(); });
+        actions.appendChild(editBtn); actions.appendChild(delBtn);
+      }
+      header.appendChild(actions);
+      card.appendChild(header);
+
+      var metaTop = document.createElement("div");
+      var metaBottom = document.createElement("div");
+      if (it._editing){
+        metaTop.style.cssText = "display:grid;grid-template-columns:1fr 1fr 90px;gap:6px;margin-bottom:6px;";
+        var makeInput = document.createElement("input");
+        makeInput.id = "partMakeInput" + idx; makeInput.value = it.make || ""; makeInput.placeholder = "Make";
+        makeInput.style.cssText = "height:26px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:11px;";
+        var modelInput = document.createElement("input");
+        modelInput.id = "partModelInput" + idx; modelInput.value = it.model || ""; modelInput.placeholder = "Model";
+        modelInput.style.cssText = "height:26px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:11px;";
+        var pnInput = document.createElement("input");
+        pnInput.id = "partNoInput" + idx; pnInput.value = it.partNo || ""; pnInput.placeholder = "PN-0000";
+        pnInput.style.cssText = "height:26px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:11px;";
+        metaTop.appendChild(makeInput); metaTop.appendChild(modelInput); metaTop.appendChild(pnInput);
+
+        metaBottom.style.cssText = "display:grid;grid-template-columns:50px 1fr;gap:6px;margin-bottom:6px;";
+        var qtyInput = document.createElement("input");
+        qtyInput.type = "number"; qtyInput.min = "1"; qtyInput.id = "partQtyInput" + idx; qtyInput.value = it.qty || 1;
+        qtyInput.style.cssText = "height:26px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:11px;";
+        var locInput = document.createElement("input");
+        locInput.id = "partLocationInput" + idx; locInput.value = it.location || ""; locInput.placeholder = "Storage location, e.g. Bin A-12";
+        locInput.style.cssText = "height:26px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:11px;";
+        metaBottom.appendChild(qtyInput); metaBottom.appendChild(locInput);
+      } else {
+        metaTop.style.cssText = "display:grid;grid-template-columns:1fr 1fr 90px;gap:6px;margin-bottom:6px;";
+        var mk = document.createElement("span"); mk.innerHTML = '<span style="color:#8C97A4;">Make</span> ' + (it.make || "—"); mk.style.cssText = "font-size:11px;color:#2E3338;";
+        var md = document.createElement("span"); md.innerHTML = '<span style="color:#8C97A4;">Model</span> ' + (it.model || "—"); md.style.cssText = "font-size:11px;color:#2E3338;";
+        var pn = document.createElement("span"); pn.innerHTML = '<span style="color:#8C97A4;">Part #</span> ' + (it.partNo || "—"); pn.style.cssText = "font-size:11px;color:#2E3338;font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;";
+        metaTop.appendChild(mk); metaTop.appendChild(md); metaTop.appendChild(pn);
+
+        metaBottom.style.cssText = "display:grid;grid-template-columns:50px 1fr;gap:6px;margin-bottom:6px;";
+        var qty = document.createElement("span"); qty.innerHTML = '<span style="color:#8C97A4;">Qty</span> ×' + (it.qty || 1); qty.style.cssText = "font-size:11px;color:#2E3338;";
+        var loc = document.createElement("span"); loc.innerHTML = '<span style="color:#8C97A4;">Location</span> ' + (it.location || "—"); loc.style.cssText = "font-size:11px;color:#2E3338;";
+        metaBottom.appendChild(qty); metaBottom.appendChild(loc);
+      }
+      card.appendChild(metaTop);
+      card.appendChild(metaBottom);
+
+      var bottom = document.createElement("div");
+      bottom.style.cssText = "display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding-top:6px;border-top:0.5px dashed #E3E7EC;";
+
+      var spareLabel = document.createElement("label");
+      spareLabel.style.cssText = "display:flex;align-items:center;gap:5px;font-size:11px;color:#2E3338;cursor:pointer;";
+      var spareInput = document.createElement("input");
+      spareInput.type = "checkbox"; spareInput.checked = !!it.sparePart;
+      spareInput.style.cssText = "width:13px;height:13px;";
+      spareInput.addEventListener("change", function(){ it.sparePart = spareInput.checked; buildTree(); });
+      spareLabel.appendChild(spareInput);
+      spareLabel.appendChild(document.createTextNode("Spare part"));
+
+      var minLabel = document.createElement("label");
+      minLabel.style.cssText = "display:flex;align-items:center;gap:5px;font-size:11px;color:#2E3338;";
+      minLabel.appendChild(document.createTextNode("Min"));
+      var minInput = document.createElement("input");
+      minInput.type = "number"; minInput.min = "0"; minInput.value = it.minLevel != null ? it.minLevel : 0;
+      minInput.style.cssText = "width:48px;height:24px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:11px;";
+      minInput.addEventListener("change", function(){ it.minLevel = parseInt(minInput.value,10) || 0; buildTree(); });
+      minLabel.appendChild(minInput);
+
+      var maxLabel = document.createElement("label");
+      maxLabel.style.cssText = "display:flex;align-items:center;gap:5px;font-size:11px;color:#2E3338;";
+      maxLabel.appendChild(document.createTextNode("Max"));
+      var maxInput = document.createElement("input");
+      maxInput.type = "number"; maxInput.min = "0"; maxInput.value = it.maxLevel != null ? it.maxLevel : 0;
+      maxInput.style.cssText = "width:48px;height:24px;border:0.5px solid #C5CCD6;border-radius:6px;padding:0 6px;font-size:11px;";
+      maxInput.addEventListener("change", function(){ it.maxLevel = parseInt(maxInput.value,10) || 0; buildTree(); });
+      maxLabel.appendChild(maxInput);
+
+      bottom.appendChild(spareLabel); bottom.appendChild(minLabel); bottom.appendChild(maxLabel);
+      card.appendChild(bottom);
+      table.appendChild(card);
+    });
+  }
+  function closeDocForm(){
+    $("compDocForm").style.display = "none";
+    $("newDocTitle").value = "";
+    $("newDocType").value = "Manual";
+  }
+  function renderCompDocs(){
+    var section = $("compDocsSection");
+    var list = $("compDocsList");
+    list.innerHTML = "";
+    closeDocForm();
+    if (mode !== "part"){ section.style.display = "none"; return; }
+    section.style.display = "block";
+    var rec = currentCompRecord();
+    var docs = rec.documents || [];
+    if (docs.length === 0){
+      var none = document.createElement("div");
+      none.textContent = "No documents yet";
+      none.style.cssText = "font-size:11px;color:#8C97A4;padding:4px 8px;";
+      list.appendChild(none);
+    }
+    docs.forEach(function(d, idx){
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:center;gap:8px;padding:6px 8px;background:#fff;border:0.5px solid #E3E7EC;border-radius:8px;";
+      row.appendChild(docChip(d.type));
+      var fn = document.createElement("span"); fn.textContent = d.filename; fn.style.cssText = "font-size:12px;color:#2E3338;flex:1;";
+      row.appendChild(fn);
+      var dl = document.createElement("i"); dl.className = "ti ti-download"; dl.setAttribute("aria-hidden","true"); dl.style.cssText = "font-size:14px;color:#8C97A4;";
+      row.appendChild(dl);
+      var del = document.createElement("button");
+      del.setAttribute("aria-label","Remove " + d.filename);
+      del.innerHTML = '<i class="ti ti-trash" aria-hidden="true" style="font-size:13px;"></i>';
+      del.style.cssText = "width:22px;height:22px;border:0.5px solid #C5CCD6;border-radius:6px;background:#fff;color:#A32D2D;cursor:pointer;flex:none;";
+      del.addEventListener("click", function(){ docs.splice(idx,1); renderCompDocs(); });
+      row.appendChild(del);
+      list.appendChild(row);
+    });
+  }
+  function renderInventory(rec){
+    var badge = $("invSpareBadge");
+    if (rec.sparePart){
+      badge.textContent = "Spare part: Yes";
+      badge.style.background = "#F4F6F8"; badge.style.color = "#9A7430";
+    } else {
+      badge.textContent = "Spare part: No";
+      badge.style.background = "#F4F6F8"; badge.style.color = "#8C97A4";
+    }
+    $("invMinView").textContent = rec.minLevel != null ? rec.minLevel : 0;
+    $("invMaxView").textContent = rec.maxLevel != null ? rec.maxLevel : 0;
+    $("invLocationView").textContent = rec.location || "—";
+  }
+  function renderGroupQty(){
+    var wrap = $("groupQtyRow");
+    if (mode !== "group"){ wrap.style.display = "none"; return; }
+    wrap.style.display = "flex";
+    var rec = groups[groupSel.value];
+    var container = $("groupQtyStepper");
+    container.innerHTML = "";
+    container.appendChild(makeStepper(
+      function(){ return rec.groupQty != null ? rec.groupQty : 1; },
+      function(v){ rec.groupQty = v; },
+      0,
+      "items in group"
+    ));
+  }
+  function renderCompQty(){
+    var wrap = $("compQtyRow");
+    if (mode !== "part"){ wrap.style.display = "none"; return; }
+    wrap.style.display = "flex";
+    var rec = currentCompRecord();
+    var container = $("compQtyStepper");
+    container.innerHTML = "";
+    container.appendChild(makeStepper(
+      function(){ return rec.spareQty != null ? rec.spareQty : 0; },
+      function(v){ rec.spareQty = v; },
+      0,
+      "spare parts on hand"
+    ));
+  }
+  function renderCompQr(){
+    var wrap = $("compQrRow");
+    if (mode !== "part"){ wrap.style.display = "none"; return; }
+    wrap.style.display = "flex";
+    var seed = groupSel.value + " · " + partSel.value + " · inv";
+    drawQrInto($("compQrBox"), seed);
+    var code = "INV-" + hex(seed,8) + hex(seed+"y",6).toUpperCase();
+    $("compQrLabel").textContent = code;
+  }
+  function render(){
+    exitCompEdit();
+    var rec = currentCompRecord() || { make:"—",model:"—",serial:"—",notes:"—",sparePart:false,minLevel:0,maxLevel:0,location:"—" };
+    var label = mode === "group" ? (groupSel.value + " (group)") : ((partSel.value || "—") + " (component)");
+    if (mode === "group") {
+      tabGroup.style.background = "#14253D"; tabGroup.style.color = "#fff";
+      tabPart.style.background = "#F4F6F8"; tabPart.style.color = "#2E3338";
+      $("docChips").innerHTML = "";
+      [["Manual"],["SOP"],["Warranty"]].forEach(function(c){ $("docChips").appendChild(chip(c[0])); });
+      $("groupBottomRow").style.display = "flex";
+    } else {
+      tabPart.style.background = "#14253D"; tabPart.style.color = "#fff";
+      tabGroup.style.background = "#F4F6F8"; tabGroup.style.color = "#2E3338";
+      $("groupBottomRow").style.display = "none";
+    }
+    $("detailName").textContent = label;
+    $("dMake").textContent = rec.make;
+    $("dModel").textContent = rec.model;
+    $("dSerial").textContent = rec.serial;
+    $("dNotes").textContent = rec.notes;
+    renderInventory(rec);
+    renderGroupQty();
+    renderCompQty();
+    renderCompQr();
+    renderComponentsList();
+    renderPartsList();
+    renderCompDocs();
+  }
+  function selectGroupPart(g, p){
+    groupSel.value = g; fillParts();
+    if (p){ partSel.value = p; mode = "part"; } else { mode = "group"; }
+    render();
+  }
+  groupSel.addEventListener("change", function(){ fillParts(); mode = "group"; render(); });
+  partSel.addEventListener("change", function(){ mode = "part"; render(); });
+  tabGroup.addEventListener("click", function(){ mode = "group"; render(); });
+  tabPart.addEventListener("click", function(){ if (partSel.value) { mode = "part"; render(); } });
+
+  $("printCompQrBtn").addEventListener("click", function(){
+    var seed = groupSel.value + " · " + partSel.value + " · inv";
+    printQr(seed, (partSel.value || "Component") + " — Inventory QR");
+  });
+
+  $("compEditBtn").addEventListener("click", function(){
+    var rec = currentCompRecord();
+    $("dMakeInput").value = $("dMake").textContent;
+    $("dModelInput").value = $("dModel").textContent;
+    $("dSerialInput").value = $("dSerial").textContent;
+    $("dNotesInput").value = $("dNotes").textContent;
+    $("invSpareInput").checked = !!rec.sparePart;
+    $("invMinInput").value = rec.minLevel != null ? rec.minLevel : 0;
+    $("invMaxInput").value = rec.maxLevel != null ? rec.maxLevel : 0;
+    $("invLocationInput").value = rec.location || "";
+    $("compDisplayWrap").style.display = "none";
+    $("compEditWrap").style.display = "grid";
+    $("dNotes").style.display = "none";
+    $("dNotesInput").style.display = "block";
+    $("invDisplay").style.display = "none";
+    $("invEdit").style.display = "flex";
+    $("compEditActions").style.display = "flex";
+  });
+  $("compSaveBtn").addEventListener("click", function(){
+    var rec = currentCompRecord();
+    rec.make = $("dMakeInput").value;
+    rec.model = $("dModelInput").value;
+    rec.serial = $("dSerialInput").value;
+    rec.notes = $("dNotesInput").value;
+    rec.sparePart = $("invSpareInput").checked;
+    rec.minLevel = parseInt($("invMinInput").value, 10) || 0;
+    rec.maxLevel = parseInt($("invMaxInput").value, 10) || 0;
+    rec.location = $("invLocationInput").value;
+    render();
+  });
+  $("compCancelBtn").addEventListener("click", exitCompEdit);
+
+  $("addComponentBtn").addEventListener("click", function(){
+    var g = groups[groupSel.value];
+    var n = Object.keys(g.parts).length + 1;
+    var name = "New component " + n;
+    while (g.parts[name]) { n++; name = "New component " + n; }
+    g.parts[name] = { make:"", model:"", serial:"", notes:"Add details for this component.", sparePart:false, minLevel:0, maxLevel:0, location:"", spareQty:0, items:[], documents:[] };
+    fillParts();
+    renderComponentsList();
+    buildTree();
+  });
+
+  $("addPartBtn").addEventListener("click", function(){
+    $("addPartForm").style.display = "block";
+    $("newPartMake").focus();
+  });
+  $("newPartCancel").addEventListener("click", closeAddPartForm);
+  $("newPartSave").addEventListener("click", function(){
+    var name = $("newPartName").value.trim();
+    if (!name) { $("newPartName").focus(); return; }
+    var make = $("newPartMake").value.trim();
+    var model = $("newPartModel").value.trim();
+    var partNo = $("newPartNo").value.trim();
+    var qty = parseInt($("newPartQty").value, 10) || 1;
+    var location = $("newPartLocation").value.trim();
+    var sparePart = $("newPartSpare").checked;
+    var minLevel = parseInt($("newPartMin").value, 10) || 0;
+    var maxLevel = parseInt($("newPartMax").value, 10) || 0;
+    var rec = currentCompRecord();
+    if (!rec.items) rec.items = [];
+    rec.items.push({ name:name, make: make || "—", model: model || "—", partNo: partNo || "—", qty: qty, location: location || "—", sparePart:sparePart, minLevel:minLevel, maxLevel:maxLevel });
+    renderPartsList();
+    buildTree();
+  });
+
+  $("compUploadBtn").addEventListener("click", function(){
+    $("compDocForm").style.display = "block";
+    $("newDocTitle").focus();
+  });
+  $("newDocCancel").addEventListener("click", closeDocForm);
+  $("newDocSave").addEventListener("click", function(){
+    var title = $("newDocTitle").value.trim();
+    if (!title) { $("newDocTitle").focus(); return; }
+    var type = $("newDocType").value;
+    var rec = currentCompRecord();
+    if (!rec.documents) rec.documents = [];
+    rec.documents.push({ type:type, filename:title });
+    renderCompDocs();
+  });
+
+  function buildTree(){
+    var root = $("hierarchyTree");
+    root.innerHTML = "";
+    Object.keys(groups).forEach(function(g){
+      var grec = groups[g];
+      var gRow = document.createElement("div");
+      gRow.textContent = g + "  ·  qty " + (grec.groupQty != null ? grec.groupQty : 1) + (grec.location ? "  ·  " + grec.location : "");
+      gRow.style.cssText = "font-size:12px;font-weight:700;color:#14253D;cursor:pointer;padding:4px 0;";
+      gRow.addEventListener("click", function(){ selectGroupPart(g, null); });
+      root.appendChild(gRow);
+      Object.keys(grec.parts).forEach(function(p){
+        var rec = grec.parts[p];
+        var pRow = document.createElement("div");
+        pRow.textContent = p + " · inventory QR" + (rec.sparePart ? "  ·  spare qty on hand " + (rec.spareQty != null ? rec.spareQty : 0) + " (min " + rec.minLevel + " / max " + rec.maxLevel + ")" : "") + (rec.location ? "  ·  " + rec.location : "");
+        pRow.style.cssText = "font-size:12px;color:#2E3338;cursor:pointer;padding:3px 0 3px 14px;";
+        pRow.addEventListener("click", function(){ selectGroupPart(g, p); });
+        root.appendChild(pRow);
+        var items = rec.items || [];
+        if (items.length){
+          var iRow = document.createElement("div");
+          iRow.textContent = items.map(function(it){ return it.name + (it.make ? " (" + it.make + (it.model ? " " + it.model : "") + ")" : "") + " ×" + it.qty + " [QR]" + (it.sparePart ? " [spare min " + it.minLevel + "/max " + it.maxLevel + "]" : "") + (it.location ? " @ " + it.location : ""); }).join(", ");
+          iRow.style.cssText = "font-size:11px;color:#8C97A4;padding:0 0 4px 28px;";
+          root.appendChild(iRow);
+        }
+      });
+    });
+  }
+
+  fillParts();
+  render();
+  buildTree();
+})();
+</script>
+
+</div><!-- .wrap -->
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

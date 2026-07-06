@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS ERP — Vendor Input</title>
+<style>
+:root{--navy:#14253D;--navy2:#1B3050;--navy3:#27425F;--gold:#B68A3A;--golddk:#9A7430;--ink:#2E3338;--steel:#8C97A4;--pale:#F4F6F8;--line:#DDE3EA;--danger:#B3261E;--dangerbg:#F6E3E1;--amberbg:#EAD9B4;--white:#fff;--ok:#1F6B3B;--okbg:#D7DCE1;--radius:12px;--shadow:0 1px 3px rgba(20,37,61,.10),0 1px 2px rgba(20,37,61,.06);}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:var(--pale);font-size:14px;line-height:1.45}
+button{font-family:'Inter',Arial,Helvetica,sans-serif;cursor:pointer}.hide{display:none!important}
+.topbar{display:flex;align-items:center;gap:14px;background:var(--navy);color:#fff;padding:9px 18px;position:sticky;top:0;z-index:30}
+.brand{font-size:20px;font-weight:800}.brand .erp{color:var(--gold)}
+.topbar .crumb{font-size:12px;color:#aebacb}.topbar .acts{margin-left:auto;display:flex;gap:8px}
+.tbtn{background:var(--gold);color:var(--navy);border:none;border-radius:9px;padding:8px 13px;font-weight:800;font-size:12.5px}
+.tbtn.ghost{background:transparent;color:#fff;border:1px solid var(--navy3)}
+.wrap{display:grid;grid-template-columns:1fr 320px;gap:22px;max-width:1180px;margin:0 auto;padding:22px}
+@media(max-width:920px){.wrap{grid-template-columns:1fr}}
+h1{font-size:22px;color:var(--navy);margin:0}
+.purpose{font-size:12.5px;color:var(--steel);margin:6px 0 14px}
+.demoTip{background:#fff;border:1px dashed var(--gold);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--golddk);margin-bottom:18px}
+.demoTip b{color:var(--navy)}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.fsec{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--navy);font-weight:800;margin:0 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.fsec .num{background:var(--navy);color:#fff;border-radius:6px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.row{display:grid;gap:14px}.c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:680px){.c2,.c3{grid-template-columns:1fr}}
+.field{margin-bottom:4px}.field label{display:block;font-size:11.5px;font-weight:800;color:var(--navy);margin-bottom:5px}
+.req{color:var(--danger)}
+input,select,textarea{width:100%;border:2px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px;font-family:'Inter',Arial,Helvetica,sans-serif;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy)}
+input.bad,select.bad{border-color:var(--danger);background:#fdf6f5}input.good{border-color:var(--ok)}
+.hint{font-size:11px;color:var(--steel);margin-top:4px}
+.err{color:var(--danger);font-size:11.5px;font-weight:700;margin-top:4px}
+.warnbox{background:var(--amberbg);border-left:4px solid var(--gold);border-radius:8px;padding:8px 11px;font-size:12px;margin-top:6px;color:var(--golddk)}
+.okmsg{color:var(--ok);font-size:11.5px;font-weight:700;margin-top:4px}
+.aibox{background:#eef2f7;border-left:4px solid var(--navy);border-radius:8px;padding:10px 12px;font-size:12px;margin-top:8px}
+.aibox .h{font-weight:800;color:var(--navy);display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.addbtn{background:var(--pale);border:1px dashed var(--navy3);color:var(--navy);border-radius:9px;padding:8px 12px;font-weight:800;font-size:12.5px}
+.addbtn:hover{background:#fff;border-style:solid}
+.plus{background:var(--navy);color:#fff;border:none;border-radius:8px;width:38px;height:38px;font-size:18px;font-weight:800;flex:none}
+.plus:hover{background:var(--navy2)}
+.minibtn{background:#fff;border:2px solid var(--navy);color:var(--navy);border-radius:8px;padding:7px 11px;font-weight:800;font-size:12px}
+.minibtn:hover{background:var(--pale)}
+.inline{display:flex;gap:8px;align-items:flex-end}
+.subcard{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;background:var(--pale)}
+.minicard{border:1px solid var(--line);border-radius:9px;background:#fff;padding:12px;margin-bottom:8px}
+.subhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.subhead .t{font-weight:800;color:var(--navy);font-size:13px}
+.rm{background:none;border:none;color:var(--danger);font-weight:800;font-size:12px;cursor:pointer}
+.badgeS{display:inline-block;border-radius:999px;padding:2px 9px;font-size:10.5px;font-weight:800;text-transform:uppercase}
+.b-draft{background:var(--dangerbg);color:var(--danger)}.b-pend{background:var(--amberbg);color:var(--golddk)}.b-active{background:var(--okbg);color:var(--ok)}
+.b-valid{background:var(--okbg);color:var(--ok)}.b-miss{background:var(--dangerbg);color:var(--danger)}.b-exp{background:var(--amberbg);color:var(--golddk)}.b-ai{background:#e3e9f2;color:var(--navy)}
+.svc{border-top:1px dashed var(--line);margin-top:12px;padding-top:12px}
+.side{position:sticky;top:74px;align-self:start}
+.sideTitle{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);font-weight:800;margin-bottom:10px}
+.check{display:flex;align-items:center;gap:9px;font-size:13px;padding:6px 0;font-weight:600}
+.check .mark{width:20px;height:20px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}
+.m-ok{background:var(--ok)}.m-no{background:var(--steel)}
+.docrow{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;padding:5px 0}
+.primary{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-weight:800;font-size:13px;width:100%}
+.primary:disabled{opacity:.45;cursor:not-allowed}.primary:hover:not(:disabled){background:var(--navy2)}
+.ghostbtn{background:#fff;border:2px solid var(--navy);color:var(--navy);border-radius:10px;padding:9px 14px;font-weight:800;font-size:12.5px}
+.sticky{position:sticky;bottom:0;background:#fff0;padding:14px 0 4px;display:flex;gap:10px;flex-wrap:wrap}
+.sticky .primary{width:auto;flex:1;min-width:140px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:var(--shadow);z-index:60;max-width:90vw}
+pre.out{background:var(--navy);color:#e7ecf3;border-radius:10px;padding:14px;font-size:11.5px;overflow:auto;max-height:340px;font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;line-height:1.5}
+.statusline{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap}
+.overlay{position:fixed;inset:0;background:rgba(20,37,61,.5);z-index:70;display:flex;align-items:flex-start;justify-content:center;padding-top:80px}
+.modal{width:min(560px,92vw);background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+.modal .mh{background:var(--navy);color:#fff;padding:14px 18px;font-weight:800}.modal .mb{padding:18px}.modal .mf{display:flex;gap:10px;justify-content:flex-end;padding:0 18px 18px}
+.steps{font-size:12.5px;color:var(--ink);margin:8px 0 0;padding-left:18px}.steps li{margin-bottom:4px}
+.fleetgrp{margin-top:10px}.fleetgrp .gh{display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px}.fleetgrp .gh .gt{font-weight:800;color:var(--navy);font-size:12.5px;display:flex;align-items:center;gap:7px}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">DMS <span class="erp">ERP</span></div>
+  <div class="crumb">Purchasing &rsaquo; Vendors &rsaquo; <b style="color:#fff">New</b></div>
+  <div class="acts"><button class="tbtn ghost" onclick="openSend()">&#9993; Email vendor form</button><button class="tbtn" onclick="save()">Save</button></div>
+</div>
+<div class="wrap">
+  <div>
+    <div class="statusline"><h1>New Vendor</h1> <span id="statusBadge" class="badgeS b-draft">Draft</span> <span class="badgeS b-ai">Purchasing / AP</span> <span class="badgeS b-ai">English only</span></div>
+
+    <div class="card">
+      <div class="fsec"><span class="num">1</span> Vendor Identity</div>
+      <div class="row c2"><div class="field"><label>Vendor code</label><input value="VEND-000312" readonly style="background:var(--pale);color:var(--steel)"></div><div class="field"><label>Status</label><input id="statusField" value="Draft — complete approval checklist" readonly style="background:var(--pale);color:var(--steel)"></div></div>
+      <div class="row c2"><div class="field"><label>Vendor name <span class="req">*</span></label><input id="name" oninput="onName()" placeholder="e.g. Border City Auto Parts"><div id="nameWarn"></div><div id="nameErr" class="err hide">Name is required.</div></div><div class="field"><label>Legal name</label><input id="legal"></div></div>
+      <div class="row c3"><div class="field"><label>RFC (Tax ID)</label><input id="rfc" maxlength="13" oninput="onRfc()" placeholder="ABC010101AB1"><div id="rfcMsg" class="hint">12-13 chars, format checked, duplicates blocked</div></div>
+        <div class="field"><label>Category</label><div class="inline"><select id="category"></select><button class="plus" title="Add category" onclick="addOption('CATS','category','New category')">+</button></div></div>
+        <div class="field"><label>Tags</label><input id="tags" placeholder="comma,separated"></div></div>
+      <div id="customS1"></div><button class="addbtn" onclick="addCustom('S1')">&#65291; Add custom field</button>
+    </div>
+
+    <div class="card">
+      <div class="fsec"><span class="num">2</span> Banking &amp; Payment</div>
+      <div class="row c3"><div class="field"><label>Payment terms (days)</label><input id="terms" type="number" value="30"></div><div class="field"><label>Currency</label><select id="currency"><option>MXN</option><option>USD</option></select></div><div class="field"><label>Payment method</label><select id="method"><option value="">--</option><option>Electronic transfer</option><option>Check</option><option>Credit card</option><option>Cash</option></select></div></div>
+      <div style="margin-top:6px;display:flex;gap:10px;flex-wrap:wrap"><button class="minibtn" onclick="addBank()">&#65291; Add banking information</button><button class="minibtn" onclick="addCard()">&#65291; Add payment card</button><button class="addbtn" onclick="addCustom('S2')">&#65291; Add custom field</button></div>
+      <div id="banks" style="margin-top:12px"></div><div id="creditcards" style="margin-top:12px"></div><div id="customS2"></div>
+    </div>
+
+    <div class="card">
+      <div class="fsec"><span class="num">3</span> Contacts</div>
+      <div id="contacts"></div><button class="addbtn" onclick="addContact()">&#65291; Add contact</button>
+    </div>
+    <div class="card">
+      <div class="fsec"><span class="num">4</span> Trucks, Trailers &amp; Drivers</div>
+      <div class="purpose" style="margin:0 0 12px">Vehicles and drivers associated with this vendor (e.g. carriers / haulers). Add as many as needed.</div>
+      <div class="fleetgrp"><div class="gh"><span class="gt">&#128666; Trucks</span><button class="minibtn" onclick="addTruck()">&#65291; Add truck</button></div><div id="trucks"></div></div>
+      <div class="fleetgrp"><div class="gh"><span class="gt">&#128667; Trailers</span><button class="minibtn" onclick="addTrailer()">&#65291; Add trailer</button></div><div id="trailers"></div></div>
+      <div class="fleetgrp"><div class="gh"><span class="gt">&#128100; Drivers</span><button class="minibtn" onclick="addDriver()">&#65291; Add driver</button></div><div id="drivers"></div></div>
+    </div>
+
+
+    <div class="card">
+      <div class="fsec"><span class="num">5</span> Insurance &amp; Compliance Documents</div>
+      <div class="subhead"><span class="t" style="font-weight:600;color:var(--steel);font-size:12px">COI, W-9 / tax certificate, contracts, licenses</span><div style="display:flex;gap:8px"><button class="minibtn" onclick="aiReviewAll()">&#10024; AI review all documents</button><button class="addbtn" onclick="addDoc()">&#65291; Add document</button></div></div>
+      <div id="documents"></div>
+    </div>
+
+    <div class="card">
+      <div class="fsec"><span class="num">6</span> Notes</div>
+      <div class="field"><label>Special instructions</label><textarea id="special" rows="2"></textarea></div>
+      <div class="field"><label>Internal notes (staff only)</label><textarea id="internal" rows="2"></textarea></div>
+    </div>
+
+    <div class="sticky"><button class="primary" onclick="save()">Save</button><button class="ghostbtn" onclick="openSend()">&#9993; Email vendor form</button><button class="ghostbtn" onclick="if(confirm('Discard this vendor?'))location.reload()">Cancel</button></div>
+    <div id="output"></div>
+  </div>
+
+  <div class="side">
+    <div class="card">
+      <div class="sideTitle">Approval checklist</div>
+      <div id="checklist"></div>
+      <button class="primary" id="approveBtn" disabled onclick="submitApproval()" style="margin-top:12px">Submit for approval</button>
+      <div class="hint" style="margin-top:8px">A Draft vendor can be saved, but cannot be used on a purchase order until approved.</div>
+    </div>
+    <div class="card"><div class="sideTitle">Required documents</div><div id="docStatus"></div></div>
+  </div>
+</div>
+<div id="modalWrap"></div><div id="toastWrap"></div>
+<script>
+let CATS=["Parts","Fuel","Tires","Insurance","IT","Services","Consumables","Professional services","Other"];
+let ROLES=["Accounts payable","Sales rep","Service","Dispatch","Executive"];
+let DOC_TYPES=["Insurance certificate (COI)","W-9 / tax certificate","Signed contract / MSA","License / certification","Banking authorization","Other"];
+const REQUIRED_DOCS=["Insurance certificate (COI)","W-9 / tax certificate"];
+const UNITS=["each","hour","lb","ton","case","gallon","service"];
+const EXISTING_RFCS={"BCA900101AB2":"Border City Auto Parts","PEM850202CD3":"Pemex Fuel Supply"};
+const EXISTING_NAMES=["Border City Auto Parts","Pemex Fuel Supply","Tijuana Tire Co","Frontera Insurance"];
+let state={contacts:[],banks:[],creditCards:[],trucks:[],trailers:[],drivers:[],documents:[],customS1:[],customS2:[],status:'Draft'};
+let cid=0,bid=0,ccid=0,did=0,fid=0;
+let tkid=0,tlid=0,dvid=0,plateFlip=0;
+
+function renderSelect(id,list){var el=document.getElementById(id);var cur=el.value;el.innerHTML=list.map(function(o){return '<option '+(o===cur?'selected':'')+'>'+esc(o)+'</option>';}).join('');}
+function addOption(listName,selectId,title){promptModal("Add "+title.toLowerCase(),"Name","Type a new option...",function(v){var arr=window[listName];if(v&&arr.indexOf(v)<0){arr.push(v);renderSelect(selectId,arr);document.getElementById(selectId).value=v;toast('Added "'+v+'"');}});}
+
+function addCustom(sec){state['customS'+sec.slice(1)]=state['customS'+sec.slice(1)]||[];state['custom'+sec].push({id:++fid,label:'',value:''});renderCustom(sec);}
+function rmCustom(sec,id){state['custom'+sec]=state['custom'+sec].filter(function(f){return f.id!==id;});renderCustom(sec);}
+function setCustom(sec,id,k,v){var f=state['custom'+sec].find(function(x){return x.id===id;});if(f)f[k]=v;}
+function renderCustom(sec){document.getElementById('custom'+sec).innerHTML=state['custom'+sec].map(function(f){return '<div class="row c2" style="margin-top:10px"><div class="field"><label>Custom field name</label><input value="'+esc(f.label)+'" oninput="setCustom(\''+sec+'\','+f.id+',\'label\',this.value)" placeholder="Label"></div><div class="field"><label>Value <button class="rm" style="float:right" onclick="rmCustom(\''+sec+'\','+f.id+')">&#10005; remove</button></label><input value="'+esc(f.value)+'" oninput="setCustom(\''+sec+'\','+f.id+',\'value\',this.value)"></div></div>';}).join('');}
+
+function addBank(){state.banks.push({id:++bid,bankName:'',account:'',routing:'',clabe:'',swift:'',currency:'MXN',terms:'',notes:''});renderBanks();}
+function rmBank(id){state.banks=state.banks.filter(function(b){return b.id!==id;});renderBanks();}
+function setBank(id,k,v){var b=state.banks.find(function(x){return x.id===id;});if(b)b[k]=v;}
+function renderBanks(){document.getElementById('banks').innerHTML=state.banks.map(b=>`<div class="subcard"><div class="subhead"><span class="t">&#127974; Bank account</span><button class="rm" onclick="rmBank(${b.id})">&#10005; Remove</button></div>
+  <div class="row c2"><div class="field"><label>Bank name</label><input value="${esc(b.bankName)}" oninput="setBank(${b.id},'bankName',this.value)"></div><div class="field"><label>Account number</label><input value="${esc(b.account)}" oninput="setBank(${b.id},'account',this.value)"></div></div>
+  <div class="row c3"><div class="field"><label>Routing number</label><input value="${esc(b.routing)}" oninput="setBank(${b.id},'routing',this.value)"></div><div class="field"><label>CLABE</label><input value="${esc(b.clabe)}" maxlength="18" oninput="setBank(${b.id},'clabe',this.value)"></div><div class="field"><label>SWIFT / BIC</label><input value="${esc(b.swift)}" oninput="setBank(${b.id},'swift',this.value)"></div></div>
+  <div class="row c2"><div class="field"><label>Currency</label><select onchange="setBank(${b.id},'currency',this.value)"><option ${b.currency==='MXN'?'selected':''}>MXN</option><option ${b.currency==='USD'?'selected':''}>USD</option></select></div><div class="field"><label>Payment terms</label><input value="${esc(b.terms)}" oninput="setBank(${b.id},'terms',this.value)" placeholder="e.g. Net 30"></div></div>
+  <div class="field"><label>Notes</label><input value="${esc(b.notes)}" oninput="setBank(${b.id},'notes',this.value)"></div></div>`).join('');refresh();}
+
+function addCard(){state.creditCards.push({id:++ccid,type:'Visa',name:'',number:'',exp:'',zip:'',notes:''});renderCards();}
+function rmCard(id){state.creditCards=state.creditCards.filter(function(c){return c.id!==id;});renderCards();}
+function setCard(id,k,v){var c=state.creditCards.find(function(x){return x.id===id;});if(c)c[k]=v;}
+function renderCards(){document.getElementById('creditcards').innerHTML=state.creditCards.map(c=>`<div class="subcard"><div class="subhead"><span class="t">&#128179; Payment card on file</span><button class="rm" onclick="rmCard(${c.id})">&#10005; Remove</button></div>
+  <div class="row c3"><div class="field"><label>Card type</label><select onchange="setCard(${c.id},'type',this.value)">${["Visa","Mastercard","American Express","Discover","Other"].map(o=>`<option ${c.type===o?'selected':''}>${o}</option>`).join('')}</select></div><div class="field"><label>Name on card</label><input value="${esc(c.name)}" oninput="setCard(${c.id},'name',this.value)"></div><div class="field"><label>Expiration (MM/YY)</label><input value="${esc(c.exp)}" maxlength="5" placeholder="08/27" oninput="setCard(${c.id},'exp',this.value)"></div></div>
+  <div class="row c2"><div class="field"><label>Card number</label><input value="${esc(c.number)}" inputmode="numeric" placeholder="Tokenized on save" oninput="setCard(${c.id},'number',this.value)"></div><div class="field"><label>Billing ZIP</label><input value="${esc(c.zip)}" maxlength="10" oninput="setCard(${c.id},'zip',this.value)"></div></div>
+  <div class="field"><label>Notes</label><input value="${esc(c.notes)}" oninput="setCard(${c.id},'notes',this.value)"></div>
+  <div class="hint">&#128274; On file to charge the vendor when they pay DMS. Full card numbers are tokenized &amp; vaulted (PCI DSS); CVV is never stored; only the last 4 digits are retained.</div></div>`).join('');}
+function addContact(){state.contacts.push({id:++cid,role:'Accounts payable',name:'',title:'',email:'',phone:'',notes:''});renderContacts();}
+function rmContact(id){state.contacts=state.contacts.filter(function(c){return c.id!==id;});renderContacts();}
+function setC(id,k,v){var c=state.contacts.find(function(x){return x.id===id;});if(c)c[k]=v;}
+function addRole(id){promptModal("Add contact role","Role name","e.g. Warranty",function(v){if(v&&ROLES.indexOf(v)<0)ROLES.push(v);var c=state.contacts.find(function(x){return x.id===id;});if(c)c.role=v;renderContacts();});}
+function renderContacts(){var box=document.getElementById('contacts');if(!state.contacts.length){box.innerHTML='<div class="hint" style="margin-bottom:10px">No contacts yet - at least one is required for approval.</div>';refresh();return;}
+  box.innerHTML=state.contacts.map(c=>`<div class="subcard"><div class="subhead"><span class="t">Contact</span><button class="rm" onclick="rmContact(${c.id})">&#10005; Remove</button></div>
+  <div class="row c2"><div class="field"><label>Role</label><div class="inline"><select onchange="setC(${c.id},'role',this.value)">${ROLES.map(r=>`<option ${c.role===r?'selected':''}>${esc(r)}</option>`).join('')}</select><button class="plus" title="Add role" onclick="addRole(${c.id})">+</button></div></div><div class="field"><label>Name</label><input value="${esc(c.name)}" oninput="setC(${c.id},'name',this.value)"></div></div>
+  <div class="row c3"><div class="field"><label>Title</label><input value="${esc(c.title)}" oninput="setC(${c.id},'title',this.value)"></div><div class="field"><label>Email</label><input value="${esc(c.email)}" oninput="setC(${c.id},'email',this.value)"></div><div class="field"><label>Phone</label><input value="${esc(c.phone)}" oninput="setC(${c.id},'phone',this.value)"></div></div></div>`).join('');refresh();}
+
+
+
+function addDoc(){state.documents.push({id:++did,type:DOC_TYPES[0],file:'',issue:'',expiry:'',ai:null});renderDocs();}
+function rmDoc(id){state.documents=state.documents.filter(function(d){return d.id!==id;});renderDocs();}
+function setD(id,k,v){var d=state.documents.find(function(x){return x.id===id;});if(d)d[k]=v;if(k==='type'||k==='expiry'||k==='file')renderDocs();}
+function addDocType(id){promptModal("Add document type","Type name","e.g. Safety cert",function(v){if(v&&DOC_TYPES.indexOf(v)<0)DOC_TYPES.push(v);var d=state.documents.find(function(x){return x.id===id;});if(d)d.type=v;renderDocs();});}
+function docState(d){if(!d.file)return['Missing','b-miss'];if(d.expiry){var days=(new Date(d.expiry)-new Date())/864e5;if(days<0)return['Expired','b-exp'];if(days<30)return['Expiring','b-exp'];}return['Valid','b-valid'];}
+function aiAnalyze(id){var d=state.documents.find(function(x){return x.id===id;});if(!d)return;if(!d.file){toast('Attach a file first.');return;}var today=new Date();var exp=new Date(today);exp.setFullYear(today.getFullYear()+1);d.ai={summary:'Identified as a '+d.type+'. Parties, coverage/amounts and dates extracted; linked to this vendor.',issue:today.toISOString().slice(0,10),expiry:exp.toISOString().slice(0,10)};if(!d.issue)d.issue=d.ai.issue;if(!d.expiry)d.expiry=d.ai.expiry;renderDocs();toast('AI analyzed the document (demo)');}
+function renderDocs(){document.getElementById('documents').innerHTML=state.documents.map(d=>{var r=docState(d);return `<div class="minicard"><div class="subhead"><span class="t">Document <span class="badgeS ${r[1]}">${r[0]}</span></span><button class="rm" onclick="rmDoc(${d.id})">&#10005; Remove</button></div>
+  <div class="row c2"><div class="field"><label>Type</label><div class="inline"><select onchange="setD(${d.id},'type',this.value)">${DOC_TYPES.map(x=>`<option ${d.type===x?'selected':''}>${esc(x)}</option>`).join('')}</select><button class="plus" title="Add document type" onclick="addDocType(${d.id})">+</button></div></div><div class="field"><label>File</label><input type="file" onchange="setD(${d.id},'file',this.files[0]?this.files[0].name:'')"></div></div>
+  <div class="row c3"><div class="field"><label>Issue date</label><input type="date" value="${d.issue}" onchange="setD(${d.id},'issue',this.value)"></div><div class="field"><label>Expiry date</label><input type="date" value="${d.expiry}" onchange="setD(${d.id},'expiry',this.value)"></div><div class="field"><label>&nbsp;</label><button class="minibtn" style="width:100%" onclick="aiAnalyze(${d.id})">&#10024; Analyze with AI</button></div></div>
+  ${d.ai?`<div class="aibox"><div class="h">&#10024; AI analysis</div><b>Type:</b> ${esc(d.type)}<br><b>Summary:</b> ${esc(d.ai.summary)}<br><b>Extracted:</b> issued ${d.ai.issue}, expires ${d.ai.expiry}. <i>(Demo)</i></div>`:''}</div>`;}).join('')||'<div class="hint">No documents added.</div>';renderDocStatus();}
+function renderDocStatus(){document.getElementById('docStatus').innerHTML=REQUIRED_DOCS.map(function(t){var d=state.documents.find(function(x){return x.type===t&&x.file;});var r=d?docState(d):['Missing','b-miss'];return '<div class="docrow"><span>'+t+'</span><span class="badgeS '+r[1]+'">'+r[0]+'</span></div>';}).join('');}
+function aiReviewAll(){if(!state.documents.some(function(d){return d.file;})){toast('No documents attached to review.');return;}state.documents.forEach(function(d){if(d.file&&!d.ai)aiAnalyze(d.id);});var missing=REQUIRED_DOCS.filter(function(t){return !state.documents.some(function(x){return x.type===t&&x.file;});});toast(missing.length?('AI flagged missing: '+missing.join(', ')):'AI review complete - required documents present.');}
+
+function onName(){var v=document.getElementById('name').value.trim();document.getElementById('nameErr').classList.toggle('hide',!!v);document.getElementById('name').classList.remove('bad');var hit=EXISTING_NAMES.find(function(n){return v.length>2&&n.toLowerCase().includes(v.toLowerCase());});document.getElementById('nameWarn').innerHTML=hit?'<div class="warnbox">&#9888; Possible duplicate: <b>'+hit+'</b> already exists.</div>':'';}
+function rfcValid(v){return /^[A-Z&N]{3,4}\d{6}[A-Z0-9]{2,3}$/.test(v)&&(v.length===12||v.length===13);}
+function onRfc(){var el=document.getElementById('rfc');el.value=el.value.toUpperCase().replace(/[^A-Z&N0-9]/g,'');var v=el.value,msg=document.getElementById('rfcMsg');el.classList.remove('bad','good');if(!v){msg.className='hint';msg.textContent='12-13 chars, format checked, duplicates blocked';return;}if(EXISTING_RFCS[v]){el.classList.add('bad');msg.className='err';msg.innerHTML='&#10005; This RFC already belongs to <b>'+EXISTING_RFCS[v]+'</b> - duplicate blocked.';return;}if(rfcValid(v)){el.classList.add('good');msg.className='okmsg';msg.textContent='Valid, unique RFC.';}else{el.classList.add('bad');msg.className='err';msg.textContent='Not a valid RFC pattern yet.';}}
+function rfcOk(){var v=document.getElementById('rfc').value;return !v||(!EXISTING_RFCS[v]&&rfcValid(v));}
+
+function hasDoc(t){return state.documents.some(function(x){return x.type===t&&x.file;});}
+function refresh(){
+  var checks=[['W-9 / tax certificate on file',hasDoc('W-9 / tax certificate')],['Insurance certificate (COI) on file',hasDoc('Insurance certificate (COI)')],['Banking details entered',state.banks.length>0],['At least one contact',state.contacts.length>0]];
+  document.getElementById('checklist').innerHTML=checks.map(function(c){return '<div class="check"><span class="mark '+(c[1]?'m-ok':'m-no')+'">'+(c[1]?'✓':' ')+'</span>'+c[0]+'</div>';}).join('');
+  var ready=checks.every(function(c){return c[1];});
+  var btn=document.getElementById('approveBtn');
+  if(state.status==='Draft'){btn.textContent='Submit for approval';btn.disabled=!ready;}
+  else if(state.status==='Pending approval'){btn.textContent='Approve vendor (manager)';btn.disabled=false;}
+  else{btn.textContent='Approved';btn.disabled=true;}
+  renderDocStatus();
+}
+function setStatus(){var b=document.getElementById('statusBadge');var map={'Draft':['b-draft','Draft'],'Pending approval':['b-pend','Pending approval'],'Active':['b-active','Active']};var m=map[state.status];b.className='badgeS '+m[0];b.textContent=m[1];document.getElementById('statusField').value=state.status;}
+function submitApproval(){if(state.status==='Draft'){state.status='Pending approval';setStatus();toast('Submitted - routed to Accounting / Owner for approval');refresh();}else if(state.status==='Pending approval'){state.status='Active';setStatus();toast('Vendor approved - now usable on purchase orders');refresh();}}
+
+function openSend(){modal("Email vendor onboarding form",'<div class="field"><label>Vendor email <span class="req">*</span></label><input id="sendEmail" type="email" placeholder="ap@vendor.com"></div><div class="aibox"><div class="h">What happens next</div><ol class="steps"><li>Vendor receives a secure link and submits W-9, banking, and COI.</li><li>On submit, the data imports into this vendor record (as Draft).</li><li>Missing fields are flagged automatically.</li><li>Routed to Accounting / Owner for review &amp; approval.</li></ol></div>',
+  [["Send link",function(){var e=document.getElementById('sendEmail').value;if(!validEmail(e)){toast('Enter a valid email.');return;}closeModal();toast('Onboarding form sent to '+e+' (demo)');setTimeout(function(){offerSim(e);},900);},false],["Cancel",closeModal,true]]);}
+function offerSim(email){modal("Vendor submitted the form",'<div class="aibox"><div class="h">Imported from '+esc(email)+'</div>The vendor completed onboarding. The ERP imported it and ran validation.</div><ul class="steps"><li>&#10003; Identity, banking, and AP contact imported.</li><li>&#9888; Flagged: COI not attached; RFC missing.</li><li>&rarr; Routed to Accounting / Owner for approval.</li></ul>',[["Load into form",function(){simImport(email);closeModal();},false],["Close",closeModal,true]]);}
+function simImport(email){var set=function(id,v){var el=document.getElementById(id);if(el)el.value=v;};set('name','Border City Auto Parts');set('legal','Border City Auto Parts LLC');set('terms','30');if(!state.banks.length)addBank();state.banks[0]={...state.banks[0],bankName:'First National Bank',account:'•••• 4821',currency:'USD',terms:'Net 30'};if(!state.contacts.length)addContact();state.contacts[0]={...state.contacts[0],role:'Accounts payable',name:'Sam Carter',email:'ap@bordercityauto.com',phone:'(619) 555-0177'};renderBanks();renderContacts();document.getElementById('output').innerHTML='<div class="card"><div class="fsec"><span class="num">&#9888;</span> Imported from vendor - needs reviewer approval</div><div class="warnbox">Imported vendor onboarding. Flagged: COI missing; RFC missing. Vendor saved as Draft and routed to Accounting / Owner for approval.</div></div>';document.getElementById('output').scrollIntoView({behavior:'smooth'});toast('Vendor submission imported (demo)');}
+
+function save(){var name=document.getElementById('name');if(!name.value.trim()){name.classList.add('bad');document.getElementById('nameErr').classList.remove('hide');name.focus();return;}if(document.getElementById('rfc').value&&!rfcOk()){toast('Fix the RFC before saving.');document.getElementById('rfc').focus();return;}
+  var rec={code:'VEND-000312',type:'purchasing_vendor',status:state.status,name:name.value.trim(),legal:val('legal'),rfc:val('rfc'),category:val('category'),tags:val('tags'),
+   identityCustomFields:state.customS1.map(({id,...f})=>f),
+   payment:{termsDays:+val('terms'),currency:val('currency'),method:val('method'),bankAccounts:state.banks.map(({id,...b})=>b),creditCards:state.creditCards.map(function(c){var n=(c.number||'').replace(/\D/g,'');return {type:c.type,nameOnCard:c.name,last4:n.slice(-4),token:n?('tok_'+n.slice(-4)+'_demo'):'',exp:c.exp,billingZip:c.zip,notes:c.notes};}),customFields:state.customS2.map(({id,...f})=>f)},
+   contacts:state.contacts.map(({id,...c})=>c),
+   fleet:{trucks:state.trucks.map(({id,...t})=>t),trailers:state.trailers.map(({id,...t})=>t),drivers:state.drivers.map(({id,...t})=>t)},
+   documents:state.documents.map(d=>({type:d.type,file:d.file,issue:d.issue,expiry:d.expiry,status:docState(d)[0],aiAnalyzed:!!d.ai})),
+   notes:{special:val('special'),internal:val('internal')}};
+  document.getElementById('output').innerHTML='<div class="card"><div class="fsec"><span class="num">&#10003;</span> Saved record (payload the API would receive)</div><pre class="out">'+esc(JSON.stringify(rec,null,2))+'</pre></div>';
+  toast('Vendor saved - '+rec.name+' (demo)');document.getElementById('output').scrollIntoView({behavior:'smooth'});}
+
+function modal(title,bodyHtml,buttons){document.getElementById('modalWrap').innerHTML='<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="mh">'+esc(title)+'</div><div class="mb">'+bodyHtml+'</div><div class="mf" id="mf"></div></div></div>';window._btns=buttons;document.getElementById('mf').innerHTML=buttons.map(function(b,i){return '<button class="'+(b[2]?'ghostbtn':'primary')+'" style="width:auto" onclick="window._btns['+i+'][1]()">'+esc(b[0])+'</button>';}).join('');}
+function promptModal(title,label,ph,onOk){modal(title,'<div class="field"><label>'+esc(label)+'</label><input id="pmInput" placeholder="'+esc(ph)+'"></div>',[["Add",function(){var v=document.getElementById('pmInput').value.trim();closeModal();if(v)onOk(v);},false],["Cancel",closeModal,true]]);setTimeout(function(){var el=document.getElementById('pmInput');if(el)el.focus();},30);}
+function closeModal(){document.getElementById('modalWrap').innerHTML='';}
+function val(id){return document.getElementById(id)?document.getElementById(id).value:'';}
+function validEmail(e){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(m){var w=document.getElementById('toastWrap');w.innerHTML='<div class="toast">'+esc(m)+'</div>';clearTimeout(window._t);window._t=setTimeout(function(){w.innerHTML='';},2600);}
+
+function addTruck(){state.trucks.push({id:++tkid,make:'',model:'',plate:'',unit:'',vin:'',platePhoto:'',notes:''});renderFleet();}
+function rmTruck(t){state.trucks=state.trucks.filter(function(x){return x.id!==t;});renderFleet();}
+function setTruck(t,k,v){var x=state.trucks.find(function(y){return y.id===t;});if(x)x[k]=v;}
+function addTrailer(){state.trailers.push({id:++tlid,make:'',model:'',plate:'',number:'',vin:'',platePhoto:'',notes:''});renderFleet();}
+function rmTrailer(t){state.trailers=state.trailers.filter(function(x){return x.id!==t;});renderFleet();}
+function setTrailer(t,k,v){var x=state.trailers.find(function(y){return y.id===t;});if(x)x[k]=v;}
+function addDriver(){state.drivers.push({id:++dvid,name:'',phone:'',email:'',license:'',licenseExp:'',licenseState:'',dob:'',address:'',licensePhoto:'',flagReview:false,ai:false,notes:''});renderFleet();}
+function rmDriver(t){state.drivers=state.drivers.filter(function(x){return x.id!==t;});renderFleet();}
+function setDriver(t,k,v){var x=state.drivers.find(function(y){return y.id===t;});if(x)x[k]=v;}
+function renderFleet(){
+  if(!document.getElementById('trucks'))return;
+  document.getElementById('trucks').innerHTML=state.trucks.map(t=>`<div class="minicard"><div class="subhead"><span class="t">&#128666; Truck</span><button class="rm" onclick="rmTruck(${t.id})">&#10005; Remove</button></div>
+    <div class="row c3"><div class="field"><label>Truck make</label><input value="${esc(t.make)}" oninput="setTruck(${t.id},'make',this.value)"></div><div class="field"><label>Truck model</label><input value="${esc(t.model)}" oninput="setTruck(${t.id},'model',this.value)"></div><div class="field"><label>Unit number</label><input value="${esc(t.unit)}" oninput="setTruck(${t.id},'unit',this.value)"></div></div>
+    <div class="row c2"><div class="field"><label>License plate</label><input value="${esc(t.plate)}" oninput="setTruck(${t.id},'plate',this.value)"></div><div class="field"><label>VIN (optional)</label><input value="${esc(t.vin)}" oninput="setTruck(${t.id},'vin',this.value)"></div></div>
+    <div class="row c2" style="align-items:end"><div class="field"><label>License plate photo</label><input type="file" accept="image/*" capture="environment" onchange="setTruck(${t.id},'platePhoto',(this.files[0]&&this.files[0].name)||'');renderFleet()"></div><div class="field"><button class="minibtn" style="width:100%" onclick="scanPlate('truck',${t.id})">&#10024; Auto-Fill License Plate</button></div></div>
+    ${t.platePhoto?`<div class="hint">&#128206; ${esc(t.platePhoto)}</div>`:''}
+    <div class="field"><label>Notes</label><input value="${esc(t.notes)}" oninput="setTruck(${t.id},'notes',this.value)"></div></div>`).join('')||'<div class="hint">No trucks added.</div>';
+  document.getElementById('trailers').innerHTML=state.trailers.map(t=>`<div class="minicard"><div class="subhead"><span class="t">&#128667; Trailer</span><button class="rm" onclick="rmTrailer(${t.id})">&#10005; Remove</button></div>
+    <div class="row c3"><div class="field"><label>Trailer make</label><input value="${esc(t.make)}" oninput="setTrailer(${t.id},'make',this.value)"></div><div class="field"><label>Trailer model</label><input value="${esc(t.model)}" oninput="setTrailer(${t.id},'model',this.value)"></div><div class="field"><label>Trailer number</label><input value="${esc(t.number)}" oninput="setTrailer(${t.id},'number',this.value)"></div></div>
+    <div class="row c2"><div class="field"><label>License plate</label><input value="${esc(t.plate)}" oninput="setTrailer(${t.id},'plate',this.value)"></div><div class="field"><label>VIN (optional)</label><input value="${esc(t.vin)}" oninput="setTrailer(${t.id},'vin',this.value)"></div></div>
+    <div class="row c2" style="align-items:end"><div class="field"><label>License plate photo</label><input type="file" accept="image/*" capture="environment" onchange="setTrailer(${t.id},'platePhoto',(this.files[0]&&this.files[0].name)||'');renderFleet()"></div><div class="field"><button class="minibtn" style="width:100%" onclick="scanPlate('trailer',${t.id})">&#10024; Auto-Fill License Plate</button></div></div>
+    ${t.platePhoto?`<div class="hint">&#128206; ${esc(t.platePhoto)}</div>`:''}
+    <div class="field"><label>Notes</label><input value="${esc(t.notes)}" oninput="setTrailer(${t.id},'notes',this.value)"></div></div>`).join('')||'<div class="hint">No trailers added.</div>';
+  document.getElementById('drivers').innerHTML=state.drivers.map(t=>{const expd=t.licenseExp&&(new Date(t.licenseExp)<new Date());return `<div class="minicard"><div class="subhead"><span class="t">&#128100; Driver ${expd?'<span class="badgeS b-exp">License expired</span>':''} ${t.flagReview?'<span class="badgeS b-exp">Manual review</span>':''} ${t.ai?'<span class="badgeS b-ai">AI filled</span>':''}</span><button class="rm" onclick="rmDriver(${t.id})">&#10005; Remove</button></div>
+    <div class="row c3"><div class="field"><label>Driver name</label><input value="${esc(t.name)}" oninput="setDriver(${t.id},'name',this.value)"></div><div class="field"><label>Phone number</label><input value="${esc(t.phone)}" oninput="setDriver(${t.id},'phone',this.value)"></div><div class="field"><label>Email address</label><input value="${esc(t.email)}" oninput="setDriver(${t.id},'email',this.value)"></div></div>
+    <div class="row c2" style="align-items:end"><div class="field"><label>Driver's license photo</label><input type="file" accept="image/*" capture="environment" onchange="setDriver(${t.id},'licensePhoto',(this.files[0]&&this.files[0].name)||'');renderFleet()"></div><div class="field"><button class="minibtn" style="width:100%" onclick="scanDriverLicense(${t.id})">&#10024; Scan Driver's License</button></div></div>
+    ${t.licensePhoto?`<div class="hint">&#128206; ${esc(t.licensePhoto)}</div>`:''}
+    <div class="row c3"><div class="field"><label>Driver license number</label><input value="${esc(t.license)}" oninput="setDriver(${t.id},'license',this.value)"></div><div class="field"><label>License state</label><input value="${esc(t.licenseState)}" oninput="setDriver(${t.id},'licenseState',this.value)"></div><div class="field"><label>License expiration</label><input type="date" value="${t.licenseExp}" onchange="setDriver(${t.id},'licenseExp',this.value)"></div></div>
+    <div class="row c2"><div class="field"><label>Date of birth</label><input type="date" value="${t.dob}" onchange="setDriver(${t.id},'dob',this.value)"></div><div class="field"><label>Address</label><input value="${esc(t.address)}" oninput="setDriver(${t.id},'address',this.value)"></div></div>
+    <div class="field"><label>Notes</label><input value="${esc(t.notes)}" oninput="setDriver(${t.id},'notes',this.value)"></div></div>`;}).join('')||'<div class="hint">No drivers added.</div>';
+}
+function reviewModal(title,intro,fields,onConfirm){
+  var rows=fields.map(function(fl){var badge=fl.flag?'<span class="badgeS b-exp">Needs manual review</span>':'<span class="badgeS b-valid">Read OK</span>';var note=(fl.flag&&fl.note)?'<div class="hint" style="color:var(--golddk)">'+esc(fl.note)+'</div>':'';var ty=fl.type==='date'?'date':'text';return '<div class="field"><label>'+esc(fl.label)+' '+badge+'</label><input id="rv_'+fl.key+'" type="'+ty+'" value="'+esc(fl.value||'')+'" class="'+(fl.flag?'bad':'good')+'">'+note+'</div>';}).join('');
+  modal(title,'<div class="aibox"><div class="h">&#10024; Scan results - review &amp; confirm before saving</div>'+esc(intro)+'</div>'+rows,
+    [["Confirm & save",function(){var o={};fields.forEach(function(fl){var el=document.getElementById('rv_'+fl.key);o[fl.key]=el?el.value:'';});closeModal();onConfirm(o);},false],["Cancel",closeModal,true]]);
+}
+function scanDriverLicense(id){
+  var d=state.drivers.find(function(x){return x.id===id;});if(!d)return;
+  if(!d.licensePhoto){toast("Attach or take a photo of the driver's license first.");return;}
+  var exp=new Date();exp.setFullYear(exp.getFullYear()+3);exp=exp.toISOString().slice(0,10);
+  var fields=[{key:'name',label:'Driver name',value:'Jordan Avery',flag:false},{key:'license',label:'Driver license number',value:'D1234567',flag:false},{key:'state',label:'License state',value:'CA',flag:false},{key:'exp',label:'License expiration',value:exp,flag:false,type:'date'},{key:'dob',label:'Date of birth',value:'1986-04-12',flag:false,type:'date'},{key:'address',label:'Address',value:'',flag:true,note:'Could not read clearly - please enter manually.'}];
+  reviewModal("Scan Driver's License","Confirm the fields read from the license. Unclear fields are flagged and left blank for manual review.",fields,function(o){
+    setDriver(id,'name',o.name);setDriver(id,'license',o.license);setDriver(id,'licenseState',o.state);setDriver(id,'licenseExp',o.exp);setDriver(id,'dob',o.dob);setDriver(id,'address',o.address);
+    var dd=state.drivers.find(function(x){return x.id===id;});if(dd){dd.ai=true;dd.flagReview=!o.address;}
+    renderFleet();toast(o.address?"Driver fields updated from scan":"Saved - Address flagged for manual review");
+  });
+}
+function scanPlate(kind,id){
+  var arr=kind==='truck'?state.trucks:state.trailers;var r=arr.find(function(x){return x.id===id;});if(!r)return;
+  if(!r.platePhoto){toast("Attach or take a photo of the plate first.");return;}
+  var unclear=(plateFlip++ %2===1);
+  var fields=[{key:'plate',label:'License plate',value:unclear?'':'8ABC123',flag:unclear,note:'Plate not fully legible - please enter manually.'}];
+  reviewModal(kind==='truck'?'Auto-Fill Truck Plate':'Auto-Fill Trailer Plate',"Confirm the plate number read from the photo before saving.",fields,function(o){
+    if(kind==='truck')setTruck(id,'plate',o.plate);else setTrailer(id,'plate',o.plate);
+    renderFleet();toast(o.plate?"License plate updated from scan":"Plate flagged for manual entry");
+  });
+}
+
+renderSelect('category',CATS);renderContacts();renderBanks();renderCards();renderFleet();renderDocs();refresh();
+</script>
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> — safe copy · changes stay here · <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench →</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

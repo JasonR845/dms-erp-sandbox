@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DMS ERP — New Vendor (Ribbon)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14253D;--navy2:#1C3152;--navy3:#33486B;--gold:#B68A3A;--golddk:#9A7430;
+  --ink:#2E3338;--steel:#8C97A4;--pale:#F4F6F8;--line:#DDE3EA;--danger:#B3261E;
+  --dangerbg:#F6E3E1;--amberbg:#F5ECDC;--white:#fff;--ok:#1f6b3b;--okbg:#e7f1ea;
+  --radius:14px;--shadow:0 1px 3px rgba(20,37,61,.10),0 1px 2px rgba(20,37,61,.06);
+  --tap:52px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:var(--pale);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+button{font-family:inherit;cursor:pointer}
+.hide{display:none!important}
+
+/* ---------- Sticky header stack ---------- */
+.stick{position:sticky;top:0;z-index:40;background:var(--pale)}
+.topbar{display:flex;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 16px}
+.brand{font-size:19px;font-weight:800;letter-spacing:.5px}.brand .erp{color:var(--gold)}
+.crumb{font-size:11.5px;color:#9fb0c6;display:none}
+.topacts{margin-left:auto;display:flex;gap:8px}
+.tbtn{background:var(--gold);color:var(--navy);border:none;border-radius:9px;padding:9px 12px;font-weight:800;font-size:12.5px;min-height:40px}
+.tbtn.ghost{background:transparent;color:#fff;border:1px solid var(--navy3)}
+
+.headband{background:#fff;border-bottom:1px solid var(--line);padding:11px 16px}
+.headrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.headrow h1{font-size:19px;color:var(--navy);margin:0;font-weight:800}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.chip.code{background:var(--pale);color:var(--navy3);border:1px solid var(--line)}
+.chip.draft{background:var(--dangerbg);color:var(--danger)}
+.chip.ready{background:var(--okbg);color:var(--ok)}
+.progwrap{margin-top:10px;display:flex;align-items:center;gap:10px}
+.progbar{flex:1;height:9px;border-radius:999px;background:var(--line);overflow:hidden}
+.progfill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--golddk));transition:width .3s ease}
+.progpct{font-size:12px;font-weight:800;color:var(--navy);min-width:74px;text-align:right}
+
+/* ---------- Ribbon ---------- */
+.ribbonwrap{position:relative;background:#fff;border-bottom:1px solid var(--line)}
+.ribbon{display:flex;gap:9px;justify-content:safe center;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:8px 12px;scrollbar-width:none}
+.ribbon::-webkit-scrollbar{display:none}
+.rbtn{flex:0 0 auto;position:relative;width:82px;min-height:46px;border:1.5px solid var(--line);background:#fff;border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 5px;
+  color:var(--navy);font-weight:700;font-size:10px;text-align:center;line-height:1.1;transition:.15s;scroll-snap-align:start}
+.rbtn .ic{font-size:16px;line-height:1}
+.rbtn .lab{font-size:9.5px;font-weight:800}
+.rbtn .num{position:absolute;top:6px;left:8px;font-size:9.5px;font-weight:800;color:var(--steel)}
+.rbtn .dot{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--line);border:1px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.rbtn .dot.part{background:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.rbtn .dot.done{background:var(--ok);box-shadow:0 0 0 1px var(--ok)}
+.rbtn.active{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 4px 10px rgba(20,37,61,.22)}
+.rbtn.active .lab,.rbtn.active .num{color:#fff}
+.rbtn.active .num{color:#c7d2e2}
+.rbtn.active .dot{border-color:var(--navy);box-shadow:0 0 0 1px rgba(255,255,255,.4)}
+.ribfade{position:absolute;top:0;bottom:0;width:26px;pointer-events:none}
+.ribfade.l{left:0;background:linear-gradient(90deg,#fff,#fff0)}
+.ribfade.r{right:0;background:linear-gradient(270deg,#fff,#fff0)}
+
+/* ---------- Content ---------- */
+.main{max-width:900px;margin:0 auto;padding:16px 14px 120px}
+.sec{animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sechead{display:flex;align-items:center;gap:11px;margin:2px 0 4px}
+.sechead .bignum{background:var(--navy);color:#fff;border-radius:10px;width:38px;height:38px;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.sechead .st{font-size:18px;font-weight:800;color:var(--navy);line-height:1.15}
+.sechead .ss{font-size:12px;color:var(--steel);margin-top:1px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-top:14px}
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.req{color:var(--danger)}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:13px 13px;font-size:16px;font-family:inherit;background:#fff;min-height:var(--tap)}
+textarea{min-height:96px;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,37,61,.08)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+input.ro{background:var(--pale);color:var(--steel)}
+input.good{border-color:var(--ok)}input.bad{border-color:var(--danger);background:#fdf6f5}
+.hint{font-size:11.5px;color:var(--steel);margin-top:6px}
+.err{color:var(--danger);font-size:12px;font-weight:700;margin-top:6px}
+.two{display:grid;gap:14px}
+@media(min-width:620px){.two{grid-template-columns:1fr 1fr}}
+
+.addbtn{width:100%;background:var(--pale);border:1.5px dashed var(--navy3);color:var(--navy);border-radius:12px;padding:14px;font-weight:800;font-size:14px;min-height:var(--tap);margin-top:12px}
+.addbtn:active{background:#fff}
+.addbtn.sm{width:auto;padding:11px 14px;font-size:13px;min-height:44px}
+.subcard{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;background:#fbfcfd}
+.subhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.subhead .t{font-weight:800;color:var(--navy);font-size:14px;display:flex;align-items:center;gap:7px}
+.rm{background:none;border:none;color:var(--danger);font-weight:800;font-size:13px;padding:8px;min-height:40px}
+.grouphd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 2px}
+.grouphd:first-child{margin-top:4px}
+.grouphd .gt{font-weight:800;color:var(--navy);font-size:15px;display:flex;align-items:center;gap:8px}
+.empty{font-size:13px;color:var(--steel);padding:10px 2px}
+
+.switch{display:flex;align-items:center;gap:10px;background:var(--pale);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;font-size:13.5px;color:var(--navy)}
+.switch input{width:auto;min-height:auto;transform:scale(1.35);margin:0}
+.chkline{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--ink);padding:4px 0}
+.chkline input{width:auto;min-height:auto;transform:scale(1.3);margin:0;flex:none}
+
+/* upload */
+.upload{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--navy3);border-radius:12px;padding:12px;background:var(--pale)}
+.upload .uic{font-size:20px}
+.upload .ut{flex:1;font-size:13px;font-weight:700;color:var(--navy)}
+.upload .ut small{display:block;font-weight:600;color:var(--steel);font-size:11.5px;margin-top:2px}
+.upload label.file{background:var(--navy);color:#fff;border-radius:9px;padding:10px 13px;font-weight:800;font-size:12.5px;min-height:42px;display:flex;align-items:center}
+.upload input[type=file]{display:none}
+.filepill{display:inline-flex;align-items:center;gap:6px;background:var(--okbg);color:var(--ok);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:800;margin-top:8px}
+
+/* status chips for docs */
+.stat{display:inline-block;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;text-transform:uppercase}
+.s-on{background:var(--okbg);color:var(--ok)}.s-miss{background:var(--dangerbg);color:var(--danger)}.s-exp{background:var(--amberbg);color:var(--golddk)}
+
+/* approval */
+.check{display:flex;align-items:center;gap:12px;font-size:14.5px;padding:11px 0;font-weight:600;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:none}
+.check .mark{width:26px;height:26px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff}
+.m-ok{background:var(--ok)}.m-no{background:var(--steel)}
+.check .go{margin-left:auto;background:#fff;border:1.5px solid var(--navy);color:var(--navy);border-radius:9px;padding:8px 11px;font-weight:800;font-size:12px;min-height:38px}
+.check.opt .mark{background:var(--gold)}
+.reqdoc{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;color:var(--navy)}
+.reqdoc:last-child{border-bottom:none}
+.banner{border-radius:12px;padding:13px 15px;font-size:13.5px;font-weight:700;margin-bottom:6px}
+.banner.warn{background:var(--amberbg);color:var(--golddk);border-left:4px solid var(--gold)}
+.banner.ok{background:var(--okbg);color:var(--ok);border-left:4px solid var(--ok)}
+
+/* ---------- Bottom action bar ---------- */
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:45;background:#fff;border-top:1px solid var(--line);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;box-shadow:0 -3px 14px rgba(20,37,61,.08)}
+.navbtn{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);color:var(--navy);border-radius:12px;min-height:var(--tap);padding:0 15px;font-weight:800;font-size:14px}
+.navbtn:disabled{opacity:.4}
+.navbtn.next{background:var(--navy);border-color:var(--navy);color:#fff;flex:1}
+.navbtn.save{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.navbtn.submit{background:var(--ok);border-color:var(--ok);color:#fff;flex:1}
+.navbtn.submit:disabled{background:var(--steel);border-color:var(--steel)}
+
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:13px 20px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:var(--shadow);z-index:70;max-width:92vw}
+
+.demoTip{background:#fff;border:1px dashed var(--gold);border-radius:12px;padding:11px 14px;font-size:12.5px;color:var(--golddk);margin-top:14px}
+.demoTip b{color:var(--navy)}
+
+@media(min-width:720px){
+  .crumb{display:block}
+  .rbtn{width:96px;font-size:11px}
+  .headrow h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="stick">
+  <div class="topbar">
+    <div class="brand">DMS <span class="erp">ERP</span></div>
+    <div class="crumb">Purchasing &rsaquo; Vendors &rsaquo; <b style="color:#fff">New</b></div>
+    <div class="topacts">
+      <button class="tbtn ghost" onclick="emailForm()">&#9993; Email form</button>
+    </div>
+  </div>
+
+  <div class="headband">
+    <div class="headrow">
+      <h1>New Vendor</h1>
+      <span class="chip code" id="codeChip">VEND-000312</span>
+      <span class="chip draft" id="statusChip">Draft</span>
+    </div>
+    <div class="progwrap">
+      <div class="progbar"><div class="progfill" id="progFill"></div></div>
+      <div class="progpct" id="progPct">0% ready</div>
+    </div>
+  </div>
+
+  <div class="ribbonwrap">
+    <div class="ribbon" id="ribbon"></div>
+    <div class="ribfade l"></div><div class="ribfade r"></div>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="actionbar">
+  <button class="navbtn" id="backBtn" onclick="go(-1)">&#8249; Back</button>
+  <button class="navbtn save" onclick="saveDraft()">Save</button>
+  <button class="navbtn next" id="nextBtn" onclick="go(1)">Next &#8250;</button>
+</div>
+
+<div id="toastWrap"></div>
+
+<script>
+/* ============ CONFIG ============ */
+var SECTIONS=[
+ {key:'identity',  n:1, ic:'🏷️', lab:'Vendor Identity'},
+ {key:'banking',   n:2, ic:'🏦', lab:'Banking & Payment'},
+ {key:'contacts',  n:3, ic:'📇', lab:'Contacts'},
+ {key:'fleet',     n:4, ic:'🚛', lab:'Trailers, Trucks & Drivers'},
+ {key:'insurance', n:5, ic:'🛡️', lab:'Insurance'},
+ {key:'compliance',n:6, ic:'📄', lab:'Compliance Docs'},
+ {key:'notes',     n:7, ic:'📝', lab:'Notes'},
+ {key:'approval',  n:8, ic:'✅', lab:'Approval'}
+];
+var SUB={identity:'Who the vendor is and how they are classified.',
+ banking:'How you pay this vendor and their bank details.',
+ contacts:'People you deal with at this vendor. At least one is required.',
+ fleet:'Vehicles and drivers, for carriers / haulers. Skip if not applicable.',
+ insurance:'Certificate of insurance and coverage details.',
+ compliance:'W-9 / tax certificate, licenses, contracts and permits.',
+ notes:'Special instructions and internal staff notes.',
+ approval:'Everything needed before this vendor can be used on a purchase order.'};
+
+var CATS=["Parts","Fuel","Tires","Hauler / Carrier","Downstream buyer","IT","Services","Consumables","Professional services","Other"];
+var ROLES=["Accounts payable","Sales rep","Service","Dispatch","Executive","Owner"];
+var POLICY_TYPES=["General liability","Auto / cargo","Workers' comp","Environmental / pollution","Umbrella / excess","Other"];
+var DOC_TYPES=["W-9 / tax certificate","Constancia de Situación Fiscal","Signed contract / MSA","NAID AAA certificate","Environmental permit (SEMARNAT)","License / certification","Banking authorization","Other"];
+
+/* ============ STATE ============ */
+var S=load()||{
+  identity:{name:'',legal:'',rfc:'',category:'Parts',tags:''},
+  banking:{terms:'30',currency:'MXN',method:'',banks:[],cards:[]},
+  contacts:[],
+  fleet:{na:false,trucks:[],trailers:[],drivers:[]},
+  insurance:{na:false,coiFile:'',coiExpiry:'',policies:[]},
+  compliance:{docs:[]},
+  notes:{special:'',internal:''}
+};
+var cur='identity';
+var ids={c:0,bk:0,cd:0,tk:0,tl:0,dv:0,pol:0,doc:0};
+
+/* ============ HELPERS ============ */
+function esc(s){return (s==null?'':''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function $(id){return document.getElementById(id);}
+function setPath(path,v){var p=path.split('.');var o=S;for(var i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=v;}
+function set(path,v){setPath(path,v);refresh();}     /* full re-render: selects + N/A toggles */
+function setL(path,v){setPath(path,v);refresh(true);} /* light: text inputs, preserves caret */
+function validRfc(r){r=(r||'').toUpperCase().trim();return /^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{2,3}$/.test(r)&&r.length>=12;}
+function hasWnine(){return S.compliance.docs.some(function(d){return (d.type==='W-9 / tax certificate'||d.type==='Constancia de Situación Fiscal')&&d.file;});}
+function coiOnFile(){return !!S.insurance.coiFile || S.insurance.policies.some(function(p){return p.coi;});}
+function contactOk(){return S.contacts.some(function(c){return c.name&&c.name.trim();});}
+function bankingOk(){return S.banking.banks.length>0||S.banking.cards.length>0;}
+
+/* section completion: returns 'done' | 'part' | 'empty' */
+function status(key){
+  switch(key){
+    case 'identity': if(S.identity.name&&validRfc(S.identity.rfc))return 'done'; if(S.identity.name||S.identity.rfc)return 'part'; return 'empty';
+    case 'banking': if(bankingOk()&&S.banking.method)return 'done'; if(bankingOk()||S.banking.method||S.banking.terms)return 'part'; return 'empty';
+    case 'contacts': if(contactOk())return 'done'; return S.contacts.length?'part':'empty';
+    case 'fleet': if(S.fleet.na)return 'done'; var f=S.fleet.trucks.length+S.fleet.trailers.length+S.fleet.drivers.length; return f?'done':'empty';
+    case 'insurance': if(S.insurance.na)return 'done'; if(coiOnFile())return 'done'; return S.insurance.policies.length?'part':'empty';
+    case 'compliance': if(hasWnine())return 'done'; return S.compliance.docs.length?'part':'empty';
+    case 'notes': return (S.notes.special||S.notes.internal)?'done':'empty';
+    case 'approval': return approvalReady()?'done':'part';
+  }
+  return 'empty';
+}
+function reqItems(){
+  return [
+    {t:'Vendor name entered', ok:!!(S.identity.name&&S.identity.name.trim()), go:'identity', req:true},
+    {t:'RFC (Tax ID) valid', ok:validRfc(S.identity.rfc), go:'identity', req:true},
+    {t:'Banking details entered', ok:bankingOk(), go:'banking', req:true},
+    {t:'At least one contact', ok:contactOk(), go:'contacts', req:true},
+    {t:'W-9 / tax certificate on file', ok:hasWnine(), go:'compliance', req:true},
+    {t:'Insurance certificate (COI) on file', ok:coiOnFile(), go:'insurance', req:true},
+    {t:'Driver licenses on file (carriers only)', ok:S.fleet.na||S.fleet.drivers.some(function(d){return d.lic&&d.licExp;}), go:'fleet', req:false}
+  ];
+}
+function approvalReady(){return reqItems().every(function(i){return !i.req||i.ok;});}
+function readyPct(){var r=reqItems().filter(function(i){return i.req;});var m=r.filter(function(i){return i.ok;}).length;return Math.round(m/r.length*100);}
+
+/* ============ RIBBON ============ */
+function renderRibbon(){
+  $('ribbon').innerHTML=SECTIONS.map(function(s){
+    var st=status(s.key);
+    return '<button class="rbtn'+(cur===s.key?' active':'')+'" onclick="show(\''+s.key+'\')">'+
+      '<span class="num">'+s.n+'</span>'+
+      '<span class="dot '+st+'"></span>'+
+      '<span class="ic">'+s.ic+'</span>'+
+      '<span class="lab">'+esc(s.lab)+'</span></button>';
+  }).join('');
+  var a=$('ribbon').querySelector('.rbtn.active');
+  if(a)a.scrollIntoView({inline:'center',block:'nearest'});
+}
+
+/* ============ SECTION RENDERERS ============ */
+function head(s){return '<div class="sechead"><div class="bignum">'+s.n+'</div><div><div class="st">'+esc(s.lab)+'</div><div class="ss">'+esc(SUB[s.key])+'</div></div></div>';}
+
+function renderMain(){
+  var s=SECTIONS.filter(function(x){return x.key===cur;})[0];
+  var html=head(s)+'<div class="sec">';
+  html+=({identity:secIdentity,banking:secBanking,contacts:secContacts,fleet:secFleet,insurance:secInsurance,compliance:secCompliance,notes:secNotes,approval:secApproval}[cur])();
+  html+='</div>';
+  $('main').innerHTML=html;
+  // bottom bar
+  var idx=SECTIONS.indexOf(s);
+  $('backBtn').disabled=idx===0;
+  if(cur==='approval'){
+    $('nextBtn').className='navbtn submit';$('nextBtn').innerHTML='Submit for approval';
+    $('nextBtn').disabled=!approvalReady();$('nextBtn').onclick=submitApproval;
+  }else{
+    $('nextBtn').className='navbtn next';$('nextBtn').innerHTML='Next &#8250;';
+    $('nextBtn').disabled=false;$('nextBtn').onclick=function(){go(1);};
+  }
+}
+
+function secIdentity(){
+  var i=S.identity;
+  return '<div class="card">'+
+   '<div class="two"><div class="field"><label>Vendor code</label><input class="ro" value="'+esc($('codeChip')?i_code():'')+'" readonly></div>'+
+   '<div class="field"><label>Status</label><input class="ro" value="Draft — complete checklist" readonly></div></div>'+
+   '<div class="field"><label>Vendor name <span class="req">*</span></label><input value="'+esc(i.name)+'" oninput="setL(\'identity.name\',this.value)" placeholder="e.g. Border City Auto Parts">'+
+   (i.name?'':'<div class="hint">Required.</div>')+'</div>'+
+   '<div class="field"><label>Legal name</label><input value="'+esc(i.legal)+'" oninput="setL(\'identity.legal\',this.value)"></div>'+
+   '<div class="field"><label>RFC (Tax ID)</label><input maxlength="13" class="'+(i.rfc?(validRfc(i.rfc)?'good':'bad'):'')+'" value="'+esc(i.rfc)+'" oninput="setL(\'identity.rfc\',this.value.toUpperCase())" placeholder="ABC010101AB1">'+
+   '<div class="'+(i.rfc&&!validRfc(i.rfc)?'err':'hint')+'">'+(i.rfc&&!validRfc(i.rfc)?'Check RFC format (12–13 chars).':'12–13 characters, format checked, duplicates blocked.')+'</div></div>'+
+   '<div class="two"><div class="field"><label>Category</label><select onchange="set(\'identity.category\',this.value)">'+CATS.map(function(c){return '<option '+(i.category===c?'selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select></div>'+
+   '<div class="field"><label>Tags</label><input value="'+esc(i.tags)+'" oninput="setL(\'identity.tags\',this.value)" placeholder="comma, separated"></div></div>'+
+   '</div>';
+}
+function i_code(){return 'VEND-000312';}
+
+function secBanking(){
+  var b=S.banking;
+  var h='<div class="card"><div class="two">'+
+   '<div class="field"><label>Payment terms (days)</label><input type="number" inputmode="numeric" value="'+esc(b.terms)+'" oninput="setL(\'banking.terms\',this.value)"></div>'+
+   '<div class="field"><label>Currency</label><select onchange="set(\'banking.currency\',this.value)"><option '+(b.currency==='MXN'?'selected':'')+'>MXN</option><option '+(b.currency==='USD'?'selected':'')+'>USD</option></select></div></div>'+
+   '<div class="field"><label>Payment method</label><select onchange="set(\'banking.method\',this.value)">'+
+     ['','Electronic transfer','Check','Credit card','Cash'].map(function(o){return '<option value="'+esc(o)+'" '+(b.method===o?'selected':'')+'>'+(o||'-- select --')+'</option>';}).join('')+'</select></div></div>';
+
+  h+='<div class="grouphd"><span class="gt">🏦 Bank accounts</span><button class="addbtn sm" onclick="addBank()">+ Add</button></div>';
+  h+=b.banks.length?b.banks.map(bankCard).join(''):'<div class="empty">No bank account yet.</div>';
+
+  h+='<div class="grouphd"><span class="gt">💳 Payment cards</span><button class="addbtn sm" onclick="addCard()">+ Add</button></div>';
+  h+=b.cards.length?b.cards.map(cardCard).join(''):'<div class="empty">No card on file.</div>';
+  return h;
+}
+function bankCard(b){return '<div class="subcard"><div class="subhead"><span class="t">🏦 Bank account</span><button class="rm" onclick="rmBank('+b.id+')">✕ Remove</button></div>'+
+  '<div class="field"><label>Bank name</label><input value="'+esc(b.bankName)+'" oninput="setBank('+b.id+',\'bankName\',this.value)"></div>'+
+  '<div class="two"><div class="field"><label>Account number</label><input value="'+esc(b.account)+'" oninput="setBank('+b.id+',\'account\',this.value)"></div>'+
+  '<div class="field"><label>CLABE</label><input maxlength="18" inputmode="numeric" value="'+esc(b.clabe)+'" oninput="setBank('+b.id+',\'clabe\',this.value)"></div></div>'+
+  '<div class="field"><label>SWIFT / BIC</label><input value="'+esc(b.swift)+'" oninput="setBank('+b.id+',\'swift\',this.value)"></div></div>';}
+function cardCard(c){return '<div class="subcard"><div class="subhead"><span class="t">💳 Payment card</span><button class="rm" onclick="rmCard('+c.id+')">✕ Remove</button></div>'+
+  '<div class="two"><div class="field"><label>Card type</label><select onchange="setCard('+c.id+',\'type\',this.value)">'+["Visa","Mastercard","Amex","Discover","Other"].map(function(o){return '<option '+(c.type===o?'selected':'')+'>'+o+'</option>';}).join('')+'</select></div>'+
+  '<div class="field"><label>Expiration (MM/YY)</label><input maxlength="5" placeholder="08/27" value="'+esc(c.exp)+'" oninput="setCard('+c.id+',\'exp\',this.value)"></div></div>'+
+  '<div class="field"><label>Card number</label><input inputmode="numeric" placeholder="Tokenized on save" value="'+esc(c.number)+'" oninput="setCard('+c.id+',\'number\',this.value)"></div></div>';}
+
+function secContacts(){
+  var h='<div class="card">'+(S.contacts.length?S.contacts.map(contactCard).join(''):'<div class="empty">No contacts yet — at least one is required for approval.</div>')+
+    '<button class="addbtn" onclick="addContact()">+ Add contact</button></div>';
+  return h;
+}
+function contactCard(c){return '<div class="subcard"><div class="subhead"><span class="t">👤 '+(c.name?esc(c.name):'Contact')+'</span><button class="rm" onclick="rmContact('+c.id+')">✕ Remove</button></div>'+
+  '<div class="field"><label>Name <span class="req">*</span></label><input value="'+esc(c.name)+'" oninput="setContact('+c.id+',\'name\',this.value)"></div>'+
+  '<div class="two"><div class="field"><label>Role / title</label><select onchange="setContact('+c.id+',\'role\',this.value)">'+ROLES.map(function(r){return '<option '+(c.role===r?'selected':'')+'>'+esc(r)+'</option>';}).join('')+'</select></div>'+
+  '<div class="field"><label>Phone</label><input inputmode="tel" value="'+esc(c.phone)+'" oninput="setContact('+c.id+',\'phone\',this.value)"></div></div>'+
+  '<div class="two"><div class="field"><label>Mobile / WhatsApp</label><input inputmode="tel" value="'+esc(c.mobile)+'" oninput="setContact('+c.id+',\'mobile\',this.value)"></div>'+
+  '<div class="field"><label>Email</label><input inputmode="email" value="'+esc(c.email)+'" oninput="setContact('+c.id+',\'email\',this.value)"></div></div>'+
+  '<label class="chkline"><input type="checkbox" '+(c.primary?'checked':'')+' onchange="setContact('+c.id+',\'primary\',this.checked)"> Primary contact</label></div>';}
+
+function secFleet(){
+  var f=S.fleet;
+  var h='<div class="card"><label class="switch"><input type="checkbox" '+(f.na?'checked':'')+' onchange="set(\'fleet.na\',this.checked)"> Not applicable — this vendor has no trucks, trailers or drivers</label></div>';
+  if(f.na)return h+'<div class="demoTip">Fleet marked <b>not applicable</b>. Uncheck above to add vehicles or drivers.</div>';
+
+  h+='<div class="card">';
+  h+='<div class="grouphd"><span class="gt">🚛 Trucks</span><button class="addbtn sm" onclick="addTruck()">+ Add</button></div>';
+  h+=f.trucks.length?f.trucks.map(truckCard).join(''):'<div class="empty">No trucks.</div>';
+  h+='<div class="grouphd"><span class="gt">🚚 Trailers</span><button class="addbtn sm" onclick="addTrailer()">+ Add</button></div>';
+  h+=f.trailers.length?f.trailers.map(trailerCard).join(''):'<div class="empty">No trailers.</div>';
+  h+='<div class="grouphd"><span class="gt">👤 Drivers</span><button class="addbtn sm" onclick="addDriver()">+ Add</button></div>';
+  h+=f.drivers.length?f.drivers.map(driverCard).join(''):'<div class="empty">No drivers.</div>';
+  h+='</div>';
+  return h;
+}
+function truckCard(t){return '<div class="subcard"><div class="subhead"><span class="t">🚛 '+(t.unit?esc(t.unit):'Truck')+'</span><button class="rm" onclick="rmFleet(\'trucks\','+t.id+')">✕</button></div>'+
+  '<div class="two"><div class="field"><label>Unit #</label><input value="'+esc(t.unit)+'" oninput="setFleet(\'trucks\','+t.id+',\'unit\',this.value)"></div>'+
+  '<div class="field"><label>Plate</label><input value="'+esc(t.plate)+'" oninput="setFleet(\'trucks\','+t.id+',\'plate\',this.value)"></div></div>'+
+  '<div class="field"><label>Make / model</label><input value="'+esc(t.makemodel)+'" oninput="setFleet(\'trucks\','+t.id+',\'makemodel\',this.value)"></div>'+
+  '<div class="two"><div class="field"><label>Year</label><input inputmode="numeric" value="'+esc(t.year)+'" oninput="setFleet(\'trucks\','+t.id+',\'year\',this.value)"></div>'+
+  '<div class="field"><label>VIN</label><input value="'+esc(t.vin)+'" oninput="setFleet(\'trucks\','+t.id+',\'vin\',this.value)"></div></div>'+
+  '<label class="chkline"><input type="checkbox" '+(t.gps?'checked':'')+' onchange="setFleet(\'trucks\','+t.id+',\'gps\',this.checked)"> GPS tracked</label></div>';}
+function trailerCard(t){return '<div class="subcard"><div class="subhead"><span class="t">🚚 '+(t.unit?esc(t.unit):'Trailer')+'</span><button class="rm" onclick="rmFleet(\'trailers\','+t.id+')">✕</button></div>'+
+  '<div class="two"><div class="field"><label>Trailer #</label><input value="'+esc(t.unit)+'" oninput="setFleet(\'trailers\','+t.id+',\'unit\',this.value)"></div>'+
+  '<div class="field"><label>Plate</label><input value="'+esc(t.plate)+'" oninput="setFleet(\'trailers\','+t.id+',\'plate\',this.value)"></div></div>'+
+  '<div class="two"><div class="field"><label>Type</label><select onchange="setFleet(\'trailers\','+t.id+',\'ttype\',this.value)">'+["Dry van","Flatbed","Roll-off","Enclosed","Tanker","Other"].map(function(o){return '<option '+(t.ttype===o?'selected':'')+'>'+o+'</option>';}).join('')+'</select></div>'+
+  '<div class="field"><label>Capacity</label><input value="'+esc(t.cap)+'" oninput="setFleet(\'trailers\','+t.id+',\'cap\',this.value)" placeholder="e.g. 40,000 lb"></div></div></div>';}
+function driverCard(d){return '<div class="subcard"><div class="subhead"><span class="t">👤 '+(d.name?esc(d.name):'Driver')+'</span><button class="rm" onclick="rmFleet(\'drivers\','+d.id+')">✕</button></div>'+
+  '<div class="field"><label>Name</label><input value="'+esc(d.name)+'" oninput="setFleet(\'drivers\','+d.id+',\'name\',this.value)"></div>'+
+  '<div class="two"><div class="field"><label>License #</label><input value="'+esc(d.lic)+'" oninput="setFleet(\'drivers\','+d.id+',\'lic\',this.value)"></div>'+
+  '<div class="field"><label>License expiry</label><input type="date" value="'+esc(d.licExp)+'" oninput="setFleet(\'drivers\','+d.id+',\'licExp\',this.value)"></div></div>'+
+  '<div class="two"><div class="field"><label>Phone</label><input inputmode="tel" value="'+esc(d.phone)+'" oninput="setFleet(\'drivers\','+d.id+',\'phone\',this.value)"></div>'+
+  '<div class="field"><label>Med / DOT cert expiry</label><input type="date" value="'+esc(d.med)+'" oninput="setFleet(\'drivers\','+d.id+',\'med\',this.value)"></div></div>'+
+  '<label class="chkline"><input type="checkbox" '+(d.hazmat?'checked':'')+' onchange="setFleet(\'drivers\','+d.id+',\'hazmat\',this.checked)"> Hazmat endorsed</label></div>';}
+
+function secInsurance(){
+  var v=S.insurance;
+  var h='<div class="card"><label class="switch"><input type="checkbox" '+(v.na?'checked':'')+' onchange="set(\'insurance.na\',this.checked)"> Not applicable — no insurance required for this vendor</label></div>';
+  if(v.na)return h+'<div class="demoTip">Insurance marked <b>not applicable</b>.</div>';
+
+  h+='<div class="card">'+
+    '<div class="field"><label>Certificate of Insurance (COI) <span class="req">*</span></label>'+
+    '<div class="upload"><span class="uic">📎</span><span class="ut">Upload COI (PDF / image)<small>Required for approval</small></span>'+
+    '<label class="file">Choose<input type="file" accept="application/pdf,image/*" onchange="setCOI(this)"></label></div>'+
+    (v.coiFile?'<div class="filepill">✓ '+esc(v.coiFile)+'</div>':'')+'</div>'+
+    '<div class="field"><label>COI expiry date</label><input type="date" value="'+esc(v.coiExpiry)+'" oninput="setL(\'insurance.coiExpiry\',this.value)"></div></div>';
+
+  h+='<div class="grouphd"><span class="gt">🛡️ Coverage / policies</span><button class="addbtn sm" onclick="addPolicy()">+ Add</button></div>';
+  h+=v.policies.length?v.policies.map(policyCard).join(''):'<div class="empty">Add policy detail if you track it (optional).</div>';
+  return h;
+}
+function policyCard(p){return '<div class="subcard"><div class="subhead"><span class="t">🛡️ '+esc(p.ptype||'Policy')+'</span><button class="rm" onclick="rmPolicy('+p.id+')">✕ Remove</button></div>'+
+  '<div class="two"><div class="field"><label>Policy type</label><select onchange="setPolicy('+p.id+',\'ptype\',this.value)">'+POLICY_TYPES.map(function(o){return '<option '+(p.ptype===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+  '<div class="field"><label>Carrier</label><input value="'+esc(p.carrier)+'" oninput="setPolicy('+p.id+',\'carrier\',this.value)"></div></div>'+
+  '<div class="two"><div class="field"><label>Policy #</label><input value="'+esc(p.num)+'" oninput="setPolicy('+p.id+',\'num\',this.value)"></div>'+
+  '<div class="field"><label>Coverage limit</label><input value="'+esc(p.limit)+'" oninput="setPolicy('+p.id+',\'limit\',this.value)" placeholder="e.g. $1,000,000"></div></div>'+
+  '<div class="two"><div class="field"><label>Effective</label><input type="date" value="'+esc(p.eff)+'" oninput="setPolicy('+p.id+',\'eff\',this.value)"></div>'+
+  '<div class="field"><label>Expiry</label><input type="date" value="'+esc(p.exp)+'" oninput="setPolicy('+p.id+',\'exp\',this.value)"></div></div>'+
+  '<label class="chkline"><input type="checkbox" '+(p.addl?'checked':'')+' onchange="setPolicy('+p.id+',\'addl\',this.checked)"> DMS listed as additional insured / certificate holder</label></div>';}
+
+function secCompliance(){
+  var d=S.compliance.docs;
+  var h='<div class="banner '+(hasWnine()?'ok':'warn')+'">'+(hasWnine()?'✓ W-9 / tax certificate is on file.':'⚠ W-9 / tax certificate is required for approval.')+'</div>';
+  h+='<div class="card">'+(d.length?d.map(docCard).join(''):'<div class="empty">No documents yet.</div>')+
+    '<button class="addbtn" onclick="addDoc()">+ Add document</button></div>';
+  return h;
+}
+function docStatus(d){if(!d.file)return '<span class="stat s-miss">Missing</span>';if(d.exp&&d.exp<today())return '<span class="stat s-exp">Expired</span>';return '<span class="stat s-on">On file</span>';}
+function docCard(d){return '<div class="subcard"><div class="subhead"><span class="t">📄 '+esc(d.type)+'</span><button class="rm" onclick="rmDoc('+d.id+')">✕ Remove</button></div>'+
+  '<div class="field"><label>Document type</label><select onchange="setDoc('+d.id+',\'type\',this.value)">'+DOC_TYPES.map(function(o){return '<option '+(d.type===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+  '<div class="field"><label>File</label><div class="upload"><span class="uic">📎</span><span class="ut">Upload document<small>'+docStatus(d)+'</small></span>'+
+  '<label class="file">Choose<input type="file" accept="application/pdf,image/*" onchange="setDocFile('+d.id+',this)"></label></div>'+
+  (d.file?'<div class="filepill">✓ '+esc(d.file)+'</div>':'')+'</div>'+
+  '<div class="two"><div class="field"><label>Issue date</label><input type="date" value="'+esc(d.iss)+'" oninput="setDoc('+d.id+',\'iss\',this.value)"></div>'+
+  '<div class="field"><label>Expiry date</label><input type="date" value="'+esc(d.exp)+'" oninput="setDoc('+d.id+',\'exp\',this.value)"></div></div></div>';}
+
+function secNotes(){
+  var n=S.notes;
+  return '<div class="card">'+
+   '<div class="field"><label>Special instructions</label><textarea oninput="setL(\'notes.special\',this.value)" placeholder="Delivery windows, gate codes, PO requirements...">'+esc(n.special)+'</textarea></div>'+
+   '<div class="field"><label>Internal notes (staff only)</label><textarea oninput="setL(\'notes.internal\',this.value)" placeholder="Not shown to the vendor.">'+esc(n.internal)+'</textarea></div></div>';
+}
+
+function secApproval(){
+  var items=reqItems();
+  var pct=readyPct();
+  var h='<div class="banner '+(approvalReady()?'ok':'warn')+'">'+
+    (approvalReady()?'✓ All required items complete — ready to submit.':'⚠ '+items.filter(function(i){return i.req&&!i.ok;}).length+' required item(s) still needed.')+'</div>';
+  h+='<div class="card"><div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin-bottom:6px">Approval checklist</div>';
+  h+=items.map(function(i){
+    return '<div class="check'+(!i.req?' opt':'')+'"><span class="mark '+(i.ok?'m-ok':'m-no')+'">'+(i.ok?'✓':'✕')+'</span>'+
+      '<span>'+esc(i.t)+(i.req?'':' <small style="color:var(--steel);font-weight:700">(optional)</small>')+'</span>'+
+      (i.ok?'':'<button class="go" onclick="show(\''+i.go+'\')">Fix</button>')+'</div>';
+  }).join('');
+  h+='</div>';
+  h+='<div class="card"><div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin-bottom:4px">Required documents</div>'+
+    '<div class="reqdoc"><span>W-9 / tax certificate</span>'+(hasWnine()?'<span class="stat s-on">On file</span>':'<span class="stat s-miss">Missing</span>')+'</div>'+
+    '<div class="reqdoc"><span>Insurance certificate (COI)</span>'+(coiOnFile()?'<span class="stat s-on">On file</span>':'<span class="stat s-miss">Missing</span>')+'</div></div>';
+  h+='<div class="demoTip">A Draft vendor can be saved anytime, but cannot be used on a purchase order until approved.</div>';
+  return h;
+}
+
+/* ============ MUTATIONS ============ */
+function addContact(){S.contacts.push({id:++ids.c,name:'',role:'Accounts payable',phone:'',mobile:'',email:'',primary:S.contacts.length===0});refresh();}
+function setContact(id,k,v){find(S.contacts,id)[k]=v;refresh(true);}
+function rmContact(id){S.contacts=S.contacts.filter(function(x){return x.id!==id;});refresh();}
+
+function addBank(){S.banking.banks.push({id:++ids.bk,bankName:'',account:'',clabe:'',swift:''});refresh();}
+function setBank(id,k,v){find(S.banking.banks,id)[k]=v;refresh(true);}
+function rmBank(id){S.banking.banks=S.banking.banks.filter(function(x){return x.id!==id;});refresh();}
+function addCard(){S.banking.cards.push({id:++ids.cd,type:'Visa',exp:'',number:''});refresh();}
+function setCard(id,k,v){find(S.banking.cards,id)[k]=v;refresh(true);}
+function rmCard(id){S.banking.cards=S.banking.cards.filter(function(x){return x.id!==id;});refresh();}
+
+function addTruck(){S.fleet.trucks.push({id:++ids.tk,unit:'',plate:'',makemodel:'',year:'',vin:'',gps:false});refresh();}
+function addTrailer(){S.fleet.trailers.push({id:++ids.tl,unit:'',plate:'',ttype:'Dry van',cap:''});refresh();}
+function addDriver(){S.fleet.drivers.push({id:++ids.dv,name:'',lic:'',licExp:'',phone:'',med:'',hazmat:false});refresh();}
+function setFleet(g,id,k,v){find(S.fleet[g],id)[k]=v;refresh(true);}
+function rmFleet(g,id){S.fleet[g]=S.fleet[g].filter(function(x){return x.id!==id;});refresh();}
+
+function addPolicy(){S.insurance.policies.push({id:++ids.pol,ptype:'General liability',carrier:'',num:'',limit:'',eff:'',exp:'',addl:false});refresh();}
+function setPolicy(id,k,v){find(S.insurance.policies,id)[k]=v;refresh(true);}
+function rmPolicy(id){S.insurance.policies=S.insurance.policies.filter(function(x){return x.id!==id;});refresh();}
+function setCOI(el){S.insurance.coiFile=el.files&&el.files[0]?el.files[0].name:'';refresh();}
+
+function addDoc(){S.compliance.docs.push({id:++ids.doc,type:'W-9 / tax certificate',file:'',iss:'',exp:''});refresh();}
+function setDoc(id,k,v){find(S.compliance.docs,id)[k]=v;refresh(true);}
+function setDocFile(id,el){find(S.compliance.docs,id).file=el.files&&el.files[0]?el.files[0].name:'';refresh();}
+function rmDoc(id){S.compliance.docs=S.compliance.docs.filter(function(x){return x.id!==id;});refresh();}
+
+function find(arr,id){return arr.filter(function(x){return x.id===id;})[0];}
+
+/* ============ NAV / REFRESH ============ */
+function show(key){cur=key;window.scrollTo({top:0,behavior:'smooth'});renderMain();renderRibbon();}
+function go(dir){var idx=SECTIONS.map(function(s){return s.key;}).indexOf(cur)+dir;if(idx<0||idx>=SECTIONS.length)return;show(SECTIONS[idx].key);}
+
+/* refresh(): default full re-render of the current section (add/remove/toggle/select).
+   refresh(true): light — update ribbon + progress + save only, no section re-render (preserves text caret). */
+function refresh(light){
+  if(!light) renderMain();
+  updateProgress();renderRibbon();save();
+  if(light && cur==='approval') renderMain(); // keep live checklist current from light updates
+}
+function updateProgress(){
+  var pct=readyPct();
+  $('progFill').style.width=pct+'%';
+  $('progPct').textContent=pct+'% ready';
+  var ready=approvalReady();
+  $('statusChip').className='chip '+(ready?'ready':'draft');
+  $('statusChip').textContent=ready?'Ready':'Draft';
+}
+
+/* ============ ACTIONS ============ */
+function saveDraft(){save();toast('Draft saved on this device.');}
+function submitApproval(){if(!approvalReady()){show('approval');return;}toast('✓ Submitted for approval.');}
+function emailForm(){toast('Vendor self-service form link copied (demo).');}
+function toast(m){var t=document.createElement('div');t.className='toast';t.textContent=m;$('toastWrap').appendChild(t);setTimeout(function(){t.remove();},2400);}
+
+/* ============ PERSISTENCE ============ */
+function save(){try{localStorage.setItem('dmssbx-vendor_ribbon',JSON.stringify(S));}catch(e){}}
+function load(){try{var r=localStorage.getItem('dmssbx-vendor_ribbon');if(!r)return null;var o=JSON.parse(r);
+  // rehydrate id counters
+  ['contacts'].forEach(function(){});
+  return o;}catch(e){return null;}}
+function today(){var d=new Date();return d.toISOString().slice(0,10);}
+
+/* seed id counters from any loaded data */
+(function seed(){
+  ids.c=Math.max(0,...S.contacts.map(function(x){return x.id;}),0);
+  ids.bk=Math.max(0,...S.banking.banks.map(function(x){return x.id;}),0);
+  ids.cd=Math.max(0,...S.banking.cards.map(function(x){return x.id;}),0);
+  ids.tk=Math.max(0,...S.fleet.trucks.map(function(x){return x.id;}),0);
+  ids.tl=Math.max(0,...S.fleet.trailers.map(function(x){return x.id;}),0);
+  ids.dv=Math.max(0,...S.fleet.drivers.map(function(x){return x.id;}),0);
+  ids.pol=Math.max(0,...S.insurance.policies.map(function(x){return x.id;}),0);
+  ids.doc=Math.max(0,...S.compliance.docs.map(function(x){return x.id;}),0);
+})();
+
+/* ============ INIT ============ */
+renderRibbon();renderMain();updateProgress();
+</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

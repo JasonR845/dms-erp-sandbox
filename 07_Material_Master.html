@@ -1,0 +1,355 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Material Master</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.31.0/iconfont/tabler-icons.min.css">
+<style>
+:root{--border:#e2e6ec;--text-2:#5A6470;--muted:#8C97A4;--navy:#14253D;--gold:#B68A3A;--pale:#f6f8fa;--bg-warn:#EAD9B4;--tx-warn:#9A7430;--danger:#a32d2d}
+*{box-sizing:border-box}
+body{font-family:'Inter',Arial,Helvetica,sans-serif;background:#eef1f5;color:#2E3338;max-width:900px;margin:0 auto;padding:0 16px 70px;font-size:14px;line-height:1.45}
+label{font-size:12px;color:var(--text-2);display:block;margin-bottom:5px;font-weight:500}
+input,select,textarea{font:inherit;border:1.5px solid var(--border);border-radius:8px;background:#fff;padding:8px 10px;width:100%;color:#2E3338}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+.topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:14px;padding:14px 16px;margin-top:16px}
+.lock{font-size:12px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.15);color:#fff;font-weight:600;margin-left:auto;border:1px solid rgba(255,255,255,.3)}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:16px}
+.h{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);margin:0 0 16px}
+.sub{font-size:11px;color:var(--muted)}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}@media(max-width:680px){.row3{grid-template-columns:1fr}}
+.sel{display:flex;gap:6px}
+.ibtn{flex:0 0 36px;border:1.5px solid var(--border);background:#fff;border-radius:8px;cursor:pointer;color:var(--navy);font-size:16px}
+.ibtn:hover{background:var(--pale)}.ibtn:disabled{opacity:.35;cursor:not-allowed}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:680px){.g2{grid-template-columns:1fr}}
+.field{margin-bottom:13px}
+.code{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eaf0f6;color:var(--navy)}
+.code.int{background:var(--bg-warn);color:var(--tx-warn)}
+.btnp{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer}
+.btng{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--navy)}
+.btnd{border-color:var(--danger);color:var(--danger)}
+.warn{background:var(--bg-warn);color:var(--tx-warn);padding:9px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:14px}
+.count{font-size:11px;color:var(--muted);margin-left:6px}
+.audit{display:flex;justify-content:space-between;font-size:12px;border-bottom:1px dotted var(--border);padding:6px 0}
+
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--navy);cursor:pointer;flex:none}
+.ctoolbar{display:flex;gap:12px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.ctoolbar input[type=text]{max-width:280px}
+.ctoolbar label.inline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin:0;font-weight:500;white-space:nowrap}
+.ctable-wrap{max-height:460px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+table.ctable{width:100%;border-collapse:collapse;font-size:12.5px}
+table.ctable thead th{position:sticky;top:0;background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;z-index:1}
+table.ctable tbody td{padding:7px 10px;vertical-align:top;border-bottom:1px solid var(--border)}
+table.ctable tbody tr:nth-child(even){background:var(--pale)}
+table.ctable tbody tr:hover{background:#eef3f8}
+.chkcell{width:32px;text-align:center}
+.mono{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:11.5px;color:var(--text-2);white-space:nowrap}
+.click{cursor:pointer}
+.pathcell{color:var(--text-2);font-size:11.5px;white-space:nowrap}
+.specbadge{display:inline-block;font-size:9.5px;font-weight:700;color:var(--gold);background:#F4F6F8;border:1px solid #EAD9B4;border-radius:5px;padding:1px 6px;margin-left:5px}
+.active-row{background:#EAD9B4 !important;box-shadow:inset 3px 0 0 var(--gold)}
+.flash{animation:flashkf .9s ease}
+@keyframes flashkf{0%{background:#EAD9B4}100%{background:inherit}}
+.pill{font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:999px}
+.pill.on{background:#D7DCE1;color:#1B3050}
+.pill.off{background:#f1f2f4;color:var(--muted)}
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head><body>
+<div class="topbar"><i class="ti ti-stack-2" style="font-size:22px;color:var(--gold)"></i><div style="font-weight:700;letter-spacing:.5px">DMS</div><div style="width:1px;height:18px;background:rgba(255,255,255,.25)"></div><div><h1 style="font-weight:600;font-size:inherit;font-family:inherit;margin:0">Material master</h1><div style="font-size:11px;color:#c8d2df">Imported from ISRI/ReMA Commodity Classifications master list</div></div><span class="lock"><i class="ti ti-lock"></i> Admin only</span></div>
+<div class="card">
+  <div class="h">Material structure <span class="count" id="cnt"></span></div>
+  <div class="row3">
+    <div><label>Classification</label><div class="sel"><select id="segSel" onchange="pickSeg(this.value)"></select><button class="ibtn" title="Add" onclick="addItem('seg')">＋</button><button class="ibtn" title="Rename" onclick="editItem('seg')">✎</button></div></div>
+    <div><label>Category</label><div class="sel"><select id="catSel" onchange="pickCat(this.value)"><option value="">— select —</option></select><button class="ibtn" id="aCat" title="Add" onclick="addItem('cat')">＋</button><button class="ibtn" id="eCat" title="Rename" onclick="editItem('cat')">✎</button></div></div>
+    <div><label>Grade (active only)</label><div class="sel"><select id="grdSel" onchange="pickGrade(this.value)"><option value="">— select —</option></select><button class="ibtn" id="aGrd" title="Add" onclick="addItem('grd')">＋</button></div></div>
+  </div>
+  <p class="sub" style="margin-top:10px">Classification and category filter the commodity table below. Grade lists only the commodities checked active in the table — check a box there to make it selectable here. Use ＋ to add, ✎ to rename. Check a box, or click a row, to view/assign that commodity's ISRI specification.</p>
+</div>
+<div class="card">
+  <div class="h">Commodity table <span class="count">— all 441 ISRI/ReMA commodities, filtered by the classification &amp; category above</span></div>
+  <div class="ctoolbar">
+    <input type="text" id="ctSearch" placeholder="Search code, name, description…" oninput="onSearch(this.value)">
+    <label class="inline"><input type="checkbox" id="actOnly" onchange="renderTable()"> Active only</label>
+    <span class="sub" id="ctSummary" style="margin-left:auto"></span>
+  </div>
+  <div class="ctable-wrap">
+    <table class="ctable">
+      <thead><tr>
+        <th class="chkcell"><input type="checkbox" id="selAll" onchange="toggleAll(this.checked)" title="Select/deselect all visible rows"></th>
+        <th style="width:100px">Code</th>
+        <th>Commodity / Grade</th>
+        <th style="width:230px">Classification › Category</th>
+      </tr></thead>
+      <tbody id="ctBody"></tbody>
+    </table>
+  </div>
+  <div id="ctEmpty" class="sub" style="display:none;text-align:center;padding:14px">No commodities match this filter.</div>
+</div>
+<div class="card" id="spec" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="h" style="margin:0">Grade specification — <span id="sName"></span></div><div style="display:flex;align-items:center;gap:10px"><span id="actPill"></span><span class="sub" id="sPath"></span></div></div>
+  <div id="warn"></div>
+  <div class="g2"><div class="field"><label>ISRI code / spec name</label><input id="sCode"></div><div class="field"><label>Source reference</label><input id="sSrc" readonly style="background:var(--pale)"></div></div>
+  <div class="field"><label>ISRI definition</label><textarea id="sDef" rows="3"></textarea></div>
+  <div class="field"><label>Material description</label><textarea id="sDesc" rows="2" placeholder="(optional — admin can add)"></textarea></div>
+  <div class="field"><label>Acceptable material requirements</label><textarea id="sAcc" rows="2" placeholder="(optional — admin can add)"></textarea></div>
+  <div class="field"><label>Prohibited / unacceptable materials</label><textarea id="sPro" rows="2" placeholder="(optional — admin can add)"></textarea></div>
+  <div class="field"><label>Downgrade / rejection notes</label><textarea id="sDown" rows="2" placeholder="(optional — admin can add)"></textarea></div>
+  <div style="display:flex;gap:8px;margin-top:6px;align-items:center"><button class="btnp" onclick="saveGrade()">Save grade</button><button class="btng" id="actBtn" onclick="toggleActBtn()">Deactivate</button><button class="btng btnd">Delete</button><span class="sub" id="saveMsg" style="color:#1B3050;font-weight:600"></span></div>
+</div>
+<div class="card"><div class="h">Audit log</div>
+  <div class="audit"><span><b>import</b> grade · 441 ISRI/ReMA commodities loaded</span><span class="sub">System import · ISRI/ReMA Master List</span></div>
+  <div class="audit" style="border:none"><span><b>update</b> grade · Copper #2 definition</span><span class="sub">J. Russell · today</span></div>
+</div>
+<p class="sub" style="text-align:center;margin-top:12px" id="footerNote">Preview — admin-only. 441 ISRI/ReMA commodities imported from the master spreadsheet; all editable by admins.</p>
+<script src="dms_materials.js"></script>
+<script>
+var MASTER = window.DMS_MATERIALS;;
+var ALL = [], BY_ID = {};
+function reindex(){
+  ALL = []; BY_ID = {};
+  var nid = 1;
+  for (var c in MASTER){
+    for (var s in MASTER[c]){
+      MASTER[c][s].forEach(function(r){
+        r.id = nid++; r.cat = c; r.sub = s;
+        ALL.push(r); BY_ID[r.id] = r;
+      });
+    }
+  }
+}
+reindex();
+function persistActive(){
+  var st = new Set();
+  ALL.forEach(function(r){ if (r.active) st.add(window.dmsMatKey(r.cat, r.sub, r)); });
+  window.dmsSaveActiveSet(st);
+}
+(function(){
+  var saved = window.dmsLoadActiveSet();
+  if (saved.size) ALL.forEach(function(r){ if (saved.has(window.dmsMatKey(r.cat, r.sub, r))) r.active = true; });
+})();
+
+
+var seg = "", cat = "", cur = null, q = "";
+
+function updateCounts(){ document.getElementById('cnt').textContent = '(' + ALL.length + ' ISRI/ReMA grades preloaded)'; }
+
+function fillSeg(){
+  document.getElementById('segSel').innerHTML = '<option value="">— all classifications —</option>' +
+    Object.keys(MASTER).map(function(k){
+      var n = 0; for (var s in MASTER[k]) n += MASTER[k][s].length;
+      return '<option' + (k===seg?' selected':'') + '>' + esc(k) + ' (' + n + ')</option>';
+    }).join('');
+}
+function segKey(label){ return label.replace(/ \(\d+\)$/, ''); }
+function catKey(label){ return label.replace(/ \(\d+\)$/, ''); }
+
+function pickSeg(s){
+  seg = s ? segKey(s) : "";
+  cat = ""; cur = null;
+  document.getElementById('spec').style.display = 'none';
+  var c = document.getElementById('catSel');
+  c.innerHTML = '<option value="">— all categories —</option>' +
+    (seg ? Object.keys(MASTER[seg]).map(function(x){ return '<option>' + esc(x) + ' (' + MASTER[seg][x].length + ')</option>'; }).join('') : '');
+  refreshGradeDropdown();
+  tog(); renderTable();
+}
+
+function refreshGradeDropdown(){
+  var sel = document.getElementById('grdSel');
+  var prevVal = sel.value;
+  if (!seg || !cat){
+    sel.innerHTML = '<option value="">— select —</option>';
+    return;
+  }
+  var gs = MASTER[seg][cat].filter(function(r){ return r.active; });
+  if (!gs.length){
+    sel.innerHTML = '<option value="">— no active commodities in this category —</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— select —</option>' +
+    gs.map(function(x){ return '<option value="' + x.id + '">' + esc(x.g) + (x.code && x.code !== '—' ? ' · ' + esc(x.code) : '') + '</option>'; }).join('');
+  if (prevVal && gs.some(function(x){ return String(x.id) === prevVal; })) sel.value = prevVal;
+}
+
+function pickCat(c){
+  cat = c ? catKey(c) : "";
+  cur = null;
+  document.getElementById('spec').style.display = 'none';
+  refreshGradeDropdown();
+  tog(); renderTable();
+}
+
+function pickGrade(i){
+  if (i === '' || i == null){ return; }
+  var r = BY_ID[i];
+  if (!r) return;
+  showSpec(r);
+  flashRow(r.id);
+}
+
+function showSpec(r){
+  cur = r;
+  document.getElementById('sName').innerHTML = esc(r.g) + ' &nbsp;<span class="code' + (r.int?' int':'') + '">' + (r.int?'Internal · ':'') + esc(r.code || '—') + '</span>';
+  document.getElementById('sPath').textContent = r.cat + ' › ' + r.sub;
+  document.getElementById('sCode').value = r.code || '';
+  document.getElementById('sSrc').value = 'ISRI/ReMA Master List — Spec ' + r.spec;
+  document.getElementById('sDef').value = r['def'] || '';
+  document.getElementById('sDesc').value = r.desc || '';
+  document.getElementById('sAcc').value = r.acc || '';
+  document.getElementById('sPro').value = r.pro || '';
+  document.getElementById('sDown').value = r.down || '';
+  var miss = []; if (!r['def']) miss.push('definition');
+  document.getElementById('warn').innerHTML = miss.length ? '<div class="warn">⚠ Incomplete — add: ' + miss.join(', ') + '</div>' : '';
+  document.getElementById('actBtn').textContent = r.active ? 'Deactivate' : 'Activate';
+  document.getElementById('actPill').innerHTML = r.active ? '<span class="pill on">● Active</span>' : '<span class="pill off">○ Inactive</span>';
+  document.getElementById('spec').style.display = 'block';
+}
+
+function selectRecord(id){
+  var r = BY_ID[id];
+  showSpec(r);
+  syncDropdowns(r);
+  flashRow(id);
+}
+
+function syncDropdowns(r){
+  if (seg === r.cat && cat === r.sub){
+    document.getElementById('grdSel').value = String(r.id);
+  }
+}
+
+function toggleActive(id){
+  var r = BY_ID[id];
+  r.active = !r.active; persistActive();
+  var row = document.getElementById('row-' + id);
+  if (row){
+    row.classList.toggle('active-row', r.active);
+    var box = row.querySelector('input[type=checkbox]');
+    if (box) box.checked = r.active;
+  }
+  updateSummary();
+  refreshGradeDropdown();
+  showSpec(r);
+  syncDropdowns(r);
+}
+
+function toggleActBtn(){ if (cur) toggleActive(cur.id); }
+
+function saveGrade(){
+  if (!cur) return;
+  cur.code = document.getElementById('sCode').value;
+  cur['def'] = document.getElementById('sDef').value;
+  cur.desc = document.getElementById('sDesc').value;
+  cur.acc = document.getElementById('sAcc').value;
+  cur.pro = document.getElementById('sPro').value;
+  cur.down = document.getElementById('sDown').value;
+  showSpec(cur);
+  renderTable();
+  var m = document.getElementById('saveMsg');
+  m.textContent = '✓ Saved';
+  setTimeout(function(){ m.textContent = ''; }, 1500);
+}
+
+function flashRow(id){
+  var row = document.getElementById('row-' + id);
+  if (!row) return;
+  if (row.scrollIntoView) row.scrollIntoView({block:'center', behavior:'smooth'});
+  row.classList.add('flash');
+  setTimeout(function(){ row.classList.remove('flash'); }, 900);
+}
+
+function tog(){
+  ['aCat','eCat'].forEach(function(id){ document.getElementById(id).disabled = !seg; });
+  document.getElementById('aGrd').disabled = !cat;
+}
+
+function addItem(l){
+  if (l === 'seg'){
+    var n = prompt('New classification');
+    if (n){ MASTER[n] = {}; reindex(); updateCounts(); seg = n; fillSeg(); pickSeg(n); }
+  } else if (l === 'cat'){
+    if (!seg) return;
+    var n = prompt('New category in ' + seg);
+    if (n){ MASTER[seg][n] = []; reindex(); updateCounts(); pickSeg(seg); }
+  } else {
+    if (!cat) return;
+    var n = prompt('New grade in ' + cat);
+    if (n){
+      MASTER[seg][cat].push({g:n, code:'', spec:'', 'def':'', desc:'', acc:'', pro:'', down:'', int:false});
+      reindex(); updateCounts(); pickCat(cat); renderTable();
+    }
+  }
+}
+
+function editItem(l){
+  if (l === 'seg' && seg){
+    var n = prompt('Rename classification', seg);
+    if (n && n !== seg){ MASTER[n] = MASTER[seg]; delete MASTER[seg]; seg = n; reindex(); updateCounts(); fillSeg(); pickSeg(n); }
+  } else if (l === 'cat' && cat){
+    var n = prompt('Rename category', cat);
+    if (n && n !== cat){
+      MASTER[seg][n] = MASTER[seg][cat]; delete MASTER[seg][cat]; cat = n;
+      reindex(); updateCounts();
+      var cSel = document.getElementById('catSel');
+      cSel.innerHTML = '<option value="">— all categories —</option>' +
+        Object.keys(MASTER[seg]).map(function(x){ return '<option' + (x===cat?' selected':'') + '>' + esc(x) + ' (' + MASTER[seg][x].length + ')</option>'; }).join('');
+      cur = null;
+      document.getElementById('spec').style.display = 'none';
+      refreshGradeDropdown();
+      renderTable();
+    }
+  }
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function getFiltered(){
+  var arr = ALL;
+  if (seg) arr = arr.filter(function(r){ return r.cat === seg; });
+  if (cat) arr = arr.filter(function(r){ return r.sub === cat; });
+  if (q){
+    var qq = q.toLowerCase();
+    arr = arr.filter(function(r){ return (r.g + ' ' + r.code + ' ' + r['def'] + ' ' + r.sub + ' ' + r.cat).toLowerCase().indexOf(qq) !== -1; });
+  }
+  if (document.getElementById('actOnly').checked) arr = arr.filter(function(r){ return r.active; });
+  return arr;
+}
+
+function renderTable(){
+  var list = getFiltered();
+  var body = document.getElementById('ctBody');
+  body.innerHTML = list.map(function(r){
+    return '<tr id="row-' + r.id + '" class="' + (r.active ? 'active-row' : '') + '">' +
+      '<td class="chkcell"><input type="checkbox" ' + (r.active?'checked':'') + ' onchange="toggleActive(' + r.id + ')"></td>' +
+      '<td class="mono">' + esc(r.code || '—') + '</td>' +
+      '<td class="click" onclick="selectRecord(' + r.id + ')">' + esc(r.g) + '</td>' +
+      '<td class="click pathcell" onclick="selectRecord(' + r.id + ')">' + esc(r.cat) + ' › ' + esc(r.sub) + ' <span class="specbadge">' + esc(r.spec) + '</span></td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('ctEmpty').style.display = list.length ? 'none' : 'block';
+  document.getElementById('selAll').checked = list.length > 0 && list.every(function(r){ return r.active; });
+  updateSummary(list.length);
+}
+
+function updateSummary(shown){
+  if (shown == null) shown = getFiltered().length;
+  var activeN = ALL.filter(function(r){ return r.active; }).length;
+  document.getElementById('ctSummary').textContent = 'Showing ' + shown + ' of ' + ALL.length + ' commodities · ' + activeN + ' active';
+}
+
+function onSearch(v){ q = v; renderTable(); }
+
+function toggleAll(checked){
+  getFiltered().forEach(function(r){ r.active = checked; }); persistActive();
+  renderTable();
+  refreshGradeDropdown();
+}
+
+updateCounts(); fillSeg(); tog(); renderTable();
+</script><script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body></html>

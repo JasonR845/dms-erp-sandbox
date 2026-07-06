@@ -1,0 +1,535 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Commodity Pricing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.31.0/iconfont/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--border:#e2e6ec;--text-2:#5A6470;--muted:#8C97A4;--navy:#14253D;--gold:#B68A3A;--pale:#f6f8fa;--bg-warn:#EAD9B4;--tx-warn:#9A7430;--danger:#a32d2d}
+*{box-sizing:border-box}
+body{font-family:'Inter',Arial,Helvetica,sans-serif;background:#eef1f5;color:#2E3338;max-width:900px;margin:0 auto;padding:0 16px 70px;font-size:14px;line-height:1.45}
+label{font-size:12px;color:var(--text-2);display:block;margin-bottom:5px;font-weight:500}
+input,select,textarea{font:inherit;border:1.5px solid var(--border);border-radius:8px;background:#fff;padding:8px 10px;width:100%;color:#2E3338}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+.topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:14px;padding:14px 16px;margin-top:16px}
+.lock{font-size:12px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.15);color:#fff;font-weight:600;margin-left:auto;border:1px solid rgba(255,255,255,.3)}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:16px}
+.h{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);margin:0 0 16px}
+.sub{font-size:11px;color:var(--muted)}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}@media(max-width:680px){.row3{grid-template-columns:1fr}}
+.code{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eaf0f6;color:var(--navy)}
+.code.int{background:var(--bg-warn);color:var(--tx-warn)}
+.btnp{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer}
+.btng{background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--navy)}
+.btnd{border-color:var(--danger);color:var(--danger)}
+.count{font-size:11px;color:var(--muted);margin-left:6px}
+.audit{display:flex;justify-content:space-between;font-size:12px;border-bottom:1px dotted var(--border);padding:6px 0}
+.ctoolbar{display:flex;gap:12px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.ctoolbar input[type=text]{max-width:250px}
+.ctoolbar label.inline{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);margin:0;font-weight:500;white-space:nowrap}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--navy);cursor:pointer;flex:none}
+.ctable-wrap{max-height:460px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+table.ctable{width:100%;border-collapse:collapse;font-size:12.5px}
+table.ctable thead th{position:sticky;top:0;background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;z-index:1}
+table.ctable tbody td{padding:7px 10px;vertical-align:top;border-bottom:1px solid var(--border)}
+table.ctable tbody tr:nth-child(even){background:var(--pale)}
+table.ctable tbody tr:hover{background:#eef3f8}
+.mono{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:11.5px;color:var(--text-2);white-space:nowrap}
+.click{cursor:pointer}
+.pathcell{color:var(--text-2);font-size:11.5px;white-space:nowrap}
+.active-row{box-shadow:inset 3px 0 0 var(--gold)}
+.flash{animation:flashkf .9s ease}
+@keyframes flashkf{0%{background:#EAD9B4}100%{background:inherit}}
+.pill{font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:999px}
+.pill.on{background:#D7DCE1;color:#1B3050}
+.pill.off{background:#f1f2f4;color:var(--muted)}
+/* pricing-specific */
+.pchip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;background:var(--pale);border:1px solid var(--border);color:var(--navy);border-radius:999px;padding:2px 9px;margin:1px 3px 1px 0;white-space:nowrap}
+.pchip.best{background:var(--navy);border-color:var(--navy);color:#fff}
+.pchip .v{font-weight:500;color:inherit;opacity:.75}
+.more{font-size:10.5px;font-weight:700;color:var(--tx-warn);white-space:nowrap}
+.noprice{font-size:11px;color:var(--muted)}
+.addp{flex:0 0 30px;width:30px;height:26px;border:1.5px solid var(--border);background:#fff;border-radius:7px;cursor:pointer;color:var(--navy);font-weight:700}
+.addp:hover{background:var(--pale)}
+table.ptable{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+table.ptable th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);border-bottom:1.5px solid var(--border);padding:6px 8px}
+table.ptable td{padding:7px 8px;border-bottom:1px solid var(--border)}
+table.ptable td.r,table.ptable th.r{text-align:right}
+.srcpill{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:999px;background:#eaf0f6;color:var(--navy)}
+.srcpill.up{background:var(--bg-warn);color:var(--tx-warn)}
+.xdel{background:none;border:none;color:var(--danger);font-size:14px;cursor:pointer;line-height:1}
+/* modals */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(20,37,61,.55);align-items:center;justify-content:center;z-index:50}
+.modal-backdrop.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:460px;max-width:92vw;padding:18px;box-shadow:0 12px 40px rgba(0,0,0,.25);max-height:88vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.modal-head h3{margin:0;font-size:14px;color:var(--navy);text-transform:uppercase;letter-spacing:.02em}
+.modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);line-height:1}
+.mg2{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.mspan{grid-column:span 2}
+.mfield label{margin-bottom:4px}
+.mactions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;align-items:center}
+.msg{margin-right:auto;font-size:11px;font-weight:700;color:#1B3050}
+.dropzone{border:2px dashed var(--border);border-radius:10px;background:var(--pale);padding:18px;text-align:center;font-size:12px;color:var(--text-2);margin-bottom:12px}
+.impres{font-size:12px;margin-top:10px}
+.impres ul{margin:6px 0 0;padding-left:18px;color:var(--text-2);font-size:11.5px}
+/* market strip */
+.marketbar{position:fixed;left:0;right:0;bottom:0;background:var(--navy);color:#C9D2DC;font-size:11.5px;z-index:40;border-top:2px solid var(--gold)}
+.marketbar .in{max-width:900px;margin:0 auto;padding:7px 16px;display:flex;align-items:center;gap:14px;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap}
+.mk{display:inline-flex;align-items:baseline;gap:5px}
+.mk .x{font-weight:700;color:#fff;font-size:10px;letter-spacing:.05em}
+.mk .p{font-weight:700;color:#fff}
+.mk .u{font-size:10px;color:#AAB4C0}
+.mksep{width:1px;height:14px;background:rgba(255,255,255,.22);flex:none}
+.mknote{margin-left:auto;font-size:10px;color:#AAB4C0}
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head><body>
+<div class="topbar"><i class="ti ti-currency-dollar" style="font-size:22px;color:var(--gold)"></i><div style="font-weight:700;letter-spacing:.5px">DMS</div><div style="width:1px;height:18px;background:rgba(255,255,255,.25)"></div><div><h1 style="font-weight:600;font-size:inherit;font-family:inherit;margin:0">Commodity pricing</h1><div style="font-size:11px;color:#c8d2df">Vendor price book on the ISRI/ReMA material structure</div></div><span class="lock"><i class="ti ti-lock"></i> Structure read-only</span></div>
+
+<div class="card">
+  <div class="h">Material structure <span class="count" id="cnt"></span></div>
+  <div class="row3">
+    <div><label>Classification</label><select id="segSel" onchange="pickSeg(this.value)"></select></div>
+    <div><label>Category</label><select id="catSel" onchange="pickCat(this.value)"><option value="">— select —</option></select></div>
+    <div><label>Grade (active only)</label><select id="grdSel" onchange="pickGrade(this.value)"><option value="">— select —</option></select></div>
+  </div>
+  <p class="sub" style="margin-top:10px">The structure is managed in Material Master and is read-only here — no items can be added, renamed, or removed. Filters narrow the pricing table below.</p>
+</div>
+
+<div class="card">
+  <div class="h">Commodity pricing table <span class="count" id="cntTbl"></span></div>
+  <div class="ctoolbar">
+    <input type="text" id="ctSearch" placeholder="Search code, name, vendor…" oninput="onSearch(this.value)">
+    <select id="vendSel" style="width:auto;max-width:180px" onchange="renderTable()" aria-label="Filter by vendor"><option value="">— all vendors —</option></select>
+    <label class="inline"><input type="checkbox" id="actOnly" checked onchange="renderTable()"> Active only</label>
+    <label class="inline"><input type="checkbox" id="pricedOnly" onchange="renderTable()"> Priced only</label>
+    <button class="btng" onclick="openUpload()"><i class="ti ti-upload"></i> Upload price sheet</button>
+    <span class="sub" id="ctSummary" style="margin-left:auto"></span>
+  </div>
+  <div class="ctable-wrap">
+    <table class="ctable">
+      <thead><tr>
+        <th style="width:92px">Code</th>
+        <th>Commodity / Grade</th>
+        <th style="width:190px">Classification › Category</th>
+        <th style="width:250px">Prices (vendor)</th>
+        <th style="width:38px"></th>
+      </tr></thead>
+      <tbody id="ctBody"></tbody>
+    </table>
+  </div>
+  <div id="ctEmpty" class="sub" style="display:none;text-align:center;padding:14px">No commodities match this filter.</div>
+</div>
+
+<div class="card" id="detail" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+    <div class="h" style="margin:0">Grade pricing — <span id="dName"></span></div>
+    <div style="display:flex;align-items:center;gap:10px"><span id="dPill"></span><span class="sub" id="dPath"></span></div>
+  </div>
+  <table class="ptable" id="dTable">
+    <thead><tr><th>Vendor</th><th class="r">Price</th><th>Unit</th><th>Date</th><th>Source</th><th style="width:30px"></th></tr></thead>
+    <tbody id="dBody"></tbody>
+  </table>
+  <div id="dNone" class="sub" style="display:none;padding:10px 0">No prices yet for this grade.</div>
+  <div style="display:flex;gap:8px;margin-top:12px"><button class="btnp" onclick="openAdd(curKey)">＋ Add price</button></div>
+</div>
+
+<div class="card"><div class="h">Audit log</div>
+  <div class="audit"><span><b>structure</b> · read-only mirror of Material Master (441 ISRI/ReMA commodities)</span><span class="sub">System · live</span></div>
+  <div class="audit" id="auditLast" style="border:none"><span><b>prices</b> · <span id="auditTxt">no pricing activity yet this session</span></span><span class="sub" id="auditWho"></span></div>
+</div>
+<p class="sub" style="text-align:center;margin-top:12px">Structure read-only · prices editable. Grades are activated in Material Master; market strip shows reference quotes only.</p>
+
+<!-- add price modal -->
+<div class="modal-backdrop" id="add-modal">
+  <div class="modal">
+    <div class="modal-head"><h3>Add price</h3><button class="modal-close" onclick="closeModal('add-modal')">&times;</button></div>
+    <div class="mg2">
+      <div class="mfield mspan"><label>Grade</label><input id="apGrade" readonly style="background:var(--pale)"></div>
+      <div class="mfield mspan"><label>Vendor</label><input id="apVendor" placeholder="e.g. Metalco Trading"></div>
+      <div class="mfield"><label>Price (USD)</label><input id="apPrice" type="number" step="0.0001" min="0" placeholder="0.00"></div>
+      <div class="mfield"><label>Unit</label><select id="apUnit"><option>/lb</option><option>/cwt</option><option>/net ton</option><option>/metric ton</option><option>/each</option><option>/troy oz</option></select></div>
+      <div class="mfield"><label>Effective date</label><input id="apDate" type="date"></div>
+      <div class="mfield"><label>&nbsp;</label><span class="sub">Multiple prices per grade are kept — best shows first.</span></div>
+    </div>
+    <div class="mactions"><span class="msg" id="apMsg"></span><button class="btng" onclick="closeModal('add-modal')">Cancel</button><button class="btnp" onclick="savePrice()">Save price</button></div>
+  </div>
+</div>
+
+<!-- upload modal -->
+<div class="modal-backdrop" id="up-modal">
+  <div class="modal">
+    <div class="modal-head"><h3>Upload price sheet</h3><button class="modal-close" onclick="closeModal('up-modal')">&times;</button></div>
+    <div class="dropzone">CSV or Excel. Columns recognized: <b>code</b> or <b>grade</b> (required), <b>price</b> (required), <b>vendor</b>, <b>unit</b>, <b>date</b>.<br>Rows are matched to the master structure by ISRI code first, then by grade name.</div>
+    <div class="mg2">
+      <div class="mfield mspan"><label>Default vendor (used when the file has no vendor column)</label><input id="upVendor" placeholder="e.g. Metalco Trading"></div>
+      <div class="mfield mspan"><label>File</label><input id="upFile" type="file" accept=".csv,.xlsx,.xls,text/csv"></div>
+    </div>
+    <div class="impres" id="upRes"></div>
+    <div class="mactions"><button class="btng" onclick="closeModal('up-modal')">Close</button><button class="btnp" onclick="runImport()">Import</button></div>
+  </div>
+</div>
+
+<!-- market reference strip -->
+<div class="marketbar" role="contentinfo">
+  <div class="in">
+    <span class="mk"><span class="x">COMEX Cu</span><span class="p">$4.62</span><span class="u">/lb</span></span><span class="mksep"></span>
+    <span class="mk"><span class="x">LME Cu</span><span class="p">$9,840</span><span class="u">/t</span></span><span class="mksep"></span>
+    <span class="mk"><span class="x">LME Al</span><span class="p">$2,535</span><span class="u">/t</span></span><span class="mksep"></span>
+    <span class="mk"><span class="x">Gold</span><span class="p">$2,410</span><span class="u">/oz</span></span><span class="mksep"></span>
+    <span class="mk"><span class="x">Platinum</span><span class="p">$1,065</span><span class="u">/oz</span></span><span class="mksep"></span>
+    <span class="mk"><span class="x">Palladium</span><span class="p">$1,020</span><span class="u">/oz</span></span>
+    <span class="mknote">Reference only · sample values — live feed pending</span>
+  </div>
+</div>
+
+<script src="dms_materials.js"></script>
+<script src="dms_prices.js"></script>
+<script>
+var MASTER = window.DMS_MATERIALS;
+var ALL = [], BY_ID = {}, BY_KEY = {};
+(function reindex(){
+  var nid = 1;
+  for (var c in MASTER){
+    for (var s in MASTER[c]){
+      MASTER[c][s].forEach(function(r){
+        r.id = nid++; r.cat = c; r.sub = s;
+        r.key = window.dmsMatKey(c, s, r);
+        ALL.push(r); BY_ID[r.id] = r; BY_KEY[r.key] = r;
+      });
+    }
+  }
+})();
+function applyActive(){
+  var saved = window.dmsLoadActiveSet();
+  ALL.forEach(function(r){ r.active = saved.has(r.key); });
+}
+applyActive();
+
+/* ---------- price store ---------- */
+var PKEY = 'dmssbx-commodity-prices-v1';
+function loadPrices(){ try { return JSON.parse(localStorage.getItem(PKEY) || '{}'); } catch(e){ return {}; } }
+function savePrices(p){ try { localStorage.setItem(PKEY, JSON.stringify(p)); } catch(e){} }
+var PRICES = loadPrices();
+(function seedMerge(){
+  var SEED = window.DMS_PRICES_SEED || {};
+  var FLAG = 'dmssbx-commodity-prices-seeded-v1';
+  try { if (localStorage.getItem(FLAG)) return; } catch(e){ return; }
+  for (var k in SEED){ PRICES[k] = (PRICES[k] || []).concat(SEED[k]); }
+  savePrices(PRICES);
+  try { localStorage.setItem(FLAG, '1'); } catch(e){}
+})();
+function pricesOf(key){ return (PRICES[key] || []).slice().sort(function(a,b){ return b.p - a.p; }); }
+
+var seg = "", cat = "", q = "", curKey = null;
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function money(n){ return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 }); }
+function dShort(iso){ if (!iso) return ''; var d = new Date(iso + (iso.length === 10 ? 'T00:00' : ''));
+  return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+
+/* ---------- structure filters (read-only) ---------- */
+function updateCounts(){ document.getElementById('cnt').textContent = '(' + ALL.length + ' ISRI/ReMA grades — managed in Material Master)'; }
+function fillSeg(){
+  document.getElementById('segSel').innerHTML = '<option value="">— all classifications —</option>' +
+    Object.keys(MASTER).map(function(k){
+      var n = 0; for (var s in MASTER[k]) n += MASTER[k][s].length;
+      return '<option' + (k===seg?' selected':'') + '>' + esc(k) + ' (' + n + ')</option>';
+    }).join('');
+}
+function keyOf(label){ return label.replace(/ \(\d+\)$/, ''); }
+function pickSeg(s){
+  seg = s ? keyOf(s) : ""; cat = "";
+  document.getElementById('detail').style.display = 'none';
+  var c = document.getElementById('catSel');
+  c.innerHTML = '<option value="">— all categories —</option>' +
+    (seg ? Object.keys(MASTER[seg]).map(function(x){ return '<option>' + esc(x) + ' (' + MASTER[seg][x].length + ')</option>'; }).join('') : '');
+  refreshGradeDropdown(); renderTable();
+}
+function pickCat(c){
+  cat = c ? keyOf(c) : "";
+  document.getElementById('detail').style.display = 'none';
+  refreshGradeDropdown(); renderTable();
+}
+function refreshGradeDropdown(){
+  var sel = document.getElementById('grdSel');
+  if (!seg || !cat){ sel.innerHTML = '<option value="">— select —</option>'; return; }
+  var gs = MASTER[seg][cat].filter(function(r){ return r.active; });
+  sel.innerHTML = gs.length
+    ? '<option value="">— select —</option>' + gs.map(function(x){ return '<option value="' + x.id + '">' + esc(x.g) + (x.code && x.code !== '—' ? ' · ' + esc(x.code) : '') + '</option>'; }).join('')
+    : '<option value="">— no active commodities in this category —</option>';
+}
+function pickGrade(i){ if (i){ var r = BY_ID[i]; if (r){ showDetail(r.key); flashRow(r.id); } } }
+
+/* ---------- table ---------- */
+function getFiltered(){
+  var arr = ALL;
+  if (seg) arr = arr.filter(function(r){ return r.cat === seg; });
+  if (cat) arr = arr.filter(function(r){ return r.sub === cat; });
+  if (document.getElementById('actOnly').checked) arr = arr.filter(function(r){ return r.active; });
+  if (document.getElementById('pricedOnly').checked) arr = arr.filter(function(r){ return pricesOf(r.key).length; });
+  var vend = document.getElementById('vendSel').value;
+  if (vend) arr = arr.filter(function(r){ return pricesOf(r.key).some(function(e){ return e.v === vend; }); });
+  if (q){
+    var qq = q.toLowerCase();
+    arr = arr.filter(function(r){
+      var vend = pricesOf(r.key).map(function(e){ return e.v; }).join(' ');
+      return (r.g + ' ' + r.code + ' ' + r.sub + ' ' + r.cat + ' ' + vend).toLowerCase().indexOf(qq) !== -1;
+    });
+  }
+  return arr;
+}
+function chipHTML(r){
+  var ps = pricesOf(r.key);
+  var vend = document.getElementById('vendSel').value;
+  var shown = vend ? ps.filter(function(e){ return e.v === vend; }) : ps;
+  if (!ps.length) return '<span class="noprice">— no prices</span>';
+  if (!shown.length) return '<span class="noprice">— none from this vendor</span>';
+  var out = shown.slice(0, 2).map(function(e, i){
+    return '<span class="pchip' + (!vend && i === 0 ? ' best' : (vend && e.p === ps[0].p ? ' best' : '')) + '">' + money(e.p) + '<span class="v">' + esc(e.u || '/lb') + ' · ' + esc(e.v) + '</span></span>';
+  }).join('');
+  var hidden = ps.length - Math.min(shown.length, 2);
+  if (shown.length > 2) out += ' <span class="more">+' + (shown.length - 2) + ' more</span>';
+  else if (vend && hidden > 0) out += ' <span class="more">+' + hidden + ' other vendors</span>';
+  return out;
+}
+function renderTable(){
+  var list = getFiltered();
+  document.getElementById('ctBody').innerHTML = list.map(function(r){
+    return '<tr id="row-' + r.id + '" class="' + (r.active ? 'active-row' : '') + '">' +
+      '<td class="mono">' + esc(r.code || '—') + '</td>' +
+      '<td class="click" onclick="showDetail(\'' + r.key.replace(/\\/g,'\\\\').replace(/'/g, "\\'") + '\')">' + esc(r.g) + '</td>' +
+      '<td class="pathcell">' + esc(r.cat) + ' › ' + esc(r.sub) + '</td>' +
+      '<td class="click" onclick="showDetail(\'' + r.key.replace(/\\/g,'\\\\').replace(/'/g, "\\'") + '\')">' + chipHTML(r) + '</td>' +
+      '<td><button class="addp" title="Add price" onclick="openAdd(\'' + r.key.replace(/\\/g,'\\\\').replace(/'/g, "\\'") + '\')">＋</button></td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('ctEmpty').style.display = list.length ? 'none' : 'block';
+  var priced = 0, entries = 0;
+  ALL.forEach(function(r){ var n = pricesOf(r.key).length; if (n){ priced++; entries += n; } });
+  var vset = {};
+  ALL.forEach(function(r){ pricesOf(r.key).forEach(function(e){ vset[e.v] = 1; }); });
+  document.getElementById('ctSummary').textContent = 'Showing ' + list.length + ' of ' + ALL.length + ' · ' + priced + ' priced · ' + entries + ' prices · ' + Object.keys(vset).length + ' vendors';
+  document.getElementById('cntTbl').textContent = '— structure from Material Master · prices editable here';
+}
+function fillVendors(){
+  var sel = document.getElementById('vendSel');
+  var prev = sel.value, vs = {};
+  for (var k in PRICES) PRICES[k].forEach(function(e){ vs[e.v] = 1; });
+  var names = Object.keys(vs).sort();
+  sel.innerHTML = '<option value="">— all vendors —</option>' +
+    names.map(function(n){ return '<option>' + esc(n) + '</option>'; }).join('');
+  if (prev && names.indexOf(prev) > -1) sel.value = prev;
+}
+function onSearch(v){ q = v; renderTable(); }
+function flashRow(id){
+  var row = document.getElementById('row-' + id);
+  if (!row) return;
+  if (row.scrollIntoView) row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  row.classList.add('flash'); setTimeout(function(){ row.classList.remove('flash'); }, 900);
+}
+
+/* ---------- detail ---------- */
+function showDetail(key){
+  var r = BY_KEY[key]; if (!r) return;
+  curKey = key;
+  document.getElementById('dName').innerHTML = esc(r.g) + ' &nbsp;<span class="code' + (r.int?' int':'') + '">' + (r.int?'Internal · ':'') + esc(r.code || '—') + '</span>';
+  document.getElementById('dPath').textContent = r.cat + ' › ' + r.sub;
+  document.getElementById('dPill').innerHTML = r.active ? '<span class="pill on">● Active</span>' : '<span class="pill off">○ Inactive</span>';
+  var ps = pricesOf(key);
+  document.getElementById('dBody').innerHTML = ps.map(function(e, i){
+    return '<tr>' +
+      '<td>' + esc(e.v) + (i === 0 ? ' <span class="pill on">best</span>' : '') + '</td>' +
+      '<td class="r" style="font-weight:700;color:var(--navy)">' + money(e.p) + '</td>' +
+      '<td>' + esc(e.u || '/lb') + '</td>' +
+      '<td>' + esc(dShort(e.d)) + '</td>' +
+      '<td><span class="srcpill' + (e.s === 'upload' ? ' up' : '') + '">' + (e.s === 'upload' ? 'sheet' : (e.s === 'seed' ? 'sample' : 'manual')) + '</span></td>' +
+      '<td><button class="xdel" title="Remove" onclick="delPrice(\'' + key.replace(/\\/g,'\\\\').replace(/'/g, "\\'") + '\',' + i + ')">&times;</button></td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('dTable').style.display = ps.length ? '' : 'none';
+  document.getElementById('dNone').style.display = ps.length ? 'none' : 'block';
+  document.getElementById('detail').style.display = 'block';
+}
+function delPrice(key, sortedIdx){
+  var sorted = pricesOf(key);
+  var victim = sorted[sortedIdx];
+  var arr = PRICES[key] || [];
+  var real = arr.indexOf(victim);
+  if (real === -1){ // fall back: match by fields
+    real = arr.findIndex(function(e){ return e.p === victim.p && e.v === victim.v && e.d === victim.d; });
+  }
+  if (real > -1){ arr.splice(real, 1); if (!arr.length) delete PRICES[key]; savePrices(PRICES); }
+  audit('removed 1 price — ' + (BY_KEY[key] ? BY_KEY[key].g : ''));
+  showDetail(key); renderTable();
+}
+
+/* ---------- add price ---------- */
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openAdd(key){
+  if (!key) return;
+  curKey = key;
+  var r = BY_KEY[key];
+  document.getElementById('apGrade').value = r.g + (r.code ? ' · ' + r.code : '') + '   (' + r.cat + ' › ' + r.sub + ')';
+  document.getElementById('apDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('apMsg').textContent = '';
+  document.getElementById('add-modal').classList.add('open');
+}
+function savePrice(){
+  var v = document.getElementById('apVendor').value.trim();
+  var p = parseFloat(document.getElementById('apPrice').value);
+  if (!v){ document.getElementById('apMsg').textContent = 'Vendor is required.'; return; }
+  if (!(p >= 0)){ document.getElementById('apMsg').textContent = 'Enter a price.'; return; }
+  (PRICES[curKey] = PRICES[curKey] || []).push({
+    v: v, p: p,
+    u: document.getElementById('apUnit').value,
+    d: document.getElementById('apDate').value,
+    s: 'manual'
+  });
+  savePrices(PRICES);
+  audit('added ' + money(p) + ' (' + v + ') — ' + BY_KEY[curKey].g);
+  closeModal('add-modal');
+  document.getElementById('apVendor').value = ''; document.getElementById('apPrice').value = '';
+  fillVendors(); renderTable(); showDetail(curKey);
+}
+
+/* ---------- upload & auto-match ---------- */
+function openUpload(){
+  document.getElementById('upRes').innerHTML = '';
+  document.getElementById('upFile').value = '';
+  document.getElementById('up-modal').classList.add('open');
+}
+function norm(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9#]/g, ''); }
+var CODE_IX = {}, NAME_IX = {};
+ALL.forEach(function(r){
+  if (r.code) (CODE_IX[norm(r.code)] = CODE_IX[norm(r.code)] || []).push(r);
+  (NAME_IX[norm(r.g)] = NAME_IX[norm(r.g)] || []).push(r);
+});
+function matchRow(codeVal, gradeVal){
+  var c = norm(codeVal);
+  if (c && CODE_IX[c]){ return CODE_IX[c].length === 1 ? CODE_IX[c][0] : null; }
+  var g = norm(gradeVal);
+  if (!g) return null;
+  if (NAME_IX[g] && NAME_IX[g].length === 1) return NAME_IX[g][0];
+  var hits = ALL.filter(function(r){ var n = norm(r.g); return n.indexOf(g) !== -1 || g.indexOf(n) !== -1; });
+  return hits.length === 1 ? hits[0] : null;
+}
+function parseCSV(text){
+  var line0 = text.slice(0, text.indexOf('\n') + 1 || text.length);
+  var delim = [',', ';', '\t'].sort(function(a, b){ return line0.split(b).length - line0.split(a).length; })[0];
+  var rows = [], row = [], cell = '', inQ = false;
+  for (var i = 0; i < text.length; i++){
+    var ch = text[i];
+    if (inQ){
+      if (ch === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else inQ = false; }
+      else cell += ch;
+    } else if (ch === '"'){ inQ = true; }
+    else if (ch === delim){ row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r'){
+      if (ch === '\r' && text[i+1] === '\n') i++;
+      row.push(cell); cell = '';
+      if (row.some(function(x){ return x.trim() !== ''; })) rows.push(row);
+      row = [];
+    } else cell += ch;
+  }
+  if (cell !== '' || row.length){ row.push(cell); if (row.some(function(x){ return x.trim() !== ''; })) rows.push(row); }
+  return rows;
+}
+function colIndex(headers, patterns, excludeIdx){
+  for (var i = 0; i < headers.length; i++){
+    if (i === excludeIdx) continue;
+    var h = headers[i].toLowerCase();
+    for (var j = 0; j < patterns.length; j++) if (h.indexOf(patterns[j]) !== -1) return i;
+  }
+  return -1;
+}
+function importRows(rows){
+  if (!rows.length) return { err: 'File is empty.' };
+  var H = rows[0].map(function(x){ return String(x).trim(); });
+  var iCode = colIndex(H, ['code']);
+  var iPrice = colIndex(H, ['price', 'rate', 'usd', '$']);
+  var iGrade = colIndex(H, ['grade', 'commodity', 'material', 'item', 'description'], iCode);
+  var iVendor = colIndex(H, ['vendor', 'buyer', 'consumer', 'customer', 'company']);
+  var iUnit = colIndex(H, ['unit', 'uom']);
+  var iDate = colIndex(H, ['date', 'effective']);
+  if (iPrice === -1) return { err: 'No price column found (looked for: price, rate, usd, $).' };
+  if (iCode === -1 && iGrade === -1) return { err: 'No code or grade column found.' };
+  var defVendor = document.getElementById('upVendor').value.trim() || 'Uploaded sheet';
+  var today = new Date().toISOString().slice(0, 10);
+  var okN = 0, grades = new Set(), un = [];
+  rows.slice(1).forEach(function(row, ri){
+    var price = parseFloat(String(row[iPrice] || '').replace(/[$,\s]/g, ''));
+    var ident = (iCode > -1 ? row[iCode] : '') || (iGrade > -1 ? row[iGrade] : '');
+    if (!(price >= 0) || String(ident).trim() === ''){ if (String(ident).trim()) un.push('Row ' + (ri + 2) + ': "' + ident + '" — no valid price'); return; }
+    var r = matchRow(iCode > -1 ? row[iCode] : '', iGrade > -1 ? row[iGrade] : '');
+    if (!r){ un.push('Row ' + (ri + 2) + ': "' + ident + '" — no unique match in structure'); return; }
+    (PRICES[r.key] = PRICES[r.key] || []).push({
+      v: (iVendor > -1 && String(row[iVendor]).trim()) ? String(row[iVendor]).trim() : defVendor,
+      p: price,
+      u: (iUnit > -1 && String(row[iUnit]).trim()) ? String(row[iUnit]).trim() : '/lb',
+      d: (iDate > -1 && String(row[iDate]).trim()) ? String(row[iDate]).trim() : today,
+      s: 'upload'
+    });
+    okN++; grades.add(r.key);
+  });
+  savePrices(PRICES);
+  return { ok: okN, grades: grades.size, un: un };
+}
+function showImportResult(res, fname){
+  var el = document.getElementById('upRes');
+  if (res.err){ el.innerHTML = '<b style="color:var(--danger)">' + esc(res.err) + '</b>'; return; }
+  var html = '<b style="color:#1B3050">' + res.ok + ' prices imported into ' + res.grades + ' grades.</b>';
+  if (res.un.length){
+    html += '<div style="margin-top:6px;color:var(--tx-warn);font-weight:600">' + res.un.length + ' rows not matched:</div><ul>' +
+      res.un.slice(0, 8).map(function(u){ return '<li>' + esc(u) + '</li>'; }).join('') +
+      (res.un.length > 8 ? '<li>… and ' + (res.un.length - 8) + ' more</li>' : '') + '</ul>';
+  }
+  el.innerHTML = html;
+  audit('imported ' + res.ok + ' prices from ' + fname);
+  fillVendors(); renderTable();
+  if (curKey) showDetail(curKey);
+}
+function runImport(){
+  var f = document.getElementById('upFile').files[0];
+  if (!f){ document.getElementById('upRes').innerHTML = '<b style="color:var(--danger)">Choose a file first.</b>'; return; }
+  var name = f.name.toLowerCase();
+  if (/\.(xlsx|xls)$/.test(name)){
+    if (!window.XLSX){ document.getElementById('upRes').innerHTML = '<b style="color:var(--danger)">Excel reader unavailable offline — save the sheet as CSV and retry.</b>'; return; }
+    var fr = new FileReader();
+    fr.onload = function(e){
+      try {
+        var wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        var csv = XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);
+        showImportResult(importRows(parseCSV(csv)), f.name);
+      } catch(err){ document.getElementById('upRes').innerHTML = '<b style="color:var(--danger)">Could not read workbook.</b>'; }
+    };
+    fr.readAsArrayBuffer(f);
+  } else {
+    var fr2 = new FileReader();
+    fr2.onload = function(e){ showImportResult(importRows(parseCSV(String(e.target.result))), f.name); };
+    fr2.readAsText(f);
+  }
+}
+
+/* ---------- audit line ---------- */
+function audit(txt){
+  document.getElementById('auditTxt').textContent = txt;
+  document.getElementById('auditWho').textContent = 'J. Russell · today';
+}
+
+/* ---------- live sync with Material Master / other tabs ---------- */
+window.addEventListener('storage', function(e){
+  if (e.key === window.DMS_MAT_ACTIVE_KEY){ applyActive(); refreshGradeDropdown(); renderTable(); if (curKey) showDetail(curKey); }
+  if (e.key === PKEY){ PRICES = loadPrices(); fillVendors(); renderTable(); if (curKey) showDetail(curKey); }
+});
+
+updateCounts(); fillSeg(); fillVendors(); renderTable();
+</script><script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body></html>

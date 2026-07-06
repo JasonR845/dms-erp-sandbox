@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Critical Maintenance / Breakdown Log</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+  :root{
+    --navy:#14253D; --navy-2:#1B3050; --ink:#2E3338; --muted:#8C97A4;
+    --line:#C5CCD6; --line-soft:#E3E7EC; --gold:#9A7430; --gold-line:#B68A3A;
+    --panel:#F4F6F8; --card:#fff; --bg:#EEF1F4;
+    --ok-c:#1F6B3B; --ok-bg:#D7DCE1;
+    --low-c:#2E3338; --low-bg:#EAD9B4;
+    --out-c:#B3261E; --out-bg:#FBF1F0;
+    --off-c:#8C97A4; --off-bg:#F4F6F8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--bg);font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1280px;margin:0 auto;padding:20px 20px 64px;}
+
+  .appbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .appbar .mark{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;letter-spacing:.02em;flex:none;}
+  .appbar h1{margin:0;font-size:15px;color:var(--navy);font-weight:800;}
+  .appbar .sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .appbar .tag{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);background:#F4F6F8;border:0.5px solid var(--gold-line);padding:4px 10px;border-radius:999px;flex:none;}
+
+  #mockupRoot{color:var(--ink);}
+  #mockupRoot button,#mockupRoot a.btn{font-family:'Inter',Arial,Helvetica,sans-serif;transition:background .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease;}
+  #mockupRoot button:focus-visible,#mockupRoot input:focus-visible,#mockupRoot select:focus-visible,#mockupRoot a.btn:focus-visible{outline:2px solid var(--navy);outline-offset:1px;}
+  #mockupRoot ::placeholder{color:#AAB2BC;}
+
+  .card{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,37,61,.05);}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
+  .lbl{font-size:11px;color:var(--muted);margin-bottom:4px;}
+
+  .txt{width:100%;height:30px;border:0.5px solid var(--line);border-radius:6px;padding:0 8px;font-size:12px;color:var(--ink);background:#fff;}
+  .ta{width:100%;min-height:64px;border:0.5px solid var(--line);border-radius:6px;padding:8px;font-size:12px;font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:#fff;resize:vertical;}
+  .sel{width:100%;height:34px;border:0.5px solid var(--line);border-radius:8px;padding:0 28px 0 10px;font-size:13px;color:var(--ink);cursor:pointer;
+       background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C97A4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 9px center;
+       -webkit-appearance:none;-moz-appearance:none;appearance:none;}
+  .sel:hover{border-color:#AAB4C0;}
+  .sel.small{height:30px;font-size:12px;padding:0 24px 0 8px;background-position:right 7px center;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:0.5px solid var(--line);background:#fff;color:var(--navy);font-size:12px;cursor:pointer;white-space:nowrap;text-decoration:none;}
+  .btn.ghost:hover{background:var(--panel);}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .btn.primary:hover{background:var(--navy-2);color:#fff;}
+  .btn.danger{background:var(--out-c);color:#fff;border-color:var(--out-c);}
+  .btn.danger:hover{background:#8F1E17;}
+  .iconbtn{width:26px;height:26px;border:0.5px solid var(--line);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+  .iconbtn:hover{background:var(--panel);}
+  .iconbtn.danger{color:#A32D2D;}
+
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .kpi{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(20,37,61,.05);}
+  .kpi .n{font-size:22px;font-weight:800;color:var(--navy);line-height:1.1;}
+  .kpi .l{font-size:11px;color:var(--muted);margin-top:4px;}
+  .kpi.warn .n{color:var(--low-c);}
+  .kpi.bad .n{color:var(--out-c);}
+  .kpi.good .n{color:var(--ok-c);}
+
+  .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .toolbar .searchwrap{position:relative;flex:1;min-width:220px;}
+  .toolbar .searchwrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
+  .toolbar input.search{width:100%;height:32px;border:0.5px solid var(--line);border-radius:8px;padding:0 10px 0 30px;font-size:12px;background:#fff;}
+  .chip{height:28px;padding:0 12px;border-radius:999px;border:0.5px solid var(--line);background:#fff;color:var(--ink);font-size:11px;font-weight:700;cursor:pointer;}
+  .chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .chip.active.badchip{background:var(--out-bg);border-color:#E0A9A4;color:var(--out-c);}
+  .chip.active.warnchip{background:var(--low-bg);border-color:var(--gold-line);color:var(--low-c);}
+
+  .tablewrap{overflow-x:auto;border:0.5px solid var(--line-soft);border-radius:10px;}
+  table.inv{width:100%;border-collapse:collapse;font-size:12px;min-width:1240px;}
+  table.inv thead th{position:sticky;top:0;background:var(--navy);color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:8px 10px;white-space:nowrap;z-index:1;}
+  table.inv tbody td{padding:8px 10px;border-bottom:0.5px solid var(--line-soft);vertical-align:middle;}
+  table.inv tbody tr:hover{background:#FAFBFC;}
+  table.inv tbody tr.row-immediate{background:#FFF4F3;}
+  table.inv tbody tr.row-urgent{background:#FFFFFF;}
+  .cell-strong{font-weight:700;color:var(--ink);}
+  .cell-muted{color:var(--muted);}
+  .pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;}
+  .actionsrow{display:flex;gap:4px;}
+  .details-badges{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:11px;}
+  .details-badges i{font-size:13px;vertical-align:-2px;}
+  .details-badges span.on{color:var(--navy);font-weight:700;}
+
+  .foot{font-size:11px;color:var(--muted);margin-top:10px;}
+  .note{font-size:10px;color:var(--muted);margin-top:6px;}
+  .note.warn{color:var(--low-c);}
+  .note.danger{color:var(--out-c);}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,37,61,.45);z-index:50;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal-card{background:#fff;border-radius:12px;max-width:640px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 12px 40px rgba(20,37,61,.28);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid var(--line-soft);}
+  .modal-head h3{margin:0;font-size:14px;color:var(--navy);font-weight:800;}
+  .modal-body{padding:16px 20px;}
+  .modal-body .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .modal-body label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px;}
+  .modal-section{border-top:0.5px solid var(--line-soft);padding-top:12px;margin-top:4px;margin-bottom:12px;}
+  .modal-section .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .modal-foot{display:flex;gap:8px;padding:14px 20px;border-top:0.5px solid var(--line-soft);}
+  .modal-close{width:26px;height:26px;border-radius:6px;border:0.5px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;}
+  .modal-close:hover{background:var(--panel);}
+
+  .photo-tile{position:relative;width:56px;height:56px;border-radius:8px;background:var(--panel);border:0.5px solid var(--line-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);}
+  .photo-tile span{font-size:8px;margin-top:2px;text-align:center;line-height:1.1;padding:0 3px;}
+  .photo-tile .rm{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:0.5px solid var(--line);background:#fff;color:#A32D2D;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;line-height:1;}
+  .photo-add{width:56px;height:56px;border-radius:8px;border:0.5px dashed var(--line);background:#fff;color:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;}
+  .photo-add span{font-size:8px;margin-top:2px;}
+
+  .part-row{display:flex;gap:6px;align-items:center;}
+  .part-row select.part-sel{flex:1;min-width:0;}
+  .part-row select.unit-sel{width:100px;flex:none;}
+  .part-row input[type="number"]{width:56px;flex:none;}
+
+  .banner-immediate{display:flex;align-items:center;gap:8px;background:var(--out-bg);border:0.5px solid #E0A9A4;color:var(--out-c);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;margin-bottom:12px;}
+  .banner-immediate i{font-size:16px;}
+
+  @media print{ .appbar,.card,.kpis,.toolbar,.modal-overlay{display:none!important;} }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAG+klEQVR42u1ZXYxUZxl+3vf7zpkzsMMuA1iolIIFCg0haUVLtxcWtZCWQm2hXsiF9sKf1l7UYEz0ojHxkqSpJibGpgmYmJgSa6ItaPSS/kFbKKWtLSzrsmwX9m/2zOzOOXPOd97Xi7MsP1KdWWaNGN7kJJMz33zf+z7f8/4OcENuyA1pvxDlz5WfrwuF27m2CTEz1PhTlTBe0fPnlpcF82/eNqd865O2WJrPbKtQmVRxclWDMHODqLWl+i9v2QusF5QWe0FntwnmPer5c7aS9Tryb3X6CHXpRJrUX8ni6ktpHL6WxrVzksau2XPaYMCUwrZgbNCxyCt23e0FpUdMYe42Nn4ZBEAEqgKoJFAIGAyBgMAg9okYYAYUkCwZyxqTf0rj2h/SaPxNF08Mi2tks3YDxfm33ON3LPym9edsZ+stARGgCpUMgCQQCJgsQAyAr7KFACoQdWAwwD6xwYV9xKWDLqn/MZkY2RdV+l9vqwFEjPKKjZ8YP1gimQOQNaPwf5IrDDI+G4ssiQfHet+4WVWa2sQ2ZyaTQCokyYJcYfZnpPIVbASIcxByLxFJRCAVEBNUtI0GAExUBNgHmoRmRgaxZaJiK57ZHI4KqEj630gpKpK2EISaNUAUkArl0MzWDUi+v1SapU/TBqgKVLLBi7F9VrCfwiob1BZYys0GKknTj/OsOVs+oAKi/JwWIjw3qT+yNDoOIkBmiUICAVF+TgsZqulgmKX1E7NbDxKYueVzuElqwjUmeiECMNt2Ks5EsNYgU7XVsIo0nuhtxdW4WedyjXpN0qQHRLYdkcgYhjGMqNHA0MiYFAoFe/+XNvRapLVWgkWTFCKoOHVJ7UUiBiDuWtBWVYyHNYyHNaxcvgzP/PB77tUDv8FT33rkxTiOlLn5NN90JoYCyWRlv19a9OO8DmoNbQCoRw3U6xEWzO/Eww98Gbt2Poj7N3XDs0astXju2T37AYCZIdLOWkjz60wmx06oS2Mw+82gzYaRphnGw5wVa1d/Dju2fRWPPbwFt69cPr02TVO/0WjEBw8eeA9A08o3b8B0JIrSJKq+UOgoP6GSJnlt9G/QjiKUuzqx/YFN2LVzKzZv6kYxKOCCkqqASJZYa+2hQ4f2njx5MmkF/dYMmKrbk9rQLwqlBd+/pNmaRtu5i2ivWZWj/fWvXY52lmUgorw1hkKgICLeu2/fc63SZ0YdGbGlruUbPrC2sDr3NeIoijFZj1Ce34n77t2Ab+zcii2bulEsBhfRFgFxXu0Qmylm5ln93EBvz9p1d90ehqESEVR1digEyqNRUj2/m8vLXqmOhzHAwZrVK/DoQznaa1atmF7uXAqiPHWwvXiUZA614ZMY6j2SpMPHgp/v/fPuMAzVMCGT1mqtGY0DjBeYxavuObfxi3eWd+14EFu+ci/PmUI7cw4KhbXeZb+Ja0OoDBzHSO9hjJ09htpIn2hWF5dR9TvP/v2m0ZpzgEJbrBVt6wnIIEvj7PHH7nvqZz995nfOudhaEzjnYK2FmUI6cw1Uz3+E0b63MNJ3BNVzH6ExOQpVhbEFKNuk3LUo+O1f+58cqaYuR39WxypTDjvlZEuXLjUnTrw/UCp1LCAiJiKuh5+gcvZdjPS+ibGzx1Ef70eWxiC2MF4ANt4UhUSMgdRjN/rtPUc/O1ZNskui9ewOtlQVxhiEYai+Z965e93ix08d2d849erz9uSh59H/3ssIBz9EltbBtgDrz4Exfo6VCqAKJ9Lomuv5+/7Sv/3wB5XThgkywzZjRj6QTwcJvgH9avf61xd1yBccrHheYMnY6SboAqSqeWWjChDBdQTMfUPR4e/uOdadpJnqDNFvqZy+SmJGnKr++uWBHaWuhcxe0YEYKhkkyyCiyCRX3LNARwGYVwSYxA3VmH/50j92xkmmIJqx8tcwG82NYCacOV+vLV0UZGtvLW2ejFzChoxngaKXP6LAUBU4doZw8F0kvz9aKOz729BPek6fOdBqzG8bhS6bywIoz/PNCz+6q3dhp1kyESmPToBPDxM+HCR8fA4YqBCqEUSUhCkdqJ99+zZIkmkb2utrnnMzEUQVG9d95rb16+849VZPEg+GJqhGQKaAZwDfAIYkZusH4cD7K6PqUE+rQ9y2U+jSdoeIcHZosvLO2SCc1K6HNHNx4JMNPMAyAJUY1g+i8cEfTI72HZwaDrSnFW1fawiwsdS57POvsQ02qmYOIAuoIzI2S+M3Kn1vd6tk2s7RTBv/+8lR9YrzOjtvuXMMkiUgslB1YOOH/UfLaVQN20Wdawqjn0omIqRRNZwc7ukm6weiUiXrB5PDPd1pVA3bSZ3ZnI8AAEpL1jx90x2btbRkzdOXhazrRYgtlRavfYLYXmea/3/JDfBvyP+8/BOoWmUyUtUH8QAAAABJRU5ErkJggg==">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="appbar">
+    <div class="mark">DMS</div>
+    <div>
+      <h1>Critical Maintenance / Breakdown Log</h1>
+      <div class="sub">Report, triage and close out equipment breakdowns — the reactive half of the maintenance program</div>
+    </div>
+  </div>
+
+  <div id="mockupRoot">
+  <h2 style="position:absolute;width:1px;height:1px;overflow:hidden;">Critical maintenance breakdown log scoped by equipment category, type and asset, with severity triage (Concerning/Needs technician/Repair/Urgent/Immediate), status tracking, downtime state, assigned technician, notes, photos and parts used (parts chosen from a dropdown, with an add-to-inventory workflow), plus a report-breakdown action and a double-click or edit-icon popup for updating a breakdown record.</h2>
+
+  <!-- Equipment taxonomy — view/select only, no add or edit of equipment here -->
+  <div class="card">
+    <div class="eyebrow" style="margin-bottom:10px;">Equipment taxonomy · view only</div>
+    <div class="grid3">
+      <div>
+        <div class="lbl">1. Equipment category</div>
+        <select id="catSel" class="sel"></select>
+      </div>
+      <div>
+        <div class="lbl">2. Equipment type</div>
+        <select id="typeSel" class="sel"></select>
+      </div>
+      <div>
+        <div class="lbl">3. Specific equipment / asset</div>
+        <select id="assetSel" class="sel"></select>
+      </div>
+    </div>
+    <div id="breadcrumb" style="margin-top:10px;font-size:12px;color:var(--gold);font-weight:700;"></div>
+    <div class="note">Selecting a category, type or asset scopes the breakdown log below to that equipment. Equipment itself can only be added or edited on the Equipment / Part Detail page.</div>
+  </div>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <div class="card">
+    <div id="immediateBanner" class="banner-immediate" style="display:none;"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span id="immediateBannerText"></span></div>
+    <div class="toolbar">
+      <div class="searchwrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input id="searchInput" class="search" type="text" placeholder="Search description, equipment, technician…"/>
+      </div>
+      <button class="chip active" data-filter="all">All (<span id="cntAll"></span>)</button>
+      <button class="chip" data-filter="open">Open (<span id="cntOpen"></span>)</button>
+      <button class="chip badchip" data-filter="critical">Immediate / Urgent (<span id="cntCritical"></span>)</button>
+      <button class="chip warnchip" data-filter="down">Down now (<span id="cntDown"></span>)</button>
+      <button id="addBreakdownBtn" class="btn danger" style="margin-left:auto;"><i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:14px;"></i>Report breakdown</button>
+    </div>
+    <div class="note" style="margin-bottom:10px;">Double-click a row — or use the edit icon — to update status, add notes, log parts used, or close it out.</div>
+
+    <div class="tablewrap">
+      <table class="inv">
+        <thead>
+          <tr>
+            <th>Reported</th>
+            <th>Equipment</th>
+            <th>Description</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Downtime</th>
+            <th>Assigned to</th>
+            <th>Details</th>
+            <th>Resolved</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="foot" id="rowCountFoot"></div>
+    <div class="note">Severity uses the same Concerning / Needs technician / Repair / Urgent / Immediate scale as the Preventive Maintenance task editor — see the Critical Maintenance &amp; Breakdown Response Plan for the full definitions and response standards.</div>
+    <div class="note warn">⚠ Industrial shredder (Shred-Tech ST-15H) failure-mode guidance is sourced from the Shred-Tech ST-15H reference, a v0.9 draft pending 33 OEM verifications.</div>
+    <div class="note danger">Immediate-severity breakdowns require lockout/tagout and universal stop-work authority applies — anyone can and should stop unsafe work, without prior approval.</div>
+    <div class="note">Parts-used dropdown is sourced from the DMS Spare Parts &amp; Inventory Program critical-spares list (the same reference list used by the Preventive Maintenance task editor). Only the fi-7900 scanner parts have OEM-verified part numbers today (marked ⚠ otherwise).</div>
+  </div>
+  </div><!-- #mockupRoot -->
+
+  <!-- Add / edit modal -->
+  <div id="editModalOverlay" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="editModalTitle">Report breakdown</h3>
+        <button id="editModalClose" class="modal-close" aria-label="Close edit window">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:10px;"><label>What happened</label><input id="emDesc" class="txt" placeholder="e.g. LPG smell near regulator"/></div>
+        <div class="grid2">
+          <div><label>Equipment / asset</label><select id="emEquipment" class="sel small"></select></div>
+          <div><label>Component / system</label><input id="emComponent" class="txt" placeholder="e.g. LPG system"/></div>
+        </div>
+        <div class="grid2">
+          <div><label>Severity</label>
+            <select id="emSeverity" class="sel small">
+              <option value="Concerning">Concerning</option>
+              <option value="Needs technician">Needs technician</option>
+              <option value="Repair">Repair</option>
+              <option value="Urgent">Urgent</option>
+              <option value="Immediate">Immediate</option>
+            </select>
+          </div>
+          <div><label>Downtime state</label>
+            <select id="emDowntime" class="sel small">
+              <option value="Operational">Operational — still running</option>
+              <option value="Degraded">Degraded — reduced duty / standby</option>
+              <option value="Down">Down — out of service</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label>Related Preventive Maintenance task (optional)</label>
+          <select id="emPmTask" class="sel small"></select>
+          <div class="note" style="margin-top:4px;">If this breakdown grew out of a scheduled PM item — an overdue service, a monthly inspection finding — link it here. Options are scoped to the equipment above and flag ⚠ Overdue / Due soon from the Preventive Maintenance register.</div>
+        </div>
+        <div class="grid2">
+          <div><label>Status</label>
+            <select id="emStatus" class="sel small">
+              <option value="Open">Open</option>
+              <option value="In progress">In progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
+          <div><label>Assigned to</label>
+            <select id="emAssigned" class="sel small">
+              <option>Unassigned</option>
+              <option>Operator</option>
+              <option>Technician</option>
+              <option>Qualified technician</option>
+              <option>LPG-certified technician</option>
+              <option>Vendor technician</option>
+              <option>Fleet/Maintenance Manager</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div><label>Reported by</label>
+            <select id="emReportedBy" class="sel small">
+              <option>Driver</option><option>Operator</option><option>Technician</option>
+              <option>Route/Floor Supervisor</option><option>Fleet/Maintenance Manager</option>
+            </select>
+          </div>
+          <div><label>Reported date</label><input id="emReportedDate" type="date" class="txt"/></div>
+        </div>
+        <div class="grid2">
+          <div><label>Resolved date</label><input id="emResolvedDate" type="date" class="txt"/></div>
+          <div style="display:flex;align-items:flex-end;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);cursor:pointer;margin:0;">
+              <input type="checkbox" id="emLoto" style="width:13px;height:13px;"/> Lockout/tagout applied
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <div class="sec-head"><label style="margin:0;">Description / findings</label></div>
+          <textarea id="emNotes" class="ta" placeholder="What was observed, what was checked, and any immediate containment taken…"></textarea>
+        </div>
+
+        <div class="modal-section">
+          <div class="sec-head"><label style="margin:0;">Resolution &amp; root cause</label></div>
+          <textarea id="emResolution" class="ta" placeholder="What fixed it, and — for Immediate/Urgent events — the 5-Why root cause…"></textarea>
+        </div>
+
+        <div class="modal-section">
+          <div class="sec-head">
+            <label style="margin:0;">Photos</label>
+          </div>
+          <div id="emPhotoGrid" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+
+        <div class="modal-section" style="border-bottom:none;margin-bottom:0;">
+          <div class="sec-head">
+            <label style="margin:0;">Parts used</label>
+            <div style="display:flex;gap:6px;">
+              <button type="button" id="emAddPartRow" class="btn ghost" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-plus" aria-hidden="true" style="font-size:12px;"></i>Add part</button>
+              <button type="button" id="emAddToInventoryBtn" class="btn ghost" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-package" aria-hidden="true" style="font-size:12px;"></i>Add part to inventory</button>
+            </div>
+          </div>
+          <div id="emPartsRows" style="display:flex;flex-direction:column;gap:6px;"></div>
+          <div id="emPartsEmpty" class="note" style="margin-top:4px;">No parts logged against this breakdown yet.</div>
+
+          <div id="emNewPartForm" style="display:none;margin-top:10px;padding:10px;border:0.5px dashed var(--line);border-radius:8px;background:var(--panel);">
+            <div class="grid2" style="margin-bottom:8px;">
+              <div><label>Part name</label><input id="npName" class="txt" placeholder="e.g. Cabin air filter"/></div>
+              <div><label>Part number</label><input id="npPartNo" class="txt" placeholder="e.g. OEM — confirm PN"/></div>
+            </div>
+            <div class="grid2" style="margin-bottom:8px;">
+              <div><label>Equipment / asset</label><select id="npEquipment" class="sel small"></select></div>
+              <div style="display:flex;align-items:flex-end;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);cursor:pointer;margin:0;">
+                  <input type="checkbox" id="npVerified" style="width:13px;height:13px;"/> OEM-verified part number
+                </label>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" id="npSave" class="btn primary" style="height:28px;padding:0 12px;font-size:11px;">Save to inventory</button>
+              <button type="button" id="npCancel" class="btn ghost" style="height:28px;padding:0 12px;font-size:11px;">Cancel</button>
+            </div>
+            <div class="note" style="margin-top:6px;">Adds this part to the shared Spare Parts &amp; Inventory reference list (also used by the Preventive Maintenance task editor) and links it to this breakdown.</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="emSave" class="btn primary">Save breakdown</button>
+        <button id="emCancel" class="btn ghost" style="color:var(--ink);">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  // Same equipment taxonomy as the Equipment / Part Detail, Spare Parts Inventory and
+  // Preventive Maintenance mockups — reused read-only here so breakdown records stay
+  // tied to a real category/type/asset without this page adding or editing equipment.
+  var taxonomy = {
+    "Production Vehicles": { types: {
+      "Forklift": ["Toyota 8FGCU25 · 002", "Toyota 8FGCU25 · 001"],
+      "Bobcat": ["Bobcat S650 · 001"], "Front Loader": ["Cat 950M · 001"], "Skid Steer": ["Bobcat T770 · 001"], "Other": []
+    } },
+    "Over-the-Road Vehicles": { types: {
+      "Truck": ["Freightliner M2 106 · 001"], "Trailer": [],
+      "Utility Truck": ["Ford F-250 · 003"], "Car": ["Nissan Versa · 001"], "Other": []
+    } },
+    "Production Machinery": { types: {
+      "Wire Stripper": ["Wire Stripper · 001"], "Hydraulic Press": ["Hydraulic Press · 003"],
+      "Plasma Cutter": ["Plasma Cutter · 001"], "Cutting Torch": ["Cutting Torch · 002"],
+      "Industrial Shredder": ["Shred-Tech ST-15H · SHR-001"], "Conveyor": ["Vibrating Conveyor · 001"], "Magnet": ["Drum Magnet · 001"], "Other": []
+    } },
+    "Production Lines": { types: {
+      "Hammermill Line": ["Hammermill Line · 001"], "Chopping Line": ["Chopping Line · 001"],
+      "Sorting Line": ["Sorting Line · 001"], "Baling Line": ["Baling Line · 001"], "Other": []
+    } },
+    "Facilities": { types: {
+      "Bathroom": ["Bathroom · Main Bldg"], "Warehouse": ["Warehouse Area · 001"],
+      "Hammermill Area": ["Hammermill Area · 001"], "Production Area": ["Production Area · 001"],
+      "Office": ["Office · Front"], "Maintenance Area": ["Maintenance Area · 001"], "Yard": ["Yard · 001"], "Other": []
+    } },
+    "IT & Computer Equipment": { types: {
+      "Desktop Computer": ["Desktop · Office 1"], "Laptop": ["Laptop · Sales 1"], "Server": ["Server Rack · 002"],
+      "Printer": ["Printer · Front Office"], "Scanner": ["Ricoh fi-7900 · SCAN-001"],
+      "Network Equipment": ["Core Switch · 001"], "Security Camera": ["Camera · Gate 1"], "Other": []
+    } }
+  };
+
+  function allAssetsFlat(){
+    var out = [];
+    Object.keys(taxonomy).forEach(function(c){
+      Object.keys(taxonomy[c].types).forEach(function(t){
+        taxonomy[c].types[t].forEach(function(a){ if (out.indexOf(a) === -1) out.push(a); });
+      });
+    });
+    return out;
+  }
+
+  // Same Spare Parts & Inventory reference list as the Preventive Maintenance mockup —
+  // kept in sync so a part added from either screen is available on both.
+  var SPARE_PARTS = [
+    { id:1,  name:"DPF (diesel particulate filter)", partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:2,  name:"DEF injector",                     partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:3,  name:"EGR valve",                         partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:4,  name:"VGT actuator",                       partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:5,  name:"Lift pump",                           partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:6,  name:"Fuel injector set",                   partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:7,  name:"Water pump",                          partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+
+    { id:8,  name:"Knife set",                    partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:9,  name:"Counter-knives / spacers",      partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:10, name:"Screen set",                     partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:11, name:"Shaft bearing",                   partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:12, name:"Hydraulic filter set (return/pressure/suction/breather)", partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:13, name:"Hydraulic hose",                  partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:14, name:"Cylinder seal kit",               partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+
+    { id:15, name:"Engine oil filter",       partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:16, name:"Air filter",               partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:17, name:"LPG inline filter",         partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:18, name:"LPG regulator / vaporizer", partNo:"OEM only — long lead", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:19, name:"LPG mixer",                  partNo:"OEM only", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:20, name:"Spark plug set",              partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:21, name:"Hydraulic filter",             partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:22, name:"SAS sensor / valve",            partNo:"OEM only", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:23, name:"Drive belt",                     partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:24, name:"Lift chain set",                  partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+
+    { id:25, name:"Pick roller set",                        partNo:"PA03575-K011",   equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+    { id:26, name:"Brake roller",                            partNo:"PA03575-K013",   equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+    { id:27, name:"Separation roller",                        partNo:"PA03800-K012",   equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+    { id:28, name:"ScanAid kit (rollers + cleaning, all 3)",  partNo:"CG01000-295401", equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+
+    { id:29, name:"Engine oil (diesel)",     partNo:"Per OEM spec — see PM chart", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:30, name:"DEF fluid (ISO 22241)",    partNo:"3 verified sources required", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:31, name:"Engine oil (LPG-grade)",   partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:32, name:"Hydraulic oil",            partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:33, name:"Coolant",                   partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:34, name:"Drive-axle oil",             partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:35, name:"Hydraulic oil",               partNo:"Per lab-analysis program", equipment:"Shred-Tech ST-15H · SHR-001", verified:false }
+  ];
+  function partsFor(equipment){ return SPARE_PARTS.filter(function(p){ return p.equipment === equipment; }); }
+  function partLabel(p){ return p.name + " — " + p.partNo + (p.verified ? "" : " ⚠"); }
+
+  // Same seed register as the Preventive Maintenance mockup — kept here so a breakdown
+  // can be linked back to the scheduled PM task it grew out of (e.g. an overdue service
+  // that turned into an actual failure). Only the fields needed to label + scope the
+  // dropdown are carried over; edit the PM task itself on the Preventive Maintenance page.
+  var PM_TASKS = [
+    { id:1,  task:"Signed pre-trip inspection", equipment:"Freightliner M2 106 · 001", frequency:"Daily", nextDue:"2026-07-01" },
+    { id:2,  task:"Post-trip inspection", equipment:"Freightliner M2 106 · 001", frequency:"Daily", nextDue:"2026-07-01" },
+    { id:3,  task:"Weekly grease / chassis check", equipment:"Freightliner M2 106 · 001", frequency:"Weekly", nextDue:"2026-06-27" },
+    { id:4,  task:"Oil & filter change — 250–300 engine-hr", equipment:"Freightliner M2 106 · 001", frequency:"Hour-based", nextDue:"2026-07-10" },
+    { id:5,  task:"Major OEM service + DOT annual inspection", equipment:"Freightliner M2 106 · 001", frequency:"Annual", nextDue:"2026-08-01" },
+    { id:6,  task:"Daily chamber / safety systems check", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Daily", nextDue:"2026-07-01" },
+    { id:7,  task:"End-of-route chamber & hopper clean-out", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Daily", nextDue:"2026-07-01" },
+    { id:8,  task:"Hydraulic inspection / knife wear gauge reading", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Monthly", nextDue:"2026-07-03" },
+    { id:9,  task:"Hydraulic filter set change + lab oil sample", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Quarterly", nextDue:"2026-07-05" },
+    { id:10, task:"Full guard & interlock audit", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Semi-annual", nextDue:"2026-07-20" },
+    { id:11, task:"60-item pre-op inspection (LPG first)", equipment:"Toyota 8FGCU25 · 001", frequency:"Daily", nextDue:"2026-07-01" },
+    { id:12, task:"End-of-shift shutdown checklist", equipment:"Toyota 8FGCU25 · 001", frequency:"Daily", nextDue:"2026-07-01" },
+    { id:13, task:"250-hour service", equipment:"Toyota 8FGCU25 · 001", frequency:"Hour-based", nextDue:"2026-07-04" },
+    { id:14, task:"500-hour service (hydraulic / SAS)", equipment:"Toyota 8FGCU25 · 001", frequency:"Hour-based", nextDue:"2026-06-20" },
+    { id:15, task:"2,000-hour service", equipment:"Toyota 8FGCU25 · 001", frequency:"Annual", nextDue:"2026-07-20" },
+    { id:16, task:"Daily glass / rollers / sensors clean", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Daily", nextDue:"2026-07-01" },
+    { id:17, task:"Weekly deep-clean rollers", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Weekly", nextDue:"2026-06-30" },
+    { id:18, task:"Monthly counter review / stock rotation", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Monthly", nextDue:"2026-07-01" },
+    { id:19, task:"Roller set replacement (ScanAid kit)", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Hour-based", nextDue:"2026-11-01" },
+    { id:20, task:"Vendor full PM / calibration", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Annual", nextDue:"2026-09-01" },
+  ];
+  function pmDaysUntil(dateStr){
+    var d = new Date(dateStr + "T00:00:00");
+    return Math.round((d - TODAY) / 86400000);
+  }
+  function pmStatusLabel(t){
+    if (t.frequency === "Daily") return "Daily";
+    var d = pmDaysUntil(t.nextDue);
+    if (d < 0) return "⚠ Overdue";
+    if (d <= 14) return "Due soon";
+    return "Scheduled";
+  }
+  function pmTasksFor(equipment){ return PM_TASKS.filter(function(t){ return t.equipment === equipment; }); }
+  function pmTaskById(id){ return PM_TASKS.filter(function(t){ return t.id === id; })[0]; }
+  function pmTaskLabel(t){ return t.task + " — " + pmStatusLabel(t); }
+
+  // Sample breakdown records — illustrate the severity/status/downtime model against the
+  // fatality modes and top failure modes named in the DMS Reliability & Safety programs.
+  var TODAY = new Date("2026-07-02T00:00:00");
+  var BREAKDOWNS = [
+    { id:1, desc:"LPG smell near regulator during pre-op check", component:"LPG system", equipment:"Toyota 8FGCU25 · 001", severity:"Immediate", downtime:"Down", status:"Resolved", assigned:"LPG-certified technician", reportedBy:"Operator", reportedDate:"2026-06-29", resolvedDate:"2026-06-29", loto:true,
+      notes:"Operator reported a faint LPG odor at the regulator during pre-op. Unit tagged out immediately, engine off, area evacuated and ventilated per emergency response procedure.", resolution:"LPG-certified technician found a degraded regulator seal. Regulator replaced with OEM part, full logged leak test passed, unit returned to service same day.",
+      photos:[{id:1,label:"Regulator before"}], parts:[{partId:18,qty:1,unit:"Quantity"}] },
+    { id:2, desc:"Hydraulic hose weeping at a rub point", component:"Hydraulic system", equipment:"Shred-Tech ST-15H · SHR-001", severity:"Urgent", downtime:"Degraded", status:"In progress", assigned:"Technician", reportedBy:"Technician", reportedDate:"2026-07-01", resolvedDate:"", loto:true,
+      notes:"Weekly rub-point scan found a hose weeping oil near a frame rub point — not yet burst. Unit on standby, Fleet/Maintenance Manager notified for deferral sign-off.", resolution:"", photos:[], parts:[{partId:13,qty:1,unit:"Quantity"}] },
+    { id:3, desc:"DPF regen would not complete — forced shutdown", component:"Engine / emissions", equipment:"Freightliner M2 106 · 001", severity:"Urgent", downtime:"Down", status:"Open", assigned:"Technician", reportedBy:"Driver", reportedDate:"2026-07-02", resolvedDate:"", loto:false,
+      notes:"Regen interrupted twice on route; truck derated and driver pulled over safely per procedure. Truck towed back to yard.", resolution:"", photos:[], parts:[] },
+    { id:4, desc:"Knife-wear gauge reading now past replace-by date", component:"Hydraulic / Knives", equipment:"Shred-Tech ST-15H · SHR-001", severity:"Concerning", downtime:"Operational", status:"Open", assigned:"Technician", reportedBy:"Technician", reportedDate:"2026-06-30", resolvedDate:"", loto:false, relatedPmTaskId:8,
+      notes:"Escalated from the PM monthly inspection note — gauge now past the replace-by date. Unit still running; scheduling a knife-set change this week.", resolution:"", photos:[], parts:[{partId:8,qty:1,unit:"Quantity"}] },
+    { id:5, desc:"Scanner double-feed suspected on a batch", component:"Rollers / Sensors", equipment:"Ricoh fi-7900 · SCAN-001", severity:"Needs technician", downtime:"Operational", status:"Resolved", assigned:"Technician", reportedBy:"Operator", reportedDate:"2026-06-25", resolvedDate:"2026-06-25", loto:false,
+      notes:"Operator flagged a count mismatch after a batch — ultrasonic double-feed detection had triggered but batch was queued for review anyway.", resolution:"Rollers cleaned and re-tested; count reconciled 100% against the log before destruction proceeded. No pages lost.", photos:[], parts:[] },
+    { id:6, desc:"Fork heel wear approaching reject criteria", component:"Forks", equipment:"Toyota 8FGCU25 · 001", severity:"Repair", downtime:"Operational", status:"Open", assigned:"Qualified technician", reportedBy:"Operator", reportedDate:"2026-07-01", resolvedDate:"", loto:false, relatedPmTaskId:11,
+      notes:"Operator measured fork heel wear during daily check — approaching but not yet past the 10% reject threshold. Logged for scheduled repair.", resolution:"", photos:[], parts:[] },
+  ];
+  var state = { filter:"all", search:"" };
+  var editingBreakdown = null;
+  var emPhotos = [];
+  var emParts = [];
+  var nextId = 7;
+  var nextPhotoId = 100;
+  var nextPartRefId = 36;
+
+  function daysSince(dateStr){
+    if (!dateStr) return null;
+    var d = new Date(dateStr + "T00:00:00");
+    return Math.round((TODAY - d) / 86400000);
+  }
+  function isOpen(b){ return b.status !== "Resolved"; }
+  function isCriticalSeverity(b){ return b.severity === "Immediate" || b.severity === "Urgent"; }
+  function isDownNow(b){ return isOpen(b) && b.downtime === "Down"; }
+  function severityStyle(sev){
+    if (sev === "Immediate") return { c:"var(--out-c)", bg:"var(--out-bg)" };
+    if (sev === "Urgent") return { c:"var(--low-c)", bg:"var(--low-bg)" };
+    if (sev === "Repair") return { c:"var(--ink)", bg:"var(--panel)" };
+    if (sev === "Needs technician") return { c:"var(--navy)", bg:"#E3E9F0" };
+    return { c:"var(--muted)", bg:"var(--off-bg)" }; // Concerning
+  }
+  function statusStyle(s){
+    if (s === "Open") return { c:"var(--out-c)", bg:"var(--out-bg)" };
+    if (s === "In progress") return { c:"var(--low-c)", bg:"var(--low-bg)" };
+    return { c:"var(--ok-c)", bg:"var(--ok-bg)" }; // Resolved
+  }
+  function downtimeStyle(d){
+    if (d === "Down") return { c:"var(--out-c)", bg:"var(--out-bg)" };
+    if (d === "Degraded") return { c:"var(--low-c)", bg:"var(--low-bg)" };
+    return { c:"var(--ok-c)", bg:"var(--ok-bg)" }; // Operational
+  }
+
+  /* ---------- Equipment taxonomy (view/select only) ---------- */
+  var catSel = $("catSel"), typeSel = $("typeSel"), assetSel = $("assetSel");
+
+  function fillCategories(){
+    catSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All categories"; catSel.appendChild(allOpt);
+    Object.keys(taxonomy).forEach(function(c){ var o = document.createElement("option"); o.value = c; o.textContent = c; catSel.appendChild(o); });
+  }
+  function fillTypes(){
+    typeSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All types"; typeSel.appendChild(allOpt);
+    if (catSel.value){
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){ var o = document.createElement("option"); o.value = t; o.textContent = t; typeSel.appendChild(o); });
+    }
+  }
+  function fillAssets(){
+    assetSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All assets"; assetSel.appendChild(allOpt);
+    if (catSel.value && typeSel.value){
+      (taxonomy[catSel.value].types[typeSel.value] || []).forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; assetSel.appendChild(o); });
+    } else if (catSel.value && !typeSel.value){
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){
+        taxonomy[catSel.value].types[t].forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; assetSel.appendChild(o); });
+      });
+    }
+  }
+  function updateBreadcrumb(){
+    $("breadcrumb").textContent = (catSel.value || "All categories") + "  ›  " + (typeSel.value || "All types") + "  ›  " + (assetSel.value || "All assets");
+  }
+  function scopeAssetSet(){
+    if (!catSel.value) return null;
+    if (!typeSel.value){
+      var set = [];
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){ set = set.concat(taxonomy[catSel.value].types[t]); });
+      return set;
+    }
+    var typeAssets = taxonomy[catSel.value].types[typeSel.value] || [];
+    if (!assetSel.value) return typeAssets;
+    return [assetSel.value];
+  }
+
+  catSel.addEventListener("change", function(){ fillTypes(); fillAssets(); updateBreadcrumb(); renderAll(); });
+  typeSel.addEventListener("change", function(){ fillAssets(); updateBreadcrumb(); renderAll(); });
+  assetSel.addEventListener("change", function(){ updateBreadcrumb(); renderAll(); });
+
+  fillCategories(); fillTypes(); fillAssets(); updateBreadcrumb();
+
+  /* ---------- Add / edit modal ---------- */
+  function fillEquipmentSelect(sel){
+    sel.innerHTML = "";
+    allAssetsFlat().forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; sel.appendChild(o); });
+  }
+
+  function renderPhotoGrid(){
+    var grid = $("emPhotoGrid");
+    grid.innerHTML = "";
+    emPhotos.forEach(function(ph, idx){
+      var tile = document.createElement("div");
+      tile.className = "photo-tile";
+      tile.innerHTML = '<i class="ti ti-photo" aria-hidden="true" style="font-size:16px;"></i><span>' + ph.label + '</span>';
+      var rm = document.createElement("button");
+      rm.type = "button"; rm.className = "rm"; rm.setAttribute("aria-label","Remove photo " + ph.label);
+      rm.innerHTML = '<i class="ti ti-x" aria-hidden="true"></i>';
+      rm.addEventListener("click", function(){ emPhotos.splice(idx,1); renderPhotoGrid(); });
+      tile.appendChild(rm);
+      grid.appendChild(tile);
+    });
+    var addTile = document.createElement("button");
+    addTile.type = "button"; addTile.className = "photo-add"; addTile.setAttribute("aria-label","Add picture");
+    addTile.innerHTML = '<i class="ti ti-plus" aria-hidden="true" style="font-size:16px;"></i><span>Add</span>';
+    addTile.addEventListener("click", function(){
+      emPhotos.push({ id: nextPhotoId++, label: "Photo " + emPhotos.length + 1 });
+      renderPhotoGrid();
+    });
+    grid.appendChild(addTile);
+  }
+
+  function renderPartsRows(){
+    var wrap = $("emPartsRows");
+    wrap.innerHTML = "";
+    var equipment = $("emEquipment").value;
+    var available = partsFor(equipment);
+    $("emPartsEmpty").style.display = emParts.length === 0 ? "block" : "none";
+    emParts.forEach(function(row, idx){
+      var rowEl = document.createElement("div");
+      rowEl.className = "part-row";
+      var sel = document.createElement("select");
+      sel.className = "sel small part-sel";
+      if (available.length === 0){
+        var noneOpt = document.createElement("option"); noneOpt.value = ""; noneOpt.textContent = "No parts on file for this equipment";
+        sel.appendChild(noneOpt);
+      } else {
+        available.forEach(function(p){ var o = document.createElement("option"); o.value = p.id; o.textContent = partLabel(p); sel.appendChild(o); });
+        sel.value = row.partId;
+      }
+      sel.addEventListener("change", function(){ row.partId = parseInt(sel.value,10) || null; });
+      var qtyIn = document.createElement("input");
+      qtyIn.type = "number"; qtyIn.min = "1"; qtyIn.value = row.qty || 1;
+      qtyIn.style.cssText = "width:56px;height:30px;border:0.5px solid var(--line);border-radius:6px;padding:0 6px;font-size:12px;flex:none;";
+      qtyIn.addEventListener("input", function(){ row.qty = parseInt(qtyIn.value,10) || 1; });
+      var unitSel = document.createElement("select");
+      unitSel.className = "sel small unit-sel";
+      ["Quantity","Gallons","Quarts"].forEach(function(u){ var o = document.createElement("option"); o.value = u; o.textContent = u; unitSel.appendChild(o); });
+      unitSel.value = row.unit || "Quantity";
+      unitSel.addEventListener("change", function(){ row.unit = unitSel.value; });
+      var rmBtn = document.createElement("button");
+      rmBtn.className = "iconbtn danger"; rmBtn.type = "button"; rmBtn.title = "Remove part line"; rmBtn.setAttribute("aria-label","Remove part line");
+      rmBtn.innerHTML = '<i class="ti ti-trash" aria-hidden="true" style="font-size:13px;"></i>';
+      rmBtn.addEventListener("click", function(){ emParts.splice(idx,1); renderPartsRows(); });
+      rowEl.appendChild(sel); rowEl.appendChild(qtyIn); rowEl.appendChild(unitSel); rowEl.appendChild(rmBtn);
+      wrap.appendChild(rowEl);
+    });
+  }
+  $("emAddPartRow").addEventListener("click", function(){
+    var equipment = $("emEquipment").value;
+    var available = partsFor(equipment);
+    emParts.push({ partId: available.length ? available[0].id : null, qty: 1, unit: "Quantity" });
+    renderPartsRows();
+  });
+  function fillPmTaskSelect(equipment){
+    var sel = $("emPmTask");
+    var current = sel.value;
+    sel.innerHTML = "";
+    var noneOpt = document.createElement("option"); noneOpt.value = ""; noneOpt.textContent = "— Not linked to a scheduled PM task —"; sel.appendChild(noneOpt);
+    pmTasksFor(equipment).forEach(function(t){ var o = document.createElement("option"); o.value = t.id; o.textContent = pmTaskLabel(t); sel.appendChild(o); });
+    if (current && sel.querySelector('option[value="' + current + '"]')) sel.value = current;
+  }
+
+  $("emEquipment").addEventListener("change", function(){
+    var equipment = $("emEquipment").value;
+    var available = partsFor(equipment);
+    var availIds = available.map(function(p){ return p.id; });
+    emParts = emParts.filter(function(row){ return availIds.indexOf(row.partId) !== -1; });
+    renderPartsRows();
+    fillPmTaskSelect(equipment);
+  });
+
+  // Add a brand-new part into the shared Spare Parts & Inventory reference list from
+  // inside this modal, same workflow as the Preventive Maintenance task editor.
+  $("emAddToInventoryBtn").addEventListener("click", function(){
+    fillEquipmentSelect($("npEquipment"));
+    $("npEquipment").value = $("emEquipment").value;
+    $("npName").value = "";
+    $("npPartNo").value = "";
+    $("npVerified").checked = false;
+    $("emNewPartForm").style.display = "block";
+    $("npName").focus();
+  });
+  $("npCancel").addEventListener("click", function(){
+    $("emNewPartForm").style.display = "none";
+  });
+  $("npSave").addEventListener("click", function(){
+    var name = $("npName").value.trim();
+    if (!name){ $("npName").focus(); return; }
+    var newPart = {
+      id: nextPartRefId++,
+      name: name,
+      partNo: $("npPartNo").value.trim() || "Not yet specified",
+      equipment: $("npEquipment").value,
+      verified: $("npVerified").checked
+    };
+    SPARE_PARTS.push(newPart);
+    if ($("npEquipment").value === $("emEquipment").value){
+      emParts.push({ partId: newPart.id, qty: 1, unit: "Quantity" });
+    }
+    $("emNewPartForm").style.display = "none";
+    renderPartsRows();
+  });
+
+  function todayStr(){
+    return TODAY.toISOString().slice(0,10);
+  }
+
+  function openBreakdownModal(b){
+    editingBreakdown = b;
+    $("editModalTitle").textContent = b ? "Edit breakdown" : "Report breakdown";
+    fillEquipmentSelect($("emEquipment"));
+    $("emNewPartForm").style.display = "none";
+    if (b){
+      $("emDesc").value = b.desc;
+      $("emEquipment").value = b.equipment;
+      fillPmTaskSelect(b.equipment);
+      $("emPmTask").value = b.relatedPmTaskId ? String(b.relatedPmTaskId) : "";
+      $("emComponent").value = b.component;
+      $("emSeverity").value = b.severity;
+      $("emDowntime").value = b.downtime;
+      $("emStatus").value = b.status;
+      $("emAssigned").value = b.assigned;
+      $("emReportedBy").value = b.reportedBy;
+      $("emReportedDate").value = b.reportedDate;
+      $("emResolvedDate").value = b.resolvedDate || "";
+      $("emLoto").checked = !!b.loto;
+      $("emNotes").value = b.notes || "";
+      $("emResolution").value = b.resolution || "";
+      emPhotos = (b.photos || []).map(function(p){ return { id:p.id, label:p.label }; });
+      emParts = (b.parts || []).map(function(p){ return { partId:p.partId, qty:p.qty, unit:p.unit || "Quantity" }; });
+    } else {
+      $("emDesc").value = "";
+      $("emEquipment").value = assetSel.value || allAssetsFlat()[0];
+      fillPmTaskSelect($("emEquipment").value);
+      $("emPmTask").value = "";
+      $("emComponent").value = "";
+      $("emSeverity").value = "Repair";
+      $("emDowntime").value = "Operational";
+      $("emStatus").value = "Open";
+      $("emAssigned").value = "Unassigned";
+      $("emReportedBy").value = "Operator";
+      $("emReportedDate").value = todayStr();
+      $("emResolvedDate").value = "";
+      $("emLoto").checked = false;
+      $("emNotes").value = "";
+      $("emResolution").value = "";
+      emPhotos = [];
+      emParts = [];
+    }
+    renderPhotoGrid();
+    renderPartsRows();
+    $("editModalOverlay").classList.add("open");
+    $("emDesc").focus();
+  }
+  function closeBreakdownModal(){
+    $("editModalOverlay").classList.remove("open");
+    editingBreakdown = null;
+  }
+  $("editModalClose").addEventListener("click", closeBreakdownModal);
+  $("emCancel").addEventListener("click", closeBreakdownModal);
+  $("editModalOverlay").addEventListener("click", function(e){ if (e.target === this) closeBreakdownModal(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && $("editModalOverlay").classList.contains("open")) closeBreakdownModal(); });
+  $("addBreakdownBtn").addEventListener("click", function(){ openBreakdownModal(null); });
+
+  // Immediate severity implies lockout/tagout and Down by default — nudge, don't force,
+  // so the technician can still correct a mis-classification.
+  $("emSeverity").addEventListener("change", function(){
+    if ($("emSeverity").value === "Immediate"){
+      $("emLoto").checked = true;
+      if ($("emDowntime").value === "Operational") $("emDowntime").value = "Down";
+    }
+  });
+
+  $("emSave").addEventListener("click", function(){
+    var desc = $("emDesc").value.trim();
+    if (!desc){ $("emDesc").focus(); return; }
+    var status = $("emStatus").value;
+    var resolvedDate = $("emResolvedDate").value || "";
+    if (status === "Resolved" && !resolvedDate) resolvedDate = todayStr();
+    if (status !== "Resolved") resolvedDate = "";
+    var vals = {
+      desc: desc,
+      component: $("emComponent").value.trim() || "—",
+      equipment: $("emEquipment").value,
+      relatedPmTaskId: $("emPmTask").value ? parseInt($("emPmTask").value,10) : null,
+      severity: $("emSeverity").value,
+      downtime: $("emDowntime").value,
+      status: status,
+      assigned: $("emAssigned").value,
+      reportedBy: $("emReportedBy").value,
+      reportedDate: $("emReportedDate").value || todayStr(),
+      resolvedDate: resolvedDate,
+      loto: $("emLoto").checked,
+      notes: $("emNotes").value.trim(),
+      resolution: $("emResolution").value.trim(),
+      photos: emPhotos.slice(),
+      parts: emParts.filter(function(row){ return row.partId != null; }).map(function(row){ return { partId:row.partId, qty:row.qty, unit:row.unit || "Quantity" }; })
+    };
+    if (editingBreakdown){
+      Object.assign(editingBreakdown, vals);
+    } else {
+      vals.id = nextId++;
+      BREAKDOWNS.unshift(vals);
+    }
+    closeBreakdownModal();
+    renderAll();
+  });
+
+  /* ---------- Breakdown log table ---------- */
+  function matchesTaxonomy(b){
+    var scope = scopeAssetSet();
+    return !scope || scope.indexOf(b.equipment) !== -1;
+  }
+  function scopedBreakdowns(){ return BREAKDOWNS.filter(matchesTaxonomy); }
+  function matchesFilter(b){
+    if (state.filter === "open") return isOpen(b);
+    if (state.filter === "critical") return isCriticalSeverity(b) && isOpen(b);
+    if (state.filter === "down") return isDownNow(b);
+    return true;
+  }
+  function matchesSearch(b){
+    if (!state.search) return true;
+    var q = state.search.toLowerCase();
+    return [b.desc,b.component,b.equipment,b.assigned,b.reportedBy].some(function(v){ return (v||"").toLowerCase().indexOf(q) !== -1; });
+  }
+
+  function renderKpis(){
+    var scoped = scopedBreakdowns();
+    var openCt = scoped.filter(isOpen).length;
+    var criticalOpenCt = scoped.filter(function(b){ return isCriticalSeverity(b) && isOpen(b); }).length;
+    var downCt = scoped.filter(isDownNow).length;
+    var resolved = scoped.filter(function(b){ return b.status === "Resolved" && b.resolvedDate; });
+    var avgDays = resolved.length ? Math.round(resolved.reduce(function(sum,b){
+      var d1 = new Date(b.reportedDate + "T00:00:00"), d2 = new Date(b.resolvedDate + "T00:00:00");
+      return sum + Math.max(0, Math.round((d2-d1)/86400000));
+    },0) / resolved.length * 10) / 10 : null;
+    var wrap = $("kpiRow");
+    wrap.innerHTML = "";
+    function card(n,l,cls){
+      var d = document.createElement("div");
+      d.className = "kpi" + (cls ? " " + cls : "");
+      d.innerHTML = '<div class="n">' + n + '</div><div class="l">' + l + '</div>';
+      wrap.appendChild(d);
+    }
+    card(openCt, "Open breakdowns in scope", (openCt>0 ? "warn" : "good"));
+    card(criticalOpenCt, "Open Immediate / Urgent", (criticalOpenCt>0 ? "bad" : "good"));
+    card(downCt, "Units down right now", (downCt>0 ? "bad" : "good"));
+    card(avgDays === null ? "—" : avgDays + " d", "Avg. time to resolve (MTTR)");
+
+    var immediateOpen = scoped.filter(function(b){ return b.severity === "Immediate" && isOpen(b); });
+    if (immediateOpen.length){
+      $("immediateBanner").style.display = "flex";
+      $("immediateBannerText").textContent = immediateOpen.length + " Immediate-severity breakdown" + (immediateOpen.length>1?"s":"") + " open in this scope — universal stop-work authority applies. Confirm lockout/tagout before any hands-on work.";
+    } else {
+      $("immediateBanner").style.display = "none";
+    }
+  }
+  function updateChipCounts(){
+    var scoped = scopedBreakdowns();
+    $("cntAll").textContent = scoped.length;
+    $("cntOpen").textContent = scoped.filter(isOpen).length;
+    $("cntCritical").textContent = scoped.filter(function(b){ return isCriticalSeverity(b) && isOpen(b); }).length;
+    $("cntDown").textContent = scoped.filter(isDownNow).length;
+  }
+  function td(content){
+    var el = document.createElement("td");
+    if (content instanceof Node) el.appendChild(content); else el.textContent = content;
+    return el;
+  }
+  function fmtDate(s){
+    if (!s) return "—";
+    var d = new Date(s + "T00:00:00");
+    return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+  }
+
+  function renderTable(){
+    var tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+    var rows = scopedBreakdowns().filter(matchesFilter).filter(matchesSearch);
+
+    if (rows.length === 0){
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 10;
+      td0.style.cssText = "text-align:center;color:var(--muted);font-size:12px;padding:18px;";
+      td0.textContent = "No breakdowns match this equipment scope / search / filter.";
+      tr0.appendChild(td0);
+      tbody.appendChild(tr0);
+    }
+
+    rows.forEach(function(b){
+      var tr = document.createElement("tr");
+      if (b.severity === "Immediate" && isOpen(b)) tr.className = "row-immediate";
+      else if (b.severity === "Urgent" && isOpen(b)) tr.className = "row-urgent";
+      tr.style.cursor = "pointer";
+      tr.title = "Double-click to edit";
+      tr.addEventListener("dblclick", function(){ openBreakdownModal(b); });
+
+      tr.appendChild(td(fmtDate(b.reportedDate)));
+      tr.appendChild(td(b.equipment || "—"));
+
+      var descSpan = document.createElement("span");
+      descSpan.className = "cell-strong";
+      descSpan.style.cssText += "display:block;max-width:260px;white-space:normal;line-height:1.3;";
+      descSpan.textContent = b.desc;
+      tr.appendChild(td(descSpan));
+
+      var sevStyle = severityStyle(b.severity);
+      var sevPill = document.createElement("span");
+      sevPill.className = "pill"; sevPill.style.color = sevStyle.c; sevPill.style.background = sevStyle.bg;
+      sevPill.textContent = b.severity;
+      tr.appendChild(td(sevPill));
+
+      var stStyle = statusStyle(b.status);
+      var stPill = document.createElement("span");
+      stPill.className = "pill"; stPill.style.color = stStyle.c; stPill.style.background = stStyle.bg;
+      stPill.textContent = b.status;
+      tr.appendChild(td(stPill));
+
+      var dtStyle = downtimeStyle(b.downtime);
+      var dtPill = document.createElement("span");
+      dtPill.className = "pill"; dtPill.style.color = dtStyle.c; dtPill.style.background = dtStyle.bg;
+      dtPill.textContent = b.downtime;
+      tr.appendChild(td(dtPill));
+
+      tr.appendChild(td(b.assigned || "—"));
+
+      var badges = document.createElement("div");
+      badges.className = "details-badges";
+      var hasNotes = !!((b.notes && b.notes.trim()) || (b.resolution && b.resolution.trim()));
+      var photoCt = (b.photos || []).length;
+      var partsCt = (b.parts || []).length;
+      var notesSpan = document.createElement("span"); notesSpan.className = hasNotes ? "on" : "";
+      notesSpan.innerHTML = '<i class="ti ti-notes" aria-hidden="true" title="Notes"></i>';
+      var photoSpan = document.createElement("span"); photoSpan.className = photoCt>0 ? "on" : "";
+      photoSpan.innerHTML = '<i class="ti ti-photo" aria-hidden="true" title="Photos"></i>' + (photoCt>0 ? photoCt : "");
+      var partsSpan = document.createElement("span"); partsSpan.className = partsCt>0 ? "on" : "";
+      partsSpan.innerHTML = '<i class="ti ti-tools" aria-hidden="true" title="Parts used"></i>' + (partsCt>0 ? partsCt : "");
+      var lotoSpan = document.createElement("span"); lotoSpan.className = b.loto ? "on" : "";
+      lotoSpan.innerHTML = '<i class="ti ti-lock" aria-hidden="true" title="LOTO applied"></i>';
+      var pmTask = b.relatedPmTaskId ? pmTaskById(b.relatedPmTaskId) : null;
+      var pmLinkSpan = document.createElement("span"); pmLinkSpan.className = pmTask ? "on" : "";
+      pmLinkSpan.innerHTML = '<i class="ti ti-link" aria-hidden="true" title="' + (pmTask ? ("Linked PM task: " + pmTask.task) : "No linked PM task") + '"></i>';
+      badges.appendChild(notesSpan); badges.appendChild(photoSpan); badges.appendChild(partsSpan); badges.appendChild(lotoSpan); badges.appendChild(pmLinkSpan);
+      tr.appendChild(td(badges));
+
+      tr.appendChild(td(fmtDate(b.resolvedDate)));
+
+      var actions = document.createElement("div");
+      actions.className = "actionsrow";
+      var editBtn = document.createElement("button");
+      editBtn.className = "iconbtn"; editBtn.title = "Edit"; editBtn.setAttribute("aria-label","Edit breakdown");
+      editBtn.innerHTML = '<i class="ti ti-edit" aria-hidden="true" style="font-size:13px;"></i>';
+      editBtn.addEventListener("click", function(e){ e.stopPropagation(); openBreakdownModal(b); });
+      var delBtn = document.createElement("button");
+      delBtn.className = "iconbtn danger"; delBtn.title = "Remove"; delBtn.setAttribute("aria-label","Remove breakdown");
+      delBtn.innerHTML = '<i class="ti ti-trash" aria-hidden="true" style="font-size:13px;"></i>';
+      delBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        var idx = BREAKDOWNS.indexOf(b);
+        if (idx > -1) BREAKDOWNS.splice(idx,1);
+        renderAll();
+      });
+      actions.appendChild(editBtn); actions.appendChild(delBtn);
+      tr.appendChild(td(actions));
+
+      tbody.appendChild(tr);
+    });
+
+    $("rowCountFoot").textContent = "Showing " + rows.length + " of " + scopedBreakdowns().length + " breakdown records in the current equipment scope. (Reference date: Jul 2, 2026.)";
+  }
+
+  function renderAll(){
+    renderKpis();
+    updateChipCounts();
+    renderTable();
+  }
+
+  $("searchInput").addEventListener("input", function(){ state.search = this.value; renderTable(); });
+  document.querySelectorAll(".chip[data-filter]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".chip[data-filter]").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      state.filter = btn.getAttribute("data-filter");
+      renderTable();
+    });
+  });
+
+  renderAll();
+})();
+  </script>
+
+</div><!-- .wrap -->
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

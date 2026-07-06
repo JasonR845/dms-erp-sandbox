@@ -1,0 +1,344 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Inventory</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.31.0/iconfont/tabler-icons.min.css">
+<style>
+:root{--border:#e2e6ec;--text-2:#5A6470;--muted:#8C97A4;--navy:#14253D;--gold:#B68A3A;--pale:#f6f8fa;--bg-warn:#EAD9B4;--tx-warn:#9A7430;--danger:#a32d2d}
+*{box-sizing:border-box}
+body{font-family:'Inter',Arial,Helvetica,sans-serif;background:#eef1f5;color:#2E3338;max-width:900px;margin:0 auto;padding:0 16px 40px;font-size:14px;line-height:1.45}
+label{font-size:12px;color:var(--text-2);display:block;margin-bottom:5px;font-weight:500}
+input,select{font:inherit;border:1.5px solid var(--border);border-radius:8px;background:#fff;padding:8px 10px;width:100%;color:#2E3338}
+input:focus,select:focus{outline:none;border-color:var(--navy)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+.topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:14px;padding:14px 16px;margin-top:16px}
+.lock{font-size:12px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.15);color:#fff;font-weight:600;margin-left:auto;border:1px solid rgba(255,255,255,.3)}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:16px}
+.h{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);margin:0 0 16px}
+.sub{font-size:11px;color:var(--muted)}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}@media(max-width:680px){.row3{grid-template-columns:1fr}}
+.code{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:#eaf0f6;color:var(--navy)}
+.count{font-size:11px;color:var(--muted);margin-left:6px}
+.ctable-wrap{max-height:430px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+table.ctable{width:100%;border-collapse:collapse;font-size:12.5px}
+table.ctable thead th{position:sticky;top:0;background:var(--navy);color:#fff;text-align:left;padding:8px 10px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;z-index:1}
+table.ctable thead th.r{text-align:right}
+table.ctable tbody td{padding:7px 10px;vertical-align:top;border-bottom:1px solid var(--border)}
+table.ctable tbody td.r{text-align:right}
+table.ctable tbody tr:nth-child(even){background:var(--pale)}
+table.ctable tbody tr:hover{background:#eef3f8}
+table.ctable tfoot td{padding:8px 10px;font-weight:700;border-top:2px solid var(--border);color:var(--navy)}
+table.ctable tfoot td.r{text-align:right}
+.mono{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:11.5px;color:var(--text-2);white-space:nowrap}
+.click{cursor:pointer}
+.pathcell{color:var(--text-2);font-size:11.5px;white-space:nowrap}
+.ctoolbar{display:flex;gap:12px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.ctoolbar input[type=text]{max-width:260px}
+.pill{font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:999px}
+.pill.on{background:#D7DCE1;color:#1B3050}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:4px}
+@media(max-width:680px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--pale);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.kpi .n{font-family:'Archivo','Inter',Arial,sans-serif;font-size:20px;font-weight:800;color:var(--navy)}
+.kpi .l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-2);margin-top:2px}
+.empty{text-align:center;padding:22px;color:var(--muted);font-size:12.5px}
+.flash{animation:flashkf .9s ease}
+@keyframes flashkf{0%{background:#EAD9B4}100%{background:inherit}}
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head><body>
+<div class="topbar"><i class="ti ti-building-warehouse" style="font-size:22px;color:var(--gold)"></i><div style="font-weight:700;letter-spacing:.5px">DMS</div><div style="width:1px;height:18px;background:rgba(255,255,255,.25)"></div><div><h1 style="font-weight:600;font-size:inherit;font-family:inherit;margin:0">Inventory</h1><div style="font-size:11px;color:#c8d2df">inventory_receipts — live from Scale Terminal accepts</div></div><span class="lock"><i class="ti ti-refresh"></i> Live</span></div>
+
+<div class="card">
+  <div class="kpis">
+    <div class="kpi"><div class="n" id="kLb">0</div><div class="l">Net lb on hand</div></div>
+    <div class="kpi"><div class="n" id="kVal">$0</div><div class="l">Est. value</div></div>
+    <div class="kpi"><div class="n" id="kGrades">0</div><div class="l">Grades on hand</div></div>
+    <div class="kpi"><div class="n" id="kTickets">0</div><div class="l">Tickets received</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="h">Material structure <span class="count" id="cnt"></span></div>
+  <div class="row3">
+    <div><label>Classification</label><select id="segSel" onchange="pickSeg(this.value)"></select></div>
+    <div><label>Category</label><select id="catSel" onchange="pickCat(this.value)"><option value="">— all categories —</option></select></div>
+    <div><label>Grade (on hand only)</label><select id="grdSel" onchange="pickGrade(this.value)"><option value="">— all grades —</option></select></div>
+  </div>
+  <p class="sub" style="margin-top:10px">Same structure as Material Master — read-only here. Counts show grades currently on hand. The three filters narrow every table below.</p>
+</div>
+
+<div class="card">
+  <div class="h">On hand by grade <span class="count" id="ohCount"></span></div>
+  <div class="ctoolbar"><input type="text" id="q" placeholder="Search grade, code, ticket, supplier…" oninput="onSearch(this.value)"></div>
+  <div class="ctable-wrap">
+    <table class="ctable">
+      <thead><tr><th style="width:92px">Code</th><th>Grade</th><th style="width:200px">Classification › Category</th><th class="r" style="width:110px">On hand (lb)</th><th class="r" style="width:110px">Est. value</th><th style="width:90px">Last receipt</th></tr></thead>
+      <tbody id="ohBody"></tbody>
+      <tfoot id="ohFoot"></tfoot>
+    </table>
+  </div>
+  <div class="empty" id="ohEmpty" style="display:none">No inventory yet — weigh a load and hit <b>Accept</b> on the Scale Terminal.</div>
+</div>
+
+<div class="card">
+  <div class="h">Open tickets — on the scale now <span class="count" id="opCount"></span></div>
+  <div class="ctable-wrap" style="max-height:200px">
+    <table class="ctable">
+      <thead><tr><th style="width:92px">Ticket</th><th style="width:150px">Opened</th><th>Supplier</th><th class="r" style="width:60px">Lines</th><th class="r" style="width:100px">Net (lb)</th><th class="r" style="width:110px">Est. amount</th><th style="width:70px">Status</th></tr></thead>
+      <tbody id="opBody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="opEmpty" style="display:none">Scale is clear — no open ticket.</div>
+  <p class="sub" style="margin-top:8px">Click a row to view its lines · <b>double-click to open it on the Scale Terminal</b> to modify or close it out.</p>
+</div>
+
+<div class="card">
+  <div class="h">Receipts <span class="count" id="rcCount"></span></div>
+  <div class="ctable-wrap">
+    <table class="ctable">
+      <thead><tr><th style="width:92px">Ticket</th><th style="width:150px">Received</th><th>Supplier</th><th class="r" style="width:60px">Lines</th><th class="r" style="width:100px">Net (lb)</th><th class="r" style="width:110px">Amount</th></tr></thead>
+      <tbody id="rcBody"></tbody>
+    </table>
+  </div>
+  <div class="empty" id="rcEmpty" style="display:none">No receipts posted yet.</div>
+</div>
+
+<div class="card" id="detail" style="display:none">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="h" style="margin:0">Receipt — <span id="dNo" class="mono"></span></div>
+    <span class="sub" id="dMeta"></span>
+  </div>
+  <div class="ctable-wrap" style="max-height:280px">
+    <table class="ctable">
+      <thead><tr><th>Classification</th><th>Category</th><th>Grade</th><th class="r">Gross</th><th class="r">Tare</th><th class="r">Net</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>
+      <tbody id="dBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<p class="sub" style="text-align:center;margin-top:12px">Open tickets live on the Scale Terminal until accepted; receipts post here on accept. Amounts were priced from the commodity price book at weigh time.</p>
+
+<script src="dms_materials.js"></script>
+<script>
+var MASTER = window.DMS_MATERIALS || {};
+var INVKEY = 'dmssbx-inventory-v1', PLKEY = 'dmssbx-scale-packing-v1';
+var seg = "", cat = "", gkey = "", q = "", curNo = null, curOpen = false;
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function money(n){ return '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt(n){ return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:1}); }
+function dt(iso){ var d = new Date(iso); return isNaN(d) ? '' :
+  d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ', ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+function loadInv(){ try { return JSON.parse(localStorage.getItem(INVKEY) || '{"receipts":[]}'); } catch(e){ return { receipts: [] }; } }
+function loadOpen(){ try { return JSON.parse(localStorage.getItem(PLKEY) || 'null'); } catch(e){ return null; } }
+function keyParts(k){ var p = String(k).split('|'); return { cat: p[0]||'', sub: p[1]||'', g: p[2]||'', code: p[3]||'' }; }
+function keyOf(label){ return label.replace(/ \(\d+\)$/, ''); }
+
+/* ---------- aggregation ---------- */
+function invAgg(){
+  var agg = {};
+  loadInv().receipts.forEach(function(rc){
+    (rc.lines || []).forEach(function(l){
+      var a = agg[l.key] = agg[l.key] || { net: 0, val: 0, last: '' };
+      a.net += l.net || 0; a.val += l.amount || 0;
+      if (!a.last || rc.when > a.last) a.last = rc.when;
+    });
+  });
+  return agg;
+}
+function countsBy(agg){
+  var bySeg = {}, byCat = {};
+  Object.keys(agg).forEach(function(k){
+    var p = keyParts(k);
+    bySeg[p.cat] = (bySeg[p.cat] || 0) + 1;
+    byCat[p.cat + '|' + p.sub] = (byCat[p.cat + '|' + p.sub] || 0) + 1;
+  });
+  return { bySeg: bySeg, byCat: byCat };
+}
+
+/* ---------- Material-Master-style structure filters ---------- */
+function fillSeg(agg){
+  var c = countsBy(agg);
+  var ng = Object.keys(agg).length;
+  document.getElementById('cnt').textContent = '(' + ng + (ng === 1 ? ' grade' : ' grades') + ' on hand)';
+  document.getElementById('segSel').innerHTML = '<option value="">— all classifications —</option>' +
+    Object.keys(MASTER).map(function(k){
+      return '<option' + (k===seg?' selected':'') + '>' + esc(k) + ' (' + (c.bySeg[k] || 0) + ')</option>';
+    }).join('');
+}
+function fillCat(agg){
+  var c = countsBy(agg);
+  var el = document.getElementById('catSel');
+  el.innerHTML = '<option value="">— all categories —</option>' +
+    (seg && MASTER[seg] ? Object.keys(MASTER[seg]).map(function(x){
+      var n = c.byCat[seg + '|' + x] || 0;
+      return '<option' + (x===cat?' selected':'') + '>' + esc(x) + ' (' + n + ')</option>';
+    }).join('') : '');
+}
+function fillGrd(agg){
+  var el = document.getElementById('grdSel');
+  var keys = Object.keys(agg).filter(function(k){
+    var p = keyParts(k);
+    if (seg && p.cat !== seg) return false;
+    if (cat && p.sub !== cat) return false;
+    return true;
+  }).sort(function(a, b){ return keyParts(a).g.localeCompare(keyParts(b).g); });
+  el.innerHTML = '<option value="">— all grades —</option>' +
+    keys.map(function(k){
+      var p = keyParts(k);
+      return '<option value="' + esc(k) + '"' + (k===gkey?' selected':'') + '>' + esc(p.g) + (p.code ? ' · ' + esc(p.code) : '') + '</option>';
+    }).join('');
+  if (gkey && keys.indexOf(gkey) === -1){ gkey = ""; }
+}
+function pickSeg(s){ seg = s ? keyOf(s) : ""; cat = ""; gkey = ""; render(); }
+function pickCat(c){ cat = c ? keyOf(c) : ""; gkey = ""; render(); }
+function pickGrade(k){ gkey = k || ""; render(); }
+function onSearch(v){ q = v.toLowerCase(); render(); }
+
+function lineMatch(parts, key){
+  if (seg && parts.cat !== seg) return false;
+  if (cat && parts.sub !== cat) return false;
+  if (gkey && key !== gkey) return false;
+  return true;
+}
+
+/* ---------- navigation to Scale Terminal ---------- */
+function goScale(){
+  try { if (window.parent !== window) window.parent.postMessage({ dms: 'open', src: '14_Scale_Terminal.html' }, '*'); } catch(e){}
+  setTimeout(function(){ window.location.href = '14_Scale_Terminal.html'; }, 150);
+}
+
+/* ---------- render ---------- */
+function render(){
+  var inv = loadInv();
+  var agg = invAgg();
+  fillSeg(agg); fillCat(agg); fillGrd(agg);
+
+  /* on hand */
+  var rows = Object.keys(agg).map(function(k){
+    return { key: k, p: keyParts(k), net: agg[k].net, val: agg[k].val, last: agg[k].last };
+  }).filter(function(r){
+    if (!lineMatch(r.p, r.key)) return false;
+    if (q && (r.p.g + ' ' + r.p.code + ' ' + r.p.cat + ' ' + r.p.sub).toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  }).sort(function(a, b){ return b.val - a.val; });
+  document.getElementById('ohBody').innerHTML = rows.map(function(r){
+    return '<tr><td class="mono">' + esc(r.p.code || '—') + '</td>' +
+      '<td style="font-weight:600;color:var(--navy)">' + esc(r.p.g) + '</td>' +
+      '<td class="pathcell">' + esc(r.p.cat) + ' › ' + esc(r.p.sub) + '</td>' +
+      '<td class="r" style="font-weight:700">' + fmt(r.net) + '</td>' +
+      '<td class="r" style="font-weight:700">' + money(r.val) + '</td>' +
+      '<td>' + dt(r.last) + '</td></tr>';
+  }).join('');
+  var tn = 0, tv = 0; rows.forEach(function(r){ tn += r.net; tv += r.val; });
+  document.getElementById('ohFoot').innerHTML = rows.length
+    ? '<tr><td colspan="3">Total (' + rows.length + ' grades)</td><td class="r">' + fmt(tn) + '</td><td class="r">' + money(tv) + '</td><td></td></tr>' : '';
+  document.getElementById('ohEmpty').style.display = rows.length ? 'none' : 'block';
+  document.getElementById('ohCount').textContent = rows.length ? '— ' + rows.length + ' grades' : '';
+
+  /* open ticket(s) from the scale */
+  var op = loadOpen();
+  var opList = (op && op.lines && op.lines.length) ? [op] : [];
+  var opRows = opList.filter(function(o){
+    var hit = o.lines.some(function(l){ return lineMatch(keyParts(l.key), l.key); });
+    if ((seg || cat || gkey) && !hit) return false;
+    if (q){
+      var hay = ('bl-' + o.no + ' ' + (o.sup || '')).toLowerCase();
+      if (hay.indexOf(q) === -1 && !o.lines.some(function(l){
+        var p = keyParts(l.key); return (p.g + ' ' + p.code).toLowerCase().indexOf(q) !== -1; })) return false;
+    }
+    return true;
+  });
+  document.getElementById('opBody').innerHTML = opRows.map(function(o){
+    var g = 0, n = 0, a = 0;
+    o.lines.forEach(function(l){ g += l.gross; n += l.net; a += l.amount || 0; });
+    return '<tr class="click" onclick="showOpen()" ondblclick="goScale()" title="Double-click to open on the Scale Terminal">' +
+      '<td class="mono">BL-' + esc(o.no) + '</td><td>' + dt(o.opened) + '</td>' +
+      '<td>' + esc(o.sup || '—') + '</td>' +
+      '<td class="r">' + o.lines.length + '</td>' +
+      '<td class="r" style="font-weight:700">' + fmt(n) + '</td>' +
+      '<td class="r" style="font-weight:700">' + money(a) + '</td>' +
+      '<td><span class="pill" style="background:#EAD9B4;color:#9A7430">● Open</span></td></tr>';
+  }).join('');
+  document.getElementById('opEmpty').style.display = opRows.length ? 'none' : 'block';
+  document.getElementById('opCount').textContent = opRows.length
+    ? '— ' + opRows.length + ' ticket, not yet in inventory' : '';
+
+  /* receipts */
+  var rcs = inv.receipts.slice().reverse().filter(function(rc){
+    var lineHit = (rc.lines || []).some(function(l){ return lineMatch(keyParts(l.key), l.key); });
+    if ((seg || cat || gkey) && !lineHit) return false;
+    if (q){
+      var hay = (rc.no + ' ' + (rc.supplier || '')).toLowerCase();
+      if (hay.indexOf(q) === -1 && !(rc.lines || []).some(function(l){
+        var p = keyParts(l.key); return (p.g + ' ' + p.code).toLowerCase().indexOf(q) !== -1; })) return false;
+    }
+    return true;
+  });
+  document.getElementById('rcBody').innerHTML = rcs.map(function(rc){
+    return '<tr class="click" onclick="showReceipt(\'' + esc(rc.no) + '\')">' +
+      '<td class="mono">' + esc(rc.no) + '</td><td>' + dt(rc.when) + '</td>' +
+      '<td>' + esc(rc.supplier || '—') + '</td>' +
+      '<td class="r">' + (rc.lines || []).length + '</td>' +
+      '<td class="r" style="font-weight:700">' + fmt(rc.net) + '</td>' +
+      '<td class="r" style="font-weight:700">' + money(rc.amount) + '</td></tr>';
+  }).join('');
+  document.getElementById('rcEmpty').style.display = rcs.length ? 'none' : 'block';
+  document.getElementById('rcCount').textContent = rcs.length ? '— ' + rcs.length + ' tickets' : '';
+
+  /* KPIs (posted inventory only) */
+  var kn = 0, kv = 0, kg = {};
+  inv.receipts.forEach(function(rc){ (rc.lines || []).forEach(function(l){ kn += l.net || 0; kv += l.amount || 0; kg[l.key] = 1; }); });
+  document.getElementById('kLb').textContent = fmt(kn);
+  document.getElementById('kVal').textContent = money(kv);
+  document.getElementById('kGrades').textContent = Object.keys(kg).length;
+  document.getElementById('kTickets').textContent = inv.receipts.length;
+
+  if (curNo && !curOpen) showReceipt(curNo, true);
+  if (curOpen) showOpen(true);
+}
+
+/* ---------- detail card ---------- */
+function fillDetail(no, meta, lines){
+  document.getElementById('dNo').textContent = no;
+  document.getElementById('dMeta').textContent = meta;
+  document.getElementById('dBody').innerHTML = (lines || []).map(function(l){
+    var p = keyParts(l.key);
+    return '<tr><td>' + esc(l.cat || p.cat) + '</td><td>' + esc(l.fam || p.sub) + '</td>' +
+      '<td style="font-weight:600;color:var(--navy)">' + esc(l.grade || p.g) + '</td>' +
+      '<td class="r">' + fmt(l.gross) + '</td><td class="r">' + fmt(l.tare) + '</td>' +
+      '<td class="r" style="font-weight:700">' + fmt(l.net) + '</td>' +
+      '<td class="r">' + (l.rate ? money(l.rate) + '/lb' : '—') + '</td>' +
+      '<td class="r" style="font-weight:700">' + (l.amount != null ? money(l.amount) : '—') + '</td></tr>';
+  }).join('');
+  var card = document.getElementById('detail');
+  card.style.display = 'block';
+  return card;
+}
+function showReceipt(no, keepQuiet){
+  var rc = loadInv().receipts.filter(function(r){ return r.no === no; })[0];
+  if (!rc){ document.getElementById('detail').style.display = 'none'; curNo = null; return; }
+  curNo = no; curOpen = false;
+  var card = fillDetail(rc.no, (rc.supplier || '—') + ' · ' + dt(rc.when) + ' · ' + fmt(rc.net) + ' lb net · ' + money(rc.amount), rc.lines);
+  if (!keepQuiet){ card.classList.add('flash'); setTimeout(function(){ card.classList.remove('flash'); }, 900); }
+}
+function showOpen(keepQuiet){
+  var o = loadOpen();
+  if (!o || !o.lines || !o.lines.length){ if (curOpen){ document.getElementById('detail').style.display = 'none'; curOpen = false; } return; }
+  curOpen = true; curNo = null;
+  var n = 0, a = 0; o.lines.forEach(function(l){ n += l.net; a += l.amount || 0; });
+  var card = fillDetail('BL-' + o.no + ' (open)', (o.sup || '—') + ' · opened ' + dt(o.opened) + ' · ' + fmt(n) + ' lb net · ' + money(a) + ' · double-click the row to open it on the Scale Terminal', o.lines);
+  if (!keepQuiet){ card.classList.add('flash'); setTimeout(function(){ card.classList.remove('flash'); }, 900); }
+}
+
+window.addEventListener('storage', function(e){ if (e.key === INVKEY || e.key === PLKEY) render(); });
+render();
+</script><script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body></html>

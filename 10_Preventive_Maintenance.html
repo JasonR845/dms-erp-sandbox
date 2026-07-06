@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Preventive Maintenance</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+  :root{
+    --navy:#14253D; --navy-2:#1B3050; --ink:#2E3338; --muted:#8C97A4;
+    --line:#C5CCD6; --line-soft:#E3E7EC; --gold:#9A7430; --gold-line:#B68A3A;
+    --panel:#F4F6F8; --card:#fff; --bg:#EEF1F4;
+    --ok-c:#1F6B3B; --ok-bg:#D7DCE1;
+    --low-c:#2E3338; --low-bg:#EAD9B4;
+    --out-c:#B3261E; --out-bg:#FBF1F0;
+    --off-c:#8C97A4; --off-bg:#F4F6F8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--bg);font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1240px;margin:0 auto;padding:20px 20px 64px;}
+
+  /* App header */
+  .appbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .appbar .mark{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;letter-spacing:.02em;flex:none;}
+  .appbar h1{margin:0;font-size:15px;color:var(--navy);font-weight:800;}
+  .appbar .sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .appbar .tag{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);background:#F4F6F8;border:0.5px solid var(--gold-line);padding:4px 10px;border-radius:999px;flex:none;}
+
+  #mockupRoot{color:var(--ink);}
+  #mockupRoot button,#mockupRoot a.btn{font-family:'Inter',Arial,Helvetica,sans-serif;transition:background .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease;}
+  #mockupRoot button:focus-visible,#mockupRoot input:focus-visible,#mockupRoot select:focus-visible,#mockupRoot a.btn:focus-visible{outline:2px solid var(--navy);outline-offset:1px;}
+  #mockupRoot ::placeholder{color:#AAB2BC;}
+
+  .card{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,37,61,.05);}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
+  .lbl{font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .lbl-xs{font-size:10px;color:var(--muted);}
+
+  .txt{width:100%;height:30px;border:0.5px solid var(--line);border-radius:6px;padding:0 8px;font-size:12px;color:var(--ink);background:#fff;}
+  .ta{width:100%;min-height:64px;border:0.5px solid var(--line);border-radius:6px;padding:8px;font-size:12px;font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:#fff;resize:vertical;}
+  .sel{width:100%;height:34px;border:0.5px solid var(--line);border-radius:8px;padding:0 28px 0 10px;font-size:13px;color:var(--ink);cursor:pointer;
+       background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C97A4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 9px center;
+       -webkit-appearance:none;-moz-appearance:none;appearance:none;}
+  .sel:hover{border-color:#AAB4C0;}
+  .sel.small{height:30px;font-size:12px;padding:0 24px 0 8px;background-position:right 7px center;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:0.5px solid var(--line);background:#fff;color:var(--navy);font-size:12px;cursor:pointer;white-space:nowrap;text-decoration:none;}
+  .btn.ghost:hover{background:var(--panel);}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .btn.primary:hover{background:var(--navy-2);color:#fff;}
+  .iconbtn{width:26px;height:26px;border:0.5px solid var(--line);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+  .iconbtn:hover{background:var(--panel);}
+  .iconbtn.danger{color:#A32D2D;}
+  .iconbtn.solid{background:var(--navy);color:#fff;}
+
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .kpi{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(20,37,61,.05);}
+  .kpi .n{font-size:22px;font-weight:800;color:var(--navy);line-height:1.1;}
+  .kpi .l{font-size:11px;color:var(--muted);margin-top:4px;}
+  .kpi.warn .n{color:var(--low-c);}
+  .kpi.bad .n{color:var(--out-c);}
+  .kpi.good .n{color:var(--ok-c);}
+
+  .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .toolbar .searchwrap{position:relative;flex:1;min-width:220px;}
+  .toolbar .searchwrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
+  .toolbar input.search{width:100%;height:32px;border:0.5px solid var(--line);border-radius:8px;padding:0 10px 0 30px;font-size:12px;background:#fff;}
+  .chip{height:28px;padding:0 12px;border-radius:999px;border:0.5px solid var(--line);background:#fff;color:var(--ink);font-size:11px;font-weight:700;cursor:pointer;}
+  .chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .chip.active.warnchip{background:var(--low-bg);border-color:var(--gold-line);color:var(--low-c);}
+  .chip.active.badchip{background:var(--out-bg);border-color:#E0A9A4;color:var(--out-c);}
+
+  .tablewrap{overflow-x:auto;border:0.5px solid var(--line-soft);border-radius:10px;}
+  table.inv{width:100%;border-collapse:collapse;font-size:12px;min-width:1180px;}
+  table.inv thead th{position:sticky;top:0;background:var(--navy);color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:8px 10px;white-space:nowrap;z-index:1;}
+  table.inv tbody td{padding:8px 10px;border-bottom:0.5px solid var(--line-soft);vertical-align:middle;}
+  table.inv tbody tr:hover{background:#FAFBFC;}
+  table.inv tbody tr.row-overdue{background:#FFF8F7;}
+  table.inv tbody tr.row-soon{background:#FFFFFF;}
+  .cell-strong{font-weight:700;color:var(--ink);}
+  .cell-muted{color:var(--muted);}
+  .cell-mono{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:11px;color:var(--ink);}
+  .pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;}
+  .actionsrow{display:flex;gap:4px;}
+  .details-badges{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:11px;}
+  .details-badges i{font-size:13px;vertical-align:-2px;}
+  .details-badges span.on{color:var(--navy);font-weight:700;}
+
+  .divider{border-top:0.5px solid var(--line-soft);}
+  .foot{font-size:11px;color:var(--muted);margin-top:10px;}
+  .note{font-size:10px;color:var(--muted);margin-top:6px;}
+  .note.warn{color:var(--low-c);}
+
+  /* Edit / add modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,37,61,.45);z-index:50;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal-card{background:#fff;border-radius:12px;max-width:620px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 12px 40px rgba(20,37,61,.28);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid var(--line-soft);}
+  .modal-head h3{margin:0;font-size:14px;color:var(--navy);font-weight:800;}
+  .modal-body{padding:16px 20px;}
+  .modal-body .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .modal-body label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px;}
+  .modal-section{border-top:0.5px solid var(--line-soft);padding-top:12px;margin-top:4px;margin-bottom:12px;}
+  .modal-section .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .modal-foot{display:flex;gap:8px;padding:14px 20px;border-top:0.5px solid var(--line-soft);}
+  .modal-close{width:26px;height:26px;border-radius:6px;border:0.5px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;}
+  .modal-close:hover{background:var(--panel);}
+
+  .photo-tile{position:relative;width:56px;height:56px;border-radius:8px;background:var(--panel);border:0.5px solid var(--line-soft);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);}
+  .photo-tile span{font-size:8px;margin-top:2px;text-align:center;line-height:1.1;padding:0 3px;}
+  .photo-tile .rm{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:0.5px solid var(--line);background:#fff;color:#A32D2D;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;line-height:1;}
+  .photo-add{width:56px;height:56px;border-radius:8px;border:0.5px dashed var(--line);background:#fff;color:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;}
+  .photo-add span{font-size:8px;margin-top:2px;}
+
+  .part-row{display:flex;gap:6px;align-items:center;}
+  .part-row select.part-sel{flex:1;min-width:0;}
+  .part-row select.unit-sel{width:100px;flex:none;}
+  .part-row input[type="number"]{width:56px;flex:none;}
+
+  .tagcheck-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;margin-bottom:12px;}
+  .tagcheck{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink);cursor:pointer;background:var(--panel);border:0.5px solid var(--line-soft);border-radius:999px;padding:4px 10px 4px 8px;}
+  .tagcheck input{width:13px;height:13px;}
+
+  @media print{ .appbar,.card,.kpis,.toolbar,.modal-overlay{display:none!important;} }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAG+klEQVR42u1ZXYxUZxl+3vf7zpkzsMMuA1iolIIFCg0haUVLtxcWtZCWQm2hXsiF9sKf1l7UYEz0ojHxkqSpJibGpgmYmJgSa6ItaPSS/kFbKKWtLSzrsmwX9m/2zOzOOXPOd97Xi7MsP1KdWWaNGN7kJJMz33zf+z7f8/4OcENuyA1pvxDlz5WfrwuF27m2CTEz1PhTlTBe0fPnlpcF82/eNqd865O2WJrPbKtQmVRxclWDMHODqLWl+i9v2QusF5QWe0FntwnmPer5c7aS9Tryb3X6CHXpRJrUX8ni6ktpHL6WxrVzksau2XPaYMCUwrZgbNCxyCt23e0FpUdMYe42Nn4ZBEAEqgKoJFAIGAyBgMAg9okYYAYUkCwZyxqTf0rj2h/SaPxNF08Mi2tks3YDxfm33ON3LPym9edsZ+stARGgCpUMgCQQCJgsQAyAr7KFACoQdWAwwD6xwYV9xKWDLqn/MZkY2RdV+l9vqwFEjPKKjZ8YP1gimQOQNaPwf5IrDDI+G4ssiQfHet+4WVWa2sQ2ZyaTQCokyYJcYfZnpPIVbASIcxByLxFJRCAVEBNUtI0GAExUBNgHmoRmRgaxZaJiK57ZHI4KqEj630gpKpK2EISaNUAUkArl0MzWDUi+v1SapU/TBqgKVLLBi7F9VrCfwiob1BZYys0GKknTj/OsOVs+oAKi/JwWIjw3qT+yNDoOIkBmiUICAVF+TgsZqulgmKX1E7NbDxKYueVzuElqwjUmeiECMNt2Ks5EsNYgU7XVsIo0nuhtxdW4WedyjXpN0qQHRLYdkcgYhjGMqNHA0MiYFAoFe/+XNvRapLVWgkWTFCKoOHVJ7UUiBiDuWtBWVYyHNYyHNaxcvgzP/PB77tUDv8FT33rkxTiOlLn5NN90JoYCyWRlv19a9OO8DmoNbQCoRw3U6xEWzO/Eww98Gbt2Poj7N3XDs0astXju2T37AYCZIdLOWkjz60wmx06oS2Mw+82gzYaRphnGw5wVa1d/Dju2fRWPPbwFt69cPr02TVO/0WjEBw8eeA9A08o3b8B0JIrSJKq+UOgoP6GSJnlt9G/QjiKUuzqx/YFN2LVzKzZv6kYxKOCCkqqASJZYa+2hQ4f2njx5MmkF/dYMmKrbk9rQLwqlBd+/pNmaRtu5i2ivWZWj/fWvXY52lmUgorw1hkKgICLeu2/fc63SZ0YdGbGlruUbPrC2sDr3NeIoijFZj1Ce34n77t2Ab+zcii2bulEsBhfRFgFxXu0Qmylm5ln93EBvz9p1d90ehqESEVR1digEyqNRUj2/m8vLXqmOhzHAwZrVK/DoQznaa1atmF7uXAqiPHWwvXiUZA614ZMY6j2SpMPHgp/v/fPuMAzVMCGT1mqtGY0DjBeYxavuObfxi3eWd+14EFu+ci/PmUI7cw4KhbXeZb+Ja0OoDBzHSO9hjJ09htpIn2hWF5dR9TvP/v2m0ZpzgEJbrBVt6wnIIEvj7PHH7nvqZz995nfOudhaEzjnYK2FmUI6cw1Uz3+E0b63MNJ3BNVzH6ExOQpVhbEFKNuk3LUo+O1f+58cqaYuR39WxypTDjvlZEuXLjUnTrw/UCp1LCAiJiKuh5+gcvZdjPS+ibGzx1Ef70eWxiC2MF4ANt4UhUSMgdRjN/rtPUc/O1ZNskui9ewOtlQVxhiEYai+Z965e93ix08d2d849erz9uSh59H/3ssIBz9EltbBtgDrz4Exfo6VCqAKJ9Lomuv5+/7Sv/3wB5XThgkywzZjRj6QTwcJvgH9avf61xd1yBccrHheYMnY6SboAqSqeWWjChDBdQTMfUPR4e/uOdadpJnqDNFvqZy+SmJGnKr++uWBHaWuhcxe0YEYKhkkyyCiyCRX3LNARwGYVwSYxA3VmH/50j92xkmmIJqx8tcwG82NYCacOV+vLV0UZGtvLW2ejFzChoxngaKXP6LAUBU4doZw8F0kvz9aKOz729BPek6fOdBqzG8bhS6bywIoz/PNCz+6q3dhp1kyESmPToBPDxM+HCR8fA4YqBCqEUSUhCkdqJ99+zZIkmkb2utrnnMzEUQVG9d95rb16+849VZPEg+GJqhGQKaAZwDfAIYkZusH4cD7K6PqUE+rQ9y2U+jSdoeIcHZosvLO2SCc1K6HNHNx4JMNPMAyAJUY1g+i8cEfTI72HZwaDrSnFW1fawiwsdS57POvsQ02qmYOIAuoIzI2S+M3Kn1vd6tk2s7RTBv/+8lR9YrzOjtvuXMMkiUgslB1YOOH/UfLaVQN20Wdawqjn0omIqRRNZwc7ukm6weiUiXrB5PDPd1pVA3bSZ3ZnI8AAEpL1jx90x2btbRkzdOXhazrRYgtlRavfYLYXmea/3/JDfBvyP+8/BOoWmUyUtUH8QAAAABJRU5ErkJggg==">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="appbar">
+    <div class="mark">DMS</div>
+    <div>
+      <h1>Preventive Maintenance</h1>
+      <div class="sub">Scheduled PM tasks by equipment — frequency, last completed, next due &amp; safety-critical flags</div>
+    </div>
+  </div>
+
+  <div id="mockupRoot">
+  <h2 style="position:absolute;width:1px;height:1px;overflow:hidden;">Preventive maintenance task register scoped by equipment category, type and asset, with search, filters, KPI summary including PM schedule adherence, and a double-click or edit-icon popup window for editing a task's notes, photos and parts needed (parts chosen from a dropdown, not typed), plus delete and an add-task action opening the same popup blank.</h2>
+
+  <!-- Equipment taxonomy — view/select only, no add or edit of equipment here -->
+  <div class="card">
+    <div class="eyebrow" style="margin-bottom:10px;">Equipment taxonomy · view only</div>
+    <div class="grid3">
+      <div>
+        <div class="lbl">1. Equipment category</div>
+        <select id="catSel" class="sel"></select>
+      </div>
+      <div>
+        <div class="lbl">2. Equipment type</div>
+        <select id="typeSel" class="sel"></select>
+      </div>
+      <div>
+        <div class="lbl">3. Specific equipment / asset</div>
+        <select id="assetSel" class="sel"></select>
+      </div>
+    </div>
+    <div id="breadcrumb" style="margin-top:10px;font-size:12px;color:var(--gold);font-weight:700;"></div>
+    <div class="note">Selecting a category, type or asset scopes the PM register below to tasks linked to that equipment. Equipment itself can only be added or edited on the Equipment / Part Detail page.</div>
+  </div>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div class="searchwrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input id="searchInput" class="search" type="text" placeholder="Search task, component, equipment or owner…"/>
+      </div>
+      <button class="chip active" data-filter="all">All (<span id="cntAll"></span>)</button>
+      <button class="chip badchip" data-filter="overdue">Overdue (<span id="cntOverdue"></span>)</button>
+      <button class="chip warnchip" data-filter="soon">Due soon (<span id="cntSoon"></span>)</button>
+      <button class="chip" data-filter="critical">Safety-critical (<span id="cntCritical"></span>)</button>
+      <button id="addTaskBtn" class="btn primary" style="margin-left:auto;"><i class="ti ti-plus" aria-hidden="true" style="font-size:14px;"></i>Add PM task</button>
+    </div>
+    <div class="note" style="margin-bottom:10px;">Double-click a row — or use the edit icon — to open the edit window (notes, photos, parts needed).</div>
+
+    <div class="tablewrap">
+      <table class="inv">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Component / system</th>
+            <th>Equipment</th>
+            <th>Frequency</th>
+            <th>Last completed</th>
+            <th>Next due</th>
+            <th>Owner</th>
+            <th>Critical</th>
+            <th>Details</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="foot" id="rowCountFoot"></div>
+    <div class="note">Overdue = next due date has passed. Due soon = due within 14 days. PM adherence target ≥95% (escalate below 90%), applied to weekly-and-longer tasks — daily operator checklists are logged separately and shown for reference only.</div>
+    <div class="note warn">⚠ Industrial shredder (Shred-Tech ST-15H) PM intervals come from the Shred-Tech ST-15H reference, which is a v0.9 draft pending 33 OEM verifications — confirm against the OEM manual before relying on them operationally.</div>
+    <div class="note">Parts-needed dropdown is sourced from the DMS Spare Parts &amp; Inventory Program critical-spares list. Only the fi-7900 scanner parts have OEM-verified part numbers today (marked ⚠ otherwise) — this is a separate reference list from the sample forklift-components dataset on the Spare Parts Inventory page.</div>
+  </div>
+  </div><!-- #mockupRoot -->
+
+  <!-- Add / edit modal -->
+  <div id="editModalOverlay" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="editModalTitle">Edit PM task</h3>
+        <button id="editModalClose" class="modal-close" aria-label="Close edit window">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:10px;"><label>Task</label><input id="emTask" class="txt" placeholder="e.g. Knife wear gauge reading"/></div>
+        <div class="grid2">
+          <div><label>Component / system</label><input id="emComponent" class="txt" placeholder="e.g. Hydraulic / Knives"/></div>
+          <div><label>Equipment / asset</label><select id="emEquipment" class="sel small"></select></div>
+        </div>
+        <div class="grid2">
+          <div><label>Frequency</label>
+            <select id="emFrequency" class="sel small">
+              <option>Daily</option><option>Weekly</option><option>Monthly</option>
+              <option>Quarterly</option><option>Semi-annual</option><option>Annual</option><option>Hour-based</option>
+            </select>
+          </div>
+          <div><label>Owner</label>
+            <select id="emOwner" class="sel small">
+              <option>Driver</option><option>Operator</option><option>Technician</option>
+              <option>Qualified technician</option><option>LPG-certified technician</option>
+              <option>Vendor technician</option><option>Fleet/Maintenance Manager</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div><label>Last completed</label><input id="emLastDone" type="date" class="txt"/></div>
+          <div><label>Next due</label><input id="emNextDue" type="date" class="txt"/></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer;margin-top:2px;margin-bottom:12px;">
+          <input type="checkbox" id="emCritical" style="width:14px;height:14px;"/> Safety-critical (never defer)
+        </label>
+
+        <div style="margin-bottom:4px;"><label>Task type (check all that apply)</label></div>
+        <div class="tagcheck-row">
+          <label class="tagcheck"><input type="checkbox" id="emTypeOperator"/> Operator checklist item</label>
+          <label class="tagcheck"><input type="checkbox" id="emTypeSafety"/> Safety item</label>
+          <label class="tagcheck"><input type="checkbox" id="emTypePM"/> Preventive maintenance item</label>
+          <label class="tagcheck"><input type="checkbox" id="emTypeTechnician"/> Technician item</label>
+          <label class="tagcheck"><input type="checkbox" id="emTypeChecklist"/> Checklist item</label>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label>Urgency</label>
+          <select id="emUrgency" class="sel small">
+            <option value="">— none —</option>
+            <option value="Concerning">Concerning</option>
+            <option value="Needs technician">Needs technician</option>
+            <option value="Repair">Repair</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Immediate">Immediate</option>
+          </select>
+        </div>
+
+        <div class="modal-section">
+          <div class="sec-head"><label style="margin:0;">Instructions</label></div>
+          <textarea id="emInstructions" class="ta" placeholder="Step-by-step instructions or special handling for whoever performs this task…"></textarea>
+        </div>
+
+        <div class="modal-section">
+          <div class="sec-head"><label style="margin:0;">Notes</label></div>
+          <textarea id="emNotes" class="ta" placeholder="Findings, follow-ups, parts ordered, anything the next tech needs to know…"></textarea>
+        </div>
+
+        <div class="modal-section">
+          <div class="sec-head">
+            <label style="margin:0;">Photos</label>
+          </div>
+          <div id="emPhotoGrid" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
+
+        <div class="modal-section" style="border-bottom:none;margin-bottom:0;">
+          <div class="sec-head">
+            <label style="margin:0;">Parts needed</label>
+            <div style="display:flex;gap:6px;">
+              <button type="button" id="emAddPartRow" class="btn ghost" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-plus" aria-hidden="true" style="font-size:12px;"></i>Add part</button>
+              <button type="button" id="emAddToInventoryBtn" class="btn ghost" style="height:24px;padding:0 8px;font-size:10px;gap:4px;"><i class="ti ti-package" aria-hidden="true" style="font-size:12px;"></i>Add part to inventory</button>
+            </div>
+          </div>
+          <div id="emPartsRows" style="display:flex;flex-direction:column;gap:6px;"></div>
+          <div id="emPartsEmpty" class="note" style="margin-top:4px;">No parts linked to this task yet.</div>
+
+          <div id="emNewPartForm" style="display:none;margin-top:10px;padding:10px;border:0.5px dashed var(--line);border-radius:8px;background:var(--panel);">
+            <div class="grid2" style="margin-bottom:8px;">
+              <div><label>Part name</label><input id="npName" class="txt" placeholder="e.g. Cabin air filter"/></div>
+              <div><label>Part number</label><input id="npPartNo" class="txt" placeholder="e.g. OEM — confirm PN"/></div>
+            </div>
+            <div class="grid2" style="margin-bottom:8px;">
+              <div><label>Equipment / asset</label><select id="npEquipment" class="sel small"></select></div>
+              <div style="display:flex;align-items:flex-end;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink);cursor:pointer;margin:0;">
+                  <input type="checkbox" id="npVerified" style="width:13px;height:13px;"/> OEM-verified part number
+                </label>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" id="npSave" class="btn primary" style="height:28px;padding:0 12px;font-size:11px;">Save to inventory</button>
+              <button type="button" id="npCancel" class="btn ghost" style="height:28px;padding:0 12px;font-size:11px;">Cancel</button>
+            </div>
+            <div class="note" style="margin-top:6px;">Adds this part to the Spare Parts &amp; Inventory reference list (used by every PM task's Parts-needed dropdown) and links it to this task.</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button id="emSave" class="btn primary">Save task</button>
+        <button id="emCancel" class="btn ghost" style="color:var(--ink);">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  // Same equipment taxonomy as the Equipment / Part Detail and Spare Parts Inventory
+  // mockups — reused read-only here so PM tasks stay tied to a real category/type/asset
+  // without letting this page add or edit equipment itself.
+  var taxonomy = {
+    "Production Vehicles": { types: {
+      "Forklift": ["Toyota 8FGCU25 · 002", "Toyota 8FGCU25 · 001"],
+      "Bobcat": ["Bobcat S650 · 001"], "Front Loader": ["Cat 950M · 001"], "Skid Steer": ["Bobcat T770 · 001"], "Other": []
+    } },
+    "Over-the-Road Vehicles": { types: {
+      "Truck": ["Freightliner M2 106 · 001"], "Trailer": [],
+      "Utility Truck": ["Ford F-250 · 003"], "Car": ["Nissan Versa · 001"], "Other": []
+    } },
+    "Production Machinery": { types: {
+      "Wire Stripper": ["Wire Stripper · 001"], "Hydraulic Press": ["Hydraulic Press · 003"],
+      "Plasma Cutter": ["Plasma Cutter · 001"], "Cutting Torch": ["Cutting Torch · 002"],
+      "Industrial Shredder": ["Shred-Tech ST-15H · SHR-001"], "Conveyor": ["Vibrating Conveyor · 001"], "Magnet": ["Drum Magnet · 001"], "Other": []
+    } },
+    "Production Lines": { types: {
+      "Hammermill Line": ["Hammermill Line · 001"], "Chopping Line": ["Chopping Line · 001"],
+      "Sorting Line": ["Sorting Line · 001"], "Baling Line": ["Baling Line · 001"], "Other": []
+    } },
+    "Facilities": { types: {
+      "Bathroom": ["Bathroom · Main Bldg"], "Warehouse": ["Warehouse Area · 001"],
+      "Hammermill Area": ["Hammermill Area · 001"], "Production Area": ["Production Area · 001"],
+      "Office": ["Office · Front"], "Maintenance Area": ["Maintenance Area · 001"], "Yard": ["Yard · 001"], "Other": []
+    } },
+    "IT & Computer Equipment": { types: {
+      "Desktop Computer": ["Desktop · Office 1"], "Laptop": ["Laptop · Sales 1"], "Server": ["Server Rack · 002"],
+      "Printer": ["Printer · Front Office"], "Scanner": ["Ricoh fi-7900 · SCAN-001"],
+      "Network Equipment": ["Core Switch · 001"], "Security Camera": ["Camera · Gate 1"], "Other": []
+    } }
+  };
+
+  function allAssetsFlat(){
+    var out = [];
+    Object.keys(taxonomy).forEach(function(c){
+      Object.keys(taxonomy[c].types).forEach(function(t){
+        taxonomy[c].types[t].forEach(function(a){ if (out.indexOf(a) === -1) out.push(a); });
+      });
+    });
+    return out;
+  }
+
+  // Parts-needed reference list — sourced from the DMS Spare Parts & Inventory Program
+  // critical-spares-by-asset section. Only the fi-7900 rows have OEM-verified part
+  // numbers (verified:true); the rest are named classes pending vendor/appendix
+  // confirmation (verified:false) and are labeled accordingly in the dropdown.
+  var SPARE_PARTS = [
+    { id:1,  name:"DPF (diesel particulate filter)", partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:2,  name:"DEF injector",                     partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:3,  name:"EGR valve",                         partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:4,  name:"VGT actuator",                       partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:5,  name:"Lift pump",                           partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:6,  name:"Fuel injector set",                   partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:7,  name:"Water pump",                          partNo:"Confirm w/ Cummins San Diego", equipment:"Freightliner M2 106 · 001", verified:false },
+
+    { id:8,  name:"Knife set",                    partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:9,  name:"Counter-knives / spacers",      partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:10, name:"Screen set",                     partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:11, name:"Shaft bearing",                   partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:12, name:"Hydraulic filter set (return/pressure/suction/breather)", partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:13, name:"Hydraulic hose",                  partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+    { id:14, name:"Cylinder seal kit",               partNo:"Pending App. E", equipment:"Shred-Tech ST-15H · SHR-001", verified:false },
+
+    { id:15, name:"Engine oil filter",       partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:16, name:"Air filter",               partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:17, name:"LPG inline filter",         partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:18, name:"LPG regulator / vaporizer", partNo:"OEM only — long lead", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:19, name:"LPG mixer",                  partNo:"OEM only", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:20, name:"Spark plug set",              partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:21, name:"Hydraulic filter",             partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:22, name:"SAS sensor / valve",            partNo:"OEM only", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:23, name:"Drive belt",                     partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:24, name:"Lift chain set",                  partNo:"OEM — confirm PN", equipment:"Toyota 8FGCU25 · 001", verified:false },
+
+    { id:25, name:"Pick roller set",                        partNo:"PA03575-K011",   equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+    { id:26, name:"Brake roller",                            partNo:"PA03575-K013",   equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+    { id:27, name:"Separation roller",                        partNo:"PA03800-K012",   equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+    { id:28, name:"ScanAid kit (rollers + cleaning, all 3)",  partNo:"CG01000-295401", equipment:"Ricoh fi-7900 · SCAN-001", verified:true },
+
+    // Fluids — named in the PM calendar (oil/filter, coolant flush, DEF top-off, hydraulic
+    // oil + suction filter, drive-axle oil) but no OEM spec/part number confirmed yet.
+    { id:29, name:"Engine oil (diesel)",     partNo:"Per OEM spec — see PM chart", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:30, name:"DEF fluid (ISO 22241)",    partNo:"3 verified sources required", equipment:"Freightliner M2 106 · 001", verified:false },
+    { id:31, name:"Engine oil (LPG-grade)",   partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:32, name:"Hydraulic oil",            partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:33, name:"Coolant",                   partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:34, name:"Drive-axle oil",             partNo:"OEM — confirm spec", equipment:"Toyota 8FGCU25 · 001", verified:false },
+    { id:35, name:"Hydraulic oil",               partNo:"Per lab-analysis program", equipment:"Shred-Tech ST-15H · SHR-001", verified:false }
+  ];
+  function partsFor(equipment){ return SPARE_PARTS.filter(function(p){ return p.equipment === equipment; }); }
+  function partById(id){ return SPARE_PARTS.filter(function(p){ return p.id === id; })[0]; }
+  function partLabel(p){ return p.name + " — " + p.partNo + (p.verified ? "" : " ⚠"); }
+
+  // Seeded from the DMS Equipment Maintenance System master PM calendar (daily → annual +
+  // hour/page ladders), mapped to the closest matching asset in the equipment taxonomy:
+  // Freightliner M2 106 · 001 ← M2 106 truck PM data
+  // Shred-Tech ST-15H · SHR-001         ← ST-15H shredder PM data (⚠ v0.9 draft, pending OEM verification)
+  // Toyota 8FGCU25 · 001       ← 8FGCU25 forklift PM data
+  // Ricoh fi-7900 · SCAN-001   ← fi-7900 scanner PM data
+  var TASKS = [
+    { id:1,  task:"Signed pre-trip inspection (fluids, DEF ≥25%, tires, air-brake test 120–135 psi, lights, gauges, body)", component:"Vehicle inspection", equipment:"Freightliner M2 106 · 001", frequency:"Daily", lastDone:"2026-06-30", nextDue:"2026-07-01", owner:"Driver", critical:true, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item","Safety item"], urgency:"", instructions:"Walk the full 60-point pre-trip in order; confirm DEF ≥25% and air-brake test reads 120–135 psi before dispatch. Sign the DVIR." },
+    { id:2,  task:"Post-trip inspection (perimeter, fluids, tires, custody locks); log odometer + engine hours", component:"Vehicle inspection", equipment:"Freightliner M2 106 · 001", frequency:"Daily", lastDone:"2026-06-30", nextDue:"2026-07-01", owner:"Driver", critical:false, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item"], urgency:"", instructions:"Walk the perimeter, check fluids/tires/custody locks, then log odometer and engine hours before clocking out." },
+    { id:3,  task:"Grease all fittings per chart (counted strokes); hose rub-point scan; cooler fins/screens; battery; tire psi + lug torque; belts; structural quick-look; cab controls", component:"Chassis / Drivetrain", equipment:"Freightliner M2 106 · 001", frequency:"Weekly", lastDone:"2026-06-20", nextDue:"2026-06-27", owner:"Technician", critical:false, notes:"", photos:[], parts:[], types:["Preventive maintenance item","Technician item"], urgency:"", instructions:"Grease every fitting on the OEM chart using counted strokes only — never 'until it comes out.' Scan hoses for rub points, clear cooler fins/screens, check battery, tire psi + lug torque, belts, and cab controls." },
+    { id:4,  task:"Oil & filter change — 250–300 engine-hr (severe service)", component:"Engine", equipment:"Freightliner M2 106 · 001", frequency:"Hour-based", lastDone:"2026-05-15", nextDue:"2026-07-10", owner:"Technician", critical:false, notes:"", photos:[], parts:[{partId:29,qty:12,unit:"Quarts"}], types:["Preventive maintenance item","Technician item"], urgency:"", instructions:"Drain and replace engine oil + filter at 250–300 severe-service hours. Log new engine-hour reference point." },
+    { id:5,  task:"Major OEM service + DOT annual inspection (49 CFR 396.17) + electrical + weld/corrosion survey", component:"Full vehicle / DOT", equipment:"Freightliner M2 106 · 001", frequency:"Annual", lastDone:"2025-08-01", nextDue:"2026-08-01", owner:"Technician", critical:true, notes:"", photos:[], parts:[{partId:1,qty:1,unit:"Quantity"},{partId:7,qty:1,unit:"Quantity"}], types:["Preventive maintenance item","Technician item","Safety item"], urgency:"", instructions:"Complete full OEM annual service plus the DOT 49 CFR 396.17 inspection, electrical check, and weld/corrosion survey. File the DOT sticker and inspection report." },
+
+    { id:6,  task:"Leak scan; hydraulic reservoir check cold; chamber clear before start; guards latched; E-stop + interlock test before first load", component:"Chamber / Safety systems", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Daily", lastDone:"2026-06-30", nextDue:"2026-07-01", owner:"Operator", critical:true, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item","Safety item"], urgency:"", instructions:"Scan for leaks, check hydraulic reservoir cold, confirm chamber is clear, verify guards are latched, and test E-stop + interlocks before the first load of the day." },
+    { id:7,  task:"End-of-route chamber & hopper clean-out + cooler blow-out; log shredder hours", component:"Chamber / Hopper", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Daily", lastDone:"2026-06-30", nextDue:"2026-07-01", owner:"Operator", critical:false, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item"], urgency:"", instructions:"Clear chamber and hopper completely at end of route, blow out coolers, and log shredder hours before shutdown." },
+    { id:8,  task:"Hydraulic inspection w/ pressure observation; knife wear gauge reading; controls calibration; fastener torque audit; extinguisher/spill kit/PPE check", component:"Hydraulic / Knives", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Monthly", lastDone:"2026-06-01", nextDue:"2026-07-03", owner:"Technician", critical:false, notes:"Knife gauge reading trending toward replace-by-date — watching weekly.", photos:[], parts:[{partId:8,qty:1,unit:"Quantity"}], types:["Preventive maintenance item","Technician item"], urgency:"Concerning", instructions:"Observe hydraulic pressure under load, take a gauged knife-wear reading and log it, calibrate controls, audit fastener torque, and check extinguisher/spill kit/PPE." },
+    { id:9,  task:"Hydraulic filter set change + lab oil sample (ISO 4406, water, viscosity, wear metals) ⚠ verify vs OEM", component:"Hydraulic system", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Quarterly", lastDone:"2026-04-05", nextDue:"2026-07-05", owner:"Technician", critical:false, notes:"", photos:[], parts:[{partId:12,qty:1,unit:"Quantity"},{partId:35,qty:5,unit:"Gallons"}], types:["Preventive maintenance item","Technician item"], urgency:"", instructions:"Change the full hydraulic filter set (return/pressure/suction/breather), then pull a hot lab oil sample from the same point every time — trend ISO 4406, water, viscosity, and wear metals." },
+    { id:10, task:"Full guard & interlock audit; bearing IR temp + vibration vs baseline; cylinder drift tests", component:"Guards / Bearings", equipment:"Shred-Tech ST-15H · SHR-001", frequency:"Semi-annual", lastDone:"2026-01-20", nextDue:"2026-07-20", owner:"Technician", critical:true, notes:"", photos:[], parts:[], types:["Preventive maintenance item","Technician item","Safety item"], urgency:"", instructions:"Audit every guard and interlock for function, take bearing IR-temp and vibration readings against baseline, and run cylinder drift tests." },
+
+    { id:11, task:"60-item pre-op inspection (LPG system first); tag-out on any critical fail", component:"LPG / Safety systems", equipment:"Toyota 8FGCU25 · 001", frequency:"Daily", lastDone:"2026-06-30", nextDue:"2026-07-01", owner:"Operator", critical:true, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item","Safety item"], urgency:"", instructions:"Work the full 60-item pre-op checklist, LPG system first. Tag the unit out of service immediately on any critical-item fail." },
+    { id:12, task:"End-of-shift: forks down, LPG valve closed, key out", component:"LPG / Forks", equipment:"Toyota 8FGCU25 · 001", frequency:"Daily", lastDone:"2026-06-30", nextDue:"2026-07-01", owner:"Operator", critical:false, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item"], urgency:"", instructions:"Lower forks fully, close the LPG valve, and remove the key at end of shift." },
+    { id:13, task:"250-hour service: oil + filter (LPG-grade), LPG filter, spark plugs inspect, chains lubed, SAS wiring check, full leak scan", component:"Engine / LPG", equipment:"Toyota 8FGCU25 · 001", frequency:"Hour-based", lastDone:"2026-06-05", nextDue:"2026-07-04", owner:"Qualified technician", critical:false, notes:"", photos:[], parts:[{partId:15,qty:1,unit:"Quantity"},{partId:17,qty:1,unit:"Quantity"},{partId:20,qty:1,unit:"Quantity"},{partId:31,qty:4,unit:"Quarts"}], types:["Preventive maintenance item","Technician item"], urgency:"", instructions:"At 250 hours: change engine oil (LPG-grade) + filter, replace LPG filter, inspect spark plugs, lube chains, check SAS wiring, and run a full leak scan." },
+    { id:14, task:"500-hour service: air filters, plug set, valve clearance, coolant flush, hydraulic oil + suction filter, drive-axle oil, brake adjust, steering, regulator test, SAS calibration", component:"Hydraulic / SAS", equipment:"Toyota 8FGCU25 · 001", frequency:"Hour-based", lastDone:"2026-03-20", nextDue:"2026-06-20", owner:"Qualified technician", critical:true,
+      notes:"Overdue — schedule Toyota-certified tech ASAP. LPG regulator/mixer and SAS sensor are OEM-only, long-lead items; confirm shelf stock before committing a date.", photos:[{id:1,label:"Regulator baseline"}], parts:[{partId:18,qty:1,unit:"Quantity"},{partId:19,qty:1,unit:"Quantity"},{partId:22,qty:1,unit:"Quantity"},{partId:32,qty:3,unit:"Quarts"},{partId:33,qty:2,unit:"Gallons"},{partId:34,qty:2,unit:"Quarts"}], types:["Preventive maintenance item","Technician item","Safety item"], urgency:"Urgent", instructions:"At 500 hours: replace air filters and plug set, check valve clearance, flush coolant, change hydraulic oil + suction filter and drive-axle oil, adjust brakes and steering, test the regulator, and calibrate SAS. Confirm regulator/mixer/SAS sensor stock before starting — OEM-only, long lead." },
+    { id:15, task:"2,000-hour service: compression + oil-consumption test, full LPG overhaul, mast weld fatigue inspection, full SAS diagnostic, brake overhaul, compliance audit (Unidad de Verificación opinion)", component:"LPG / Structural", equipment:"Toyota 8FGCU25 · 001", frequency:"Annual", lastDone:"2025-07-20", nextDue:"2026-07-20", owner:"LPG-certified technician", critical:true, notes:"", photos:[], parts:[], types:["Preventive maintenance item","Technician item","Safety item"], urgency:"", instructions:"Run compression + oil-consumption test, full LPG system overhaul, mast weld fatigue inspection, full SAS diagnostic, brake overhaul, and the annual Unidad de Verificación compliance audit." },
+
+    { id:16, task:"Clean glass, reference strips, rollers, ultrasonic sensors; run cleaning sheet; inspect test scan; check counters; verify backup before new work", component:"Glass / Rollers / Sensors", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Daily", lastDone:"2026-06-30", nextDue:"2026-07-01", owner:"Operator", critical:false, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item"], urgency:"", instructions:"Clean glass, reference strips, rollers and ultrasonic sensors; run the cleaning sheet, inspect a test scan, check counters, and confirm backup completed before starting new work." },
+    { id:17, task:"Deep-clean rollers; vacuum paper path; run test target", component:"Rollers / Paper path", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Weekly", lastDone:"2026-06-23", nextDue:"2026-06-30", owner:"Operator", critical:false, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item"], urgency:"", instructions:"Deep-clean all rollers, vacuum the paper path, and run a test target scan to confirm image quality." },
+    { id:18, task:"Counter review; FIFO consumable stock rotation", component:"Consumables", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Monthly", lastDone:"2026-06-01", nextDue:"2026-07-01", owner:"Operator", critical:false, notes:"", photos:[], parts:[], types:["Operator checklist item","Checklist item"], urgency:"", instructions:"Review scan counters against roller-set life, and rotate consumable stock FIFO." },
+    { id:19, task:"Roller set replacement (ScanAid kit CG01000-295401) — ~600k sheets or 1 year, whichever first; reset counter", component:"Rollers (ScanAid kit)", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Hour-based", lastDone:"2025-11-01", nextDue:"2026-11-01", owner:"Technician", critical:false, notes:"Keep ≥1 kit on the shelf at all times — discontinued platform, rising parts risk.", photos:[], parts:[{partId:28,qty:1,unit:"Quantity"}], types:["Preventive maintenance item","Technician item"], urgency:"Needs technician", instructions:"Replace the full ScanAid roller kit (pick, brake, separation + cleaning) as a set at ~600k sheets or 1 year, whichever comes first, and reset the counter." },
+    { id:20, task:"Vendor full PM, calibration, firmware update", component:"Full system", equipment:"Ricoh fi-7900 · SCAN-001", frequency:"Annual", lastDone:"2025-09-01", nextDue:"2026-09-01", owner:"Vendor technician", critical:false, notes:"", photos:[], parts:[], types:["Preventive maintenance item","Technician item"], urgency:"", instructions:"Schedule the vendor's full annual PM visit: calibration and firmware update." }
+  ];
+  var state = { filter:"all", search:"" };
+  var editingTask = null;
+  var emPhotos = [];
+  var emParts = [];
+  var nextId = 21;
+  var nextPhotoId = 100;
+
+  var TODAY = new Date("2026-07-01T00:00:00");
+  function daysUntil(dateStr){
+    var d = new Date(dateStr + "T00:00:00");
+    return Math.round((d - TODAY) / 86400000);
+  }
+  function statusOf(t){
+    if (t.frequency === "Daily") return { label:"Daily", c:"var(--off-c)", bg:"var(--off-bg)" };
+    var d = daysUntil(t.nextDue);
+    if (d < 0) return { label:"Overdue", c:"var(--out-c)", bg:"var(--out-bg)" };
+    if (d <= 14) return { label:"Due soon", c:"var(--low-c)", bg:"var(--low-bg)" };
+    return { label:"Scheduled", c:"var(--ok-c)", bg:"var(--ok-bg)" };
+  }
+  function isSchedulable(t){ return t.frequency !== "Daily"; }
+  function isOverdue(t){ return isSchedulable(t) && daysUntil(t.nextDue) < 0; }
+  function isSoon(t){ return isSchedulable(t) && daysUntil(t.nextDue) >= 0 && daysUntil(t.nextDue) <= 14; }
+
+  /* ---------- Equipment taxonomy (view/select only) ---------- */
+  var catSel = $("catSel"), typeSel = $("typeSel"), assetSel = $("assetSel");
+
+  function fillCategories(){
+    catSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All categories"; catSel.appendChild(allOpt);
+    Object.keys(taxonomy).forEach(function(c){ var o = document.createElement("option"); o.value = c; o.textContent = c; catSel.appendChild(o); });
+  }
+  function fillTypes(){
+    typeSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All types"; typeSel.appendChild(allOpt);
+    if (catSel.value){
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){ var o = document.createElement("option"); o.value = t; o.textContent = t; typeSel.appendChild(o); });
+    }
+  }
+  function fillAssets(){
+    assetSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All assets"; assetSel.appendChild(allOpt);
+    if (catSel.value && typeSel.value){
+      (taxonomy[catSel.value].types[typeSel.value] || []).forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; assetSel.appendChild(o); });
+    } else if (catSel.value && !typeSel.value){
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){
+        taxonomy[catSel.value].types[t].forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; assetSel.appendChild(o); });
+      });
+    }
+  }
+  function updateBreadcrumb(){
+    $("breadcrumb").textContent = (catSel.value || "All categories") + "  ›  " + (typeSel.value || "All types") + "  ›  " + (assetSel.value || "All assets");
+  }
+  function scopeAssetSet(){
+    if (!catSel.value) return null;
+    if (!typeSel.value){
+      var set = [];
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){ set = set.concat(taxonomy[catSel.value].types[t]); });
+      return set;
+    }
+    var typeAssets = taxonomy[catSel.value].types[typeSel.value] || [];
+    if (!assetSel.value) return typeAssets;
+    return [assetSel.value];
+  }
+
+  catSel.addEventListener("change", function(){ fillTypes(); fillAssets(); updateBreadcrumb(); renderAll(); });
+  typeSel.addEventListener("change", function(){ fillAssets(); updateBreadcrumb(); renderAll(); });
+  assetSel.addEventListener("change", function(){ updateBreadcrumb(); renderAll(); });
+
+  fillCategories(); fillTypes(); fillAssets(); updateBreadcrumb();
+
+  /* ---------- Add / edit modal ---------- */
+  function fillEquipmentSelect(sel){
+    sel.innerHTML = "";
+    allAssetsFlat().forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; sel.appendChild(o); });
+  }
+
+  function renderPhotoGrid(){
+    var grid = $("emPhotoGrid");
+    grid.innerHTML = "";
+    emPhotos.forEach(function(ph, idx){
+      var tile = document.createElement("div");
+      tile.className = "photo-tile";
+      tile.innerHTML = '<i class="ti ti-photo" aria-hidden="true" style="font-size:16px;"></i><span>' + ph.label + '</span>';
+      var rm = document.createElement("button");
+      rm.type = "button"; rm.className = "rm"; rm.setAttribute("aria-label","Remove photo " + ph.label);
+      rm.innerHTML = '<i class="ti ti-x" aria-hidden="true"></i>';
+      rm.addEventListener("click", function(){ emPhotos.splice(idx,1); renderPhotoGrid(); });
+      tile.appendChild(rm);
+      grid.appendChild(tile);
+    });
+    var addTile = document.createElement("button");
+    addTile.type = "button"; addTile.className = "photo-add"; addTile.setAttribute("aria-label","Add picture");
+    addTile.innerHTML = '<i class="ti ti-plus" aria-hidden="true" style="font-size:16px;"></i><span>Add</span>';
+    addTile.addEventListener("click", function(){
+      emPhotos.push({ id: nextPhotoId++, label: "Photo " + emPhotos.length + 1 });
+      renderPhotoGrid();
+    });
+    grid.appendChild(addTile);
+  }
+
+  function renderPartsRows(){
+    var wrap = $("emPartsRows");
+    wrap.innerHTML = "";
+    var equipment = $("emEquipment").value;
+    var available = partsFor(equipment);
+    $("emPartsEmpty").style.display = emParts.length === 0 ? "block" : "none";
+    emParts.forEach(function(row, idx){
+      var rowEl = document.createElement("div");
+      rowEl.className = "part-row";
+      var sel = document.createElement("select");
+      sel.className = "sel small part-sel";
+      if (available.length === 0){
+        var noneOpt = document.createElement("option"); noneOpt.value = ""; noneOpt.textContent = "No parts on file for this equipment";
+        sel.appendChild(noneOpt);
+      } else {
+        available.forEach(function(p){ var o = document.createElement("option"); o.value = p.id; o.textContent = partLabel(p); sel.appendChild(o); });
+        sel.value = row.partId;
+      }
+      sel.addEventListener("change", function(){ row.partId = parseInt(sel.value,10) || null; });
+      var qtyIn = document.createElement("input");
+      qtyIn.type = "number"; qtyIn.min = "1"; qtyIn.value = row.qty || 1;
+      qtyIn.style.cssText = "width:56px;height:30px;border:0.5px solid var(--line);border-radius:6px;padding:0 6px;font-size:12px;flex:none;";
+      qtyIn.addEventListener("input", function(){ row.qty = parseInt(qtyIn.value,10) || 1; });
+      var unitSel = document.createElement("select");
+      unitSel.className = "sel small unit-sel";
+      ["Quantity","Gallons","Quarts"].forEach(function(u){ var o = document.createElement("option"); o.value = u; o.textContent = u; unitSel.appendChild(o); });
+      unitSel.value = row.unit || "Quantity";
+      unitSel.addEventListener("change", function(){ row.unit = unitSel.value; });
+      var rmBtn = document.createElement("button");
+      rmBtn.className = "iconbtn danger"; rmBtn.type = "button"; rmBtn.title = "Remove part line"; rmBtn.setAttribute("aria-label","Remove part line");
+      rmBtn.innerHTML = '<i class="ti ti-trash" aria-hidden="true" style="font-size:13px;"></i>';
+      rmBtn.addEventListener("click", function(){ emParts.splice(idx,1); renderPartsRows(); });
+      rowEl.appendChild(sel); rowEl.appendChild(qtyIn); rowEl.appendChild(unitSel); rowEl.appendChild(rmBtn);
+      wrap.appendChild(rowEl);
+    });
+  }
+  $("emAddPartRow").addEventListener("click", function(){
+    var equipment = $("emEquipment").value;
+    var available = partsFor(equipment);
+    emParts.push({ partId: available.length ? available[0].id : null, qty: 1, unit: "Quantity" });
+    renderPartsRows();
+  });
+  $("emEquipment").addEventListener("change", function(){
+    // Parts are equipment-specific — clear any linked parts that no longer apply.
+    var equipment = $("emEquipment").value;
+    var available = partsFor(equipment);
+    var availIds = available.map(function(p){ return p.id; });
+    emParts = emParts.filter(function(row){ return availIds.indexOf(row.partId) !== -1; });
+    renderPartsRows();
+  });
+
+  // Add a brand-new part straight into the Spare Parts & Inventory reference list
+  // (SPARE_PARTS) from inside the task modal, for when the part a task needs isn't
+  // on file yet. Mirrors the same shape used by the Spare Parts Inventory page.
+  var nextPartRefId = 36;
+  $("emAddToInventoryBtn").addEventListener("click", function(){
+    fillEquipmentSelect($("npEquipment"));
+    $("npEquipment").value = $("emEquipment").value;
+    $("npName").value = "";
+    $("npPartNo").value = "";
+    $("npVerified").checked = false;
+    $("emNewPartForm").style.display = "block";
+    $("npName").focus();
+  });
+  $("npCancel").addEventListener("click", function(){
+    $("emNewPartForm").style.display = "none";
+  });
+  $("npSave").addEventListener("click", function(){
+    var name = $("npName").value.trim();
+    if (!name){ $("npName").focus(); return; }
+    var newPart = {
+      id: nextPartRefId++,
+      name: name,
+      partNo: $("npPartNo").value.trim() || "Not yet specified",
+      equipment: $("npEquipment").value,
+      verified: $("npVerified").checked
+    };
+    SPARE_PARTS.push(newPart);
+    if ($("npEquipment").value === $("emEquipment").value){
+      emParts.push({ partId: newPart.id, qty: 1, unit: "Quantity" });
+    }
+    $("emNewPartForm").style.display = "none";
+    renderPartsRows();
+  });
+
+  function openTaskModal(t){
+    editingTask = t;
+    $("editModalTitle").textContent = t ? "Edit PM task" : "Add PM task";
+    fillEquipmentSelect($("emEquipment"));
+    $("emNewPartForm").style.display = "none";
+    if (t){
+      $("emTask").value = t.task;
+      $("emComponent").value = t.component;
+      $("emEquipment").value = t.equipment;
+      $("emFrequency").value = t.frequency;
+      $("emOwner").value = t.owner;
+      $("emLastDone").value = t.lastDone;
+      $("emNextDue").value = t.nextDue;
+      $("emCritical").checked = !!t.critical;
+      var tTypes = t.types || [];
+      $("emTypeOperator").checked = tTypes.indexOf("Operator checklist item") !== -1;
+      $("emTypeSafety").checked = tTypes.indexOf("Safety item") !== -1;
+      $("emTypePM").checked = tTypes.indexOf("Preventive maintenance item") !== -1;
+      $("emTypeTechnician").checked = tTypes.indexOf("Technician item") !== -1;
+      $("emTypeChecklist").checked = tTypes.indexOf("Checklist item") !== -1;
+      $("emUrgency").value = t.urgency || "";
+      $("emInstructions").value = t.instructions || "";
+      $("emNotes").value = t.notes || "";
+      emPhotos = (t.photos || []).map(function(p){ return { id:p.id, label:p.label }; });
+      emParts = (t.parts || []).map(function(p){ return { partId:p.partId, qty:p.qty, unit:p.unit || "Quantity" }; });
+    } else {
+      $("emTask").value = "";
+      $("emComponent").value = "";
+      $("emEquipment").value = assetSel.value || allAssetsFlat()[0];
+      $("emFrequency").value = "Monthly";
+      $("emOwner").value = "Technician";
+      $("emLastDone").value = "";
+      $("emNextDue").value = "";
+      $("emCritical").checked = false;
+      $("emTypeOperator").checked = false;
+      $("emTypeSafety").checked = false;
+      $("emTypePM").checked = false;
+      $("emTypeTechnician").checked = false;
+      $("emTypeChecklist").checked = false;
+      $("emUrgency").value = "";
+      $("emInstructions").value = "";
+      $("emNotes").value = "";
+      emPhotos = [];
+      emParts = [];
+    }
+    renderPhotoGrid();
+    renderPartsRows();
+    $("editModalOverlay").classList.add("open");
+    $("emTask").focus();
+  }
+  function closeTaskModal(){
+    $("editModalOverlay").classList.remove("open");
+    editingTask = null;
+  }
+  $("editModalClose").addEventListener("click", closeTaskModal);
+  $("emCancel").addEventListener("click", closeTaskModal);
+  $("editModalOverlay").addEventListener("click", function(e){ if (e.target === this) closeTaskModal(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && $("editModalOverlay").classList.contains("open")) closeTaskModal(); });
+  $("addTaskBtn").addEventListener("click", function(){ openTaskModal(null); });
+  $("emSave").addEventListener("click", function(){
+    var taskName = $("emTask").value.trim();
+    if (!taskName){ $("emTask").focus(); return; }
+    var vals = {
+      task: taskName,
+      component: $("emComponent").value.trim() || "—",
+      equipment: $("emEquipment").value,
+      frequency: $("emFrequency").value,
+      owner: $("emOwner").value,
+      lastDone: $("emLastDone").value || "",
+      nextDue: $("emNextDue").value || "",
+      critical: $("emCritical").checked,
+      types: [
+        $("emTypeOperator").checked ? "Operator checklist item" : null,
+        $("emTypeSafety").checked ? "Safety item" : null,
+        $("emTypePM").checked ? "Preventive maintenance item" : null,
+        $("emTypeTechnician").checked ? "Technician item" : null,
+        $("emTypeChecklist").checked ? "Checklist item" : null
+      ].filter(function(v){ return v != null; }),
+      urgency: $("emUrgency").value,
+      instructions: $("emInstructions").value.trim(),
+      notes: $("emNotes").value.trim(),
+      photos: emPhotos.slice(),
+      parts: emParts.filter(function(row){ return row.partId != null; }).map(function(row){ return { partId:row.partId, qty:row.qty, unit:row.unit || "Quantity" }; })
+    };
+    if (editingTask){
+      Object.assign(editingTask, vals);
+    } else {
+      vals.id = nextId++;
+      TASKS.push(vals);
+    }
+    closeTaskModal();
+    renderAll();
+  });
+
+  /* ---------- PM register table ---------- */
+  function matchesTaxonomy(t){
+    var scope = scopeAssetSet();
+    return !scope || scope.indexOf(t.equipment) !== -1;
+  }
+  function scopedTasks(){ return TASKS.filter(matchesTaxonomy); }
+  function matchesFilter(t){
+    if (state.filter === "overdue") return isOverdue(t);
+    if (state.filter === "soon") return isSoon(t);
+    if (state.filter === "critical") return t.critical;
+    return true;
+  }
+  function matchesSearch(t){
+    if (!state.search) return true;
+    var q = state.search.toLowerCase();
+    return [t.task,t.component,t.equipment,t.owner].some(function(v){ return (v||"").toLowerCase().indexOf(q) !== -1; });
+  }
+
+  function renderKpis(){
+    var scoped = scopedTasks();
+    var schedulable = scoped.filter(isSchedulable);
+    var overdueCt = scoped.filter(isOverdue).length;
+    var soonCt = scoped.filter(isSoon).length;
+    var adherence = schedulable.length ? Math.round(((schedulable.length - overdueCt) / schedulable.length) * 100) : 100;
+    var wrap = $("kpiRow");
+    wrap.innerHTML = "";
+    function card(n,l,cls){
+      var d = document.createElement("div");
+      d.className = "kpi" + (cls ? " " + cls : "");
+      d.innerHTML = '<div class="n">' + n + '</div><div class="l">' + l + '</div>';
+      wrap.appendChild(d);
+    }
+    card(scoped.length, "PM tasks in current scope");
+    card(overdueCt, "Overdue", (overdueCt>0 ? "bad" : "good"));
+    card(soonCt, "Due within 14 days", (soonCt>0 ? "warn" : "good"));
+    card(adherence + "%", "PM adherence (target ≥95%)", (adherence>=95 ? "good" : (adherence>=90 ? "warn" : "bad")));
+  }
+  function updateChipCounts(){
+    var scoped = scopedTasks();
+    $("cntAll").textContent = scoped.length;
+    $("cntOverdue").textContent = scoped.filter(isOverdue).length;
+    $("cntSoon").textContent = scoped.filter(isSoon).length;
+    $("cntCritical").textContent = scoped.filter(function(t){ return t.critical; }).length;
+  }
+  function td(content){
+    var el = document.createElement("td");
+    if (content instanceof Node) el.appendChild(content); else el.textContent = content;
+    return el;
+  }
+  function fmtDate(s){
+    if (!s) return "—";
+    var d = new Date(s + "T00:00:00");
+    return d.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+  }
+
+  function renderTable(){
+    var tbody = document.getElementById("tbody");
+    tbody.innerHTML = "";
+    var rows = scopedTasks().filter(matchesFilter).filter(matchesSearch);
+
+    if (rows.length === 0){
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 11;
+      td0.style.cssText = "text-align:center;color:var(--muted);font-size:12px;padding:18px;";
+      td0.textContent = "No PM tasks match this equipment scope / search / filter.";
+      tr0.appendChild(td0);
+      tbody.appendChild(tr0);
+    }
+
+    rows.forEach(function(t){
+      var st = statusOf(t);
+      var tr = document.createElement("tr");
+      if (st.label === "Overdue") tr.className = "row-overdue";
+      if (st.label === "Due soon") tr.className = "row-soon";
+      tr.style.cursor = "pointer";
+      tr.title = "Double-click to edit";
+      tr.addEventListener("dblclick", function(){ openTaskModal(t); });
+
+      var taskSpan = document.createElement("span");
+      taskSpan.className = "cell-strong";
+      taskSpan.style.cssText += "display:block;max-width:300px;white-space:normal;line-height:1.3;";
+      taskSpan.textContent = t.task;
+      tr.appendChild(td(taskSpan));
+
+      tr.appendChild(td(t.component || "—"));
+      tr.appendChild(td(t.equipment || "—"));
+      tr.appendChild(td(t.frequency || "—"));
+      tr.appendChild(td(fmtDate(t.lastDone)));
+      tr.appendChild(td(fmtDate(t.nextDue)));
+      tr.appendChild(td(t.owner || "—"));
+
+      var critPill = document.createElement("span");
+      critPill.className = "pill";
+      critPill.style.color = t.critical ? "var(--out-c)" : "var(--off-c)";
+      critPill.style.background = t.critical ? "var(--out-bg)" : "var(--off-bg)";
+      critPill.textContent = t.critical ? "Yes" : "No";
+      tr.appendChild(td(critPill));
+
+      var badges = document.createElement("div");
+      badges.className = "details-badges";
+      var hasNotes = !!(t.notes && t.notes.trim());
+      var photoCt = (t.photos || []).length;
+      var partsCt = (t.parts || []).length;
+      var notesSpan = document.createElement("span"); notesSpan.className = hasNotes ? "on" : "";
+      notesSpan.innerHTML = '<i class="ti ti-notes" aria-hidden="true" title="Notes"></i>';
+      var photoSpan = document.createElement("span"); photoSpan.className = photoCt>0 ? "on" : "";
+      photoSpan.innerHTML = '<i class="ti ti-photo" aria-hidden="true" title="Photos"></i>' + (photoCt>0 ? photoCt : "");
+      var partsSpan = document.createElement("span"); partsSpan.className = partsCt>0 ? "on" : "";
+      partsSpan.innerHTML = '<i class="ti ti-tools" aria-hidden="true" title="Parts needed"></i>' + (partsCt>0 ? partsCt : "");
+      badges.appendChild(notesSpan); badges.appendChild(photoSpan); badges.appendChild(partsSpan);
+      tr.appendChild(td(badges));
+
+      var statusPill = document.createElement("span");
+      statusPill.className = "pill";
+      statusPill.style.color = st.c; statusPill.style.background = st.bg;
+      statusPill.textContent = st.label;
+      tr.appendChild(td(statusPill));
+
+      var actions = document.createElement("div");
+      actions.className = "actionsrow";
+      var editBtn = document.createElement("button");
+      editBtn.className = "iconbtn"; editBtn.title = "Edit"; editBtn.setAttribute("aria-label","Edit task");
+      editBtn.innerHTML = '<i class="ti ti-edit" aria-hidden="true" style="font-size:13px;"></i>';
+      editBtn.addEventListener("click", function(e){ e.stopPropagation(); openTaskModal(t); });
+      var delBtn = document.createElement("button");
+      delBtn.className = "iconbtn danger"; delBtn.title = "Remove"; delBtn.setAttribute("aria-label","Remove task");
+      delBtn.innerHTML = '<i class="ti ti-trash" aria-hidden="true" style="font-size:13px;"></i>';
+      delBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        var idx = TASKS.indexOf(t);
+        if (idx > -1) TASKS.splice(idx,1);
+        renderAll();
+      });
+      actions.appendChild(editBtn); actions.appendChild(delBtn);
+      tr.appendChild(td(actions));
+
+      tbody.appendChild(tr);
+    });
+
+    $("rowCountFoot").textContent = "Showing " + rows.length + " of " + scopedTasks().length + " PM tasks in the current equipment scope. (Reference date: Jul 1, 2026.)";
+  }
+
+  function renderAll(){
+    renderKpis();
+    updateChipCounts();
+    renderTable();
+  }
+
+  $("searchInput").addEventListener("input", function(){ state.search = this.value; renderTable(); });
+  document.querySelectorAll(".chip[data-filter]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".chip[data-filter]").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      state.filter = btn.getAttribute("data-filter");
+      renderTable();
+    });
+  });
+
+  renderAll();
+})();
+  </script>
+
+</div><!-- .wrap -->
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

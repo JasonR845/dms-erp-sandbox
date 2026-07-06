@@ -1,0 +1,1577 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DMS ERP — Customer Intake</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.1.0/dist/tabler-icons.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --navy: #14253D;
+      --navy-2: #1B3050;
+      --ink: #2E3338;
+      --muted: #5A6470;
+      --soft: #8C97A4;
+      --line: #E2E6EA;
+      --line-strong: #C9D2DC;
+      --page: #F4F6F8;
+      --card: #FFFFFF;
+      --panel: #F8FAFB;
+      --panel-2: #EAF0F7;
+      --panel-2-line: #D7DCE1;
+      --blue: #1B3050;
+      --danger: #B3261E;
+      --success: #1F6B3B;
+      --shadow: 0 1px 3px rgba(20, 37, 61, .08), 0 1px 2px rgba(20, 37, 61, .04);
+      --radius-lg: 12px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family:'Inter',Arial,Helvetica,sans-serif;
+      color: var(--ink);
+      background: var(--page);
+      font-size: 14px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px 18px 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      color: #fff;
+      background: var(--navy);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .brandmark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--navy);
+      background: #fff;
+      font-size: 21px;
+      flex: none;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: .01em;
+      font-weight: 700;
+    }
+
+    .topbar p {
+      margin: 2px 0 0;
+      color: rgba(255, 255, 255, .65);
+      font-size: 12px;
+    }
+
+    .topbar-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .status-pill,
+    .mini-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+
+    .status-pill {
+      padding: 5px 11px;
+      color: #DCE5F0;
+      background: rgba(255, 255, 255, .10);
+      border: 1px solid rgba(255, 255, 255, .22);
+    }
+
+    .mini-pill {
+      padding: 4px 9px;
+      color: var(--navy);
+      background: var(--panel-2);
+      border: 1px solid var(--panel-2-line);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 34px;
+      border-radius: var(--radius-sm);
+      padding: 7px 13px;
+      font: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--line-strong);
+      color: var(--navy);
+      background: #fff;
+      transition: border-color .12s ease, background .12s ease, color .12s ease;
+    }
+
+    .btn:hover { border-color: var(--navy); background: var(--panel); }
+    .btn.primary { color: #fff; background: var(--navy); border-color: var(--navy); }
+    .btn.primary:hover { background: var(--navy-2); }
+    .btn.ghost { color: #fff; background: transparent; border-color: rgba(255, 255, 255, .35); }
+    .btn.ghost:hover { background: rgba(255, 255, 255, .10); border-color: rgba(255, 255, 255, .6); }
+    .btn.danger { color: var(--danger); border-color: rgba(179, 38, 30, .3); background: #fff; }
+    .btn.danger:hover { background: #FBEBEA; border-color: var(--danger); }
+    .btn.small { min-height: 29px; padding: 5px 10px; font-size: 11.5px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .summary-value {
+      margin-top: 3px;
+      color: var(--navy);
+      font-size: 14.5px;
+      font-weight: 700;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 18px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-index {
+      width: 25px;
+      height: 25px;
+      display: grid;
+      place-items: center;
+      flex: none;
+      margin-top: 1px;
+      border-radius: 7px;
+      color: var(--navy);
+      background: var(--panel-2);
+      border: 1px solid var(--panel-2-line);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--navy);
+      font-size: 14.5px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .section-copy {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .grid { display: grid; gap: 14px; }
+    .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+    .span-all { grid-column: 1 / -1; }
+
+    .field label,
+    .label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+
+    .required { color: var(--danger); }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      padding: 8px 11px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+      font-size: 13.5px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .13);
+    }
+
+    textarea { min-height: 74px; resize: vertical; }
+    input[type="checkbox"], input[type="radio"] { width: auto; min-height: auto; accent-color: var(--navy); }
+
+    .subsection { margin-top: 18px; }
+
+    .subhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--navy);
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .subhead span {
+      color: var(--soft);
+      font-weight: 500;
+      font-size: 11.5px;
+    }
+
+    .notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 13px;
+      margin-bottom: 14px;
+      color: #1B3050;
+      background: var(--panel-2);
+      border: 1px solid var(--panel-2-line);
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
+    }
+
+    .row-card {
+      position: relative;
+      margin-bottom: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--panel);
+    }
+
+    .row-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 11px;
+    }
+
+    .row-card-title {
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .check-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      padding-top: 12px;
+      margin-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    /* Inline manager (Add / edit dropdown options) */
+    .input-with-actions {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .input-with-actions select,
+    .input-with-actions input { flex: 1; }
+    .input-with-actions .btn { flex: none; white-space: nowrap; }
+
+    .inline-editor {
+      margin-top: 10px;
+      padding: 14px;
+      border: 1px solid var(--panel-2-line);
+      border-radius: var(--radius-md);
+      background: var(--panel-2);
+    }
+
+    .inline-editor-title {
+      margin-bottom: 10px;
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .op-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .op-row input { flex: 1; }
+
+    .editor-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* Contact blocks (site-level + customer-level) */
+    .site-contacts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .contact-block {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: #fff;
+    }
+
+    .contact-block-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 11px;
+      color: var(--navy);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .hours-grid {
+      display: grid;
+      grid-template-columns: 120px 112px 1fr 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .day-name { font-weight: 600; color: var(--ink); font-size: 12.5px; }
+
+    .dropzone {
+      display: grid;
+      place-items: center;
+      gap: 5px;
+      min-height: 68px;
+      padding: 14px;
+      color: var(--muted);
+      background: #fff;
+      border: 1.5px dashed var(--line-strong);
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .12s ease, color .12s ease, background .12s ease;
+    }
+
+    .dropzone:hover { color: var(--blue); border-color: var(--blue); background: #FAFCFF; }
+    .dropzone i { font-size: 22px; }
+
+    .asset-layout {
+      display: grid;
+      grid-template-columns: 1fr 210px;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .asset-row {
+      display: grid;
+      grid-template-columns: 1.15fr 1.7fr .9fr .55fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .thumb {
+      position: relative;
+      width: 54px;
+      height: 54px;
+      border-radius: var(--radius-sm);
+      background-size: cover;
+      background-position: center;
+      border: 1px solid var(--line-strong);
+      overflow: visible;
+    }
+
+    .thumb button {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 19px;
+      height: 19px;
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--danger);
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .qr-card {
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .qr-title {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .qr-box {
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-box canvas,
+    .qr-box img { border: 1px solid var(--line); border-radius: 6px; }
+
+    .qr-url {
+      margin-top: 8px;
+      color: var(--soft);
+      font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;
+      font-size: 10px;
+      word-break: break-all;
+    }
+
+    .qr-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .masked {
+      display: flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 8px 11px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-sm);
+      color: var(--navy);
+      background: #fff;
+      font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .03em;
+    }
+
+    .signature-box {
+      height: 56px;
+      display: grid;
+      place-items: center;
+      color: var(--soft);
+      background: #fff;
+      border: 1.5px dashed var(--line-strong);
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .client-send {
+      display: grid;
+      grid-template-columns: auto minmax(180px, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      margin-top: 14px;
+      color: #1B3050;
+      background: var(--panel-2);
+      border: 1px solid var(--panel-2-line);
+      border-radius: var(--radius-md);
+    }
+
+    .help-text { color: var(--muted); font-size: 11.5px; margin-top: 5px; }
+
+    .footer-note {
+      margin: 18px 0 0;
+      color: var(--soft);
+      text-align: center;
+      font-size: 11.5px;
+    }
+
+    @media (max-width: 980px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .asset-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .asset-layout { grid-template-columns: 1fr; }
+      .client-send { grid-template-columns: 1fr; }
+      .site-contacts { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .page { padding: 16px 12px 48px; }
+      .topbar { align-items: flex-start; }
+      .topbar-actions { width: 100%; margin-left: 0; justify-content: flex-start; }
+      .summary-grid,
+      .two,
+      .three,
+      .four { grid-template-columns: 1fr; }
+      .span-2,
+      .span-3 { grid-column: span 1; }
+      .section { padding: 16px; }
+      .input-with-actions { flex-wrap: wrap; }
+      .hours-grid { grid-template-columns: 1fr; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .page { max-width: none; padding: 0; }
+      .topbar-actions,
+      .btn,
+      .dropzone,
+      .qr-actions,
+      #file-input { display: none !important; }
+      .section,
+      .topbar,
+      .summary-card { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAG+klEQVR42u1ZXYxUZxl+3vf7zpkzsMMuA1iolIIFCg0haUVLtxcWtZCWQm2hXsiF9sKf1l7UYEz0ojHxkqSpJibGpgmYmJgSa6ItaPSS/kFbKKWtLSzrsmwX9m/2zOzOOXPOd97Xi7MsP1KdWWaNGN7kJJMz33zf+z7f8/4OcENuyA1pvxDlz5WfrwuF27m2CTEz1PhTlTBe0fPnlpcF82/eNqd865O2WJrPbKtQmVRxclWDMHODqLWl+i9v2QusF5QWe0FntwnmPer5c7aS9Tryb3X6CHXpRJrUX8ni6ktpHL6WxrVzksau2XPaYMCUwrZgbNCxyCt23e0FpUdMYe42Nn4ZBEAEqgKoJFAIGAyBgMAg9okYYAYUkCwZyxqTf0rj2h/SaPxNF08Mi2tks3YDxfm33ON3LPym9edsZ+stARGgCpUMgCQQCJgsQAyAr7KFACoQdWAwwD6xwYV9xKWDLqn/MZkY2RdV+l9vqwFEjPKKjZ8YP1gimQOQNaPwf5IrDDI+G4ssiQfHet+4WVWa2sQ2ZyaTQCokyYJcYfZnpPIVbASIcxByLxFJRCAVEBNUtI0GAExUBNgHmoRmRgaxZaJiK57ZHI4KqEj630gpKpK2EISaNUAUkArl0MzWDUi+v1SapU/TBqgKVLLBi7F9VrCfwiob1BZYys0GKknTj/OsOVs+oAKi/JwWIjw3qT+yNDoOIkBmiUICAVF+TgsZqulgmKX1E7NbDxKYueVzuElqwjUmeiECMNt2Ks5EsNYgU7XVsIo0nuhtxdW4WedyjXpN0qQHRLYdkcgYhjGMqNHA0MiYFAoFe/+XNvRapLVWgkWTFCKoOHVJ7UUiBiDuWtBWVYyHNYyHNaxcvgzP/PB77tUDv8FT33rkxTiOlLn5NN90JoYCyWRlv19a9OO8DmoNbQCoRw3U6xEWzO/Eww98Gbt2Poj7N3XDs0astXju2T37AYCZIdLOWkjz60wmx06oS2Mw+82gzYaRphnGw5wVa1d/Dju2fRWPPbwFt69cPr02TVO/0WjEBw8eeA9A08o3b8B0JIrSJKq+UOgoP6GSJnlt9G/QjiKUuzqx/YFN2LVzKzZv6kYxKOCCkqqASJZYa+2hQ4f2njx5MmkF/dYMmKrbk9rQLwqlBd+/pNmaRtu5i2ivWZWj/fWvXY52lmUgorw1hkKgICLeu2/fc63SZ0YdGbGlruUbPrC2sDr3NeIoijFZj1Ce34n77t2Ab+zcii2bulEsBhfRFgFxXu0Qmylm5ln93EBvz9p1d90ehqESEVR1digEyqNRUj2/m8vLXqmOhzHAwZrVK/DoQznaa1atmF7uXAqiPHWwvXiUZA614ZMY6j2SpMPHgp/v/fPuMAzVMCGT1mqtGY0DjBeYxavuObfxi3eWd+14EFu+ci/PmUI7cw4KhbXeZb+Ja0OoDBzHSO9hjJ09htpIn2hWF5dR9TvP/v2m0ZpzgEJbrBVt6wnIIEvj7PHH7nvqZz995nfOudhaEzjnYK2FmUI6cw1Uz3+E0b63MNJ3BNVzH6ExOQpVhbEFKNuk3LUo+O1f+58cqaYuR39WxypTDjvlZEuXLjUnTrw/UCp1LCAiJiKuh5+gcvZdjPS+ibGzx1Ef70eWxiC2MF4ANt4UhUSMgdRjN/rtPUc/O1ZNskui9ewOtlQVxhiEYai+Z965e93ix08d2d849erz9uSh59H/3ssIBz9EltbBtgDrz4Exfo6VCqAKJ9Lomuv5+/7Sv/3wB5XThgkywzZjRj6QTwcJvgH9avf61xd1yBccrHheYMnY6SboAqSqeWWjChDBdQTMfUPR4e/uOdadpJnqDNFvqZy+SmJGnKr++uWBHaWuhcxe0YEYKhkkyyCiyCRX3LNARwGYVwSYxA3VmH/50j92xkmmIJqx8tcwG82NYCacOV+vLV0UZGtvLW2ejFzChoxngaKXP6LAUBU4doZw8F0kvz9aKOz729BPek6fOdBqzG8bhS6bywIoz/PNCz+6q3dhp1kyESmPToBPDxM+HCR8fA4YqBCqEUSUhCkdqJ99+zZIkmkb2utrnnMzEUQVG9d95rb16+849VZPEg+GJqhGQKaAZwDfAIYkZusH4cD7K6PqUE+rQ9y2U+jSdoeIcHZosvLO2SCc1K6HNHNx4JMNPMAyAJUY1g+i8cEfTI72HZwaDrSnFW1fawiwsdS57POvsQ02qmYOIAuoIzI2S+M3Kn1vd6tk2s7RTBv/+8lR9YrzOjtvuXMMkiUgslB1YOOH/UfLaVQN20Wdawqjn0omIqRRNZwc7ukm6weiUiXrB5PDPd1pVA3bSZ3ZnI8AAEpL1jx90x2btbRkzdOXhazrRYgtlRavfYLYXmea/3/JDfBvyP+8/BOoWmUyUtUH8QAAAABJRU5ErkJggg==">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brandmark"><i class="ti ti-shield-check"></i></div>
+      <div>
+        <h1>DMS Customer Intake</h1>
+        <p>CUST-0000 · Draft customer profile · Compliance Driven Protection</p>
+      </div>
+      <div class="topbar-actions">
+        <span class="status-pill"><i class="ti ti-pencil"></i> Draft</span>
+        <button class="btn ghost" type="button"><i class="ti ti-device-floppy"></i> Save draft</button>
+        <button class="btn" type="button"><i class="ti ti-send"></i> Send to client</button>
+        <button class="btn primary" type="button"><i class="ti ti-circle-check"></i> Submit for approval</button>
+      </div>
+    </header>
+
+    <section class="section" id="section-customer">
+      <div class="section-head">
+        <div class="section-index">A</div>
+        <div>
+          <h2 class="section-title">Customer profile</h2>
+          <p class="section-copy">Core identity, account ownership, and parent-company information.</p>
+        </div>
+      </div>
+      <div class="grid three">
+        <div class="field span-all">
+          <label for="customer-type">Customer type <span class="required">*</span></label>
+          <div class="input-with-actions">
+            <select id="customer-type" onchange="onTypeChange()"></select>
+            <button class="btn small" type="button" onclick="toggleTypeEditor('add')"><i class="ti ti-plus"></i> Add type</button>
+            <button class="btn small" type="button" onclick="toggleTypeEditor('edit')"><i class="ti ti-pencil"></i> Edit type</button>
+          </div>
+          <div id="type-editor" class="inline-editor" style="display:none"></div>
+        </div>
+        <div class="field">
+          <label for="legal-name">Legal name <span class="required">*</span></label>
+          <input id="legal-name" value="Maquiladora Acme S.A. de C.V." />
+        </div>
+        <div class="field">
+          <label for="dba-name">Commercial / DBA name</label>
+          <input id="dba-name" value="Acme Tijuana" />
+        </div>
+        <div class="field">
+          <label for="website">Website</label>
+          <input id="website" value="acme.mx" />
+        </div>
+        <div class="field">
+          <label for="account-number">Account number</label>
+          <input id="account-number" placeholder="Auto-generated or manual" />
+        </div>
+        <div class="field">
+          <label for="parent-entity">Parent / corporate entity</label>
+          <input id="parent-entity" placeholder="Optional" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="section-segment">
+      <div class="section-head">
+        <div class="section-index">B</div>
+        <div>
+          <h2 class="section-title">Customer type details</h2>
+          <p class="section-copy" id="segment-copy">Additional fields based on the selected customer type.</p>
+        </div>
+      </div>
+      <div class="grid three" id="segment-fields"></div>
+    </section>
+
+    <section class="section" id="section-site">
+      <div class="section-head">
+        <div class="section-index">C</div>
+        <div>
+          <h2 class="section-title">Service sites &amp; hours</h2>
+          <p class="section-copy">One or more service locations, each with its own address, operating hours, and on-site contacts.</p>
+        </div>
+      </div>
+      <div class="notice"><i class="ti ti-info-circle"></i><div>Add every location DMS services for this customer. Each site keeps its own address, weekly hours, and a primary and secondary on-site contact for routing and dispatch.</div></div>
+      <div id="site-list"></div>
+      <button class="btn" type="button" onclick="addSite()"><i class="ti ti-plus"></i> Add service site</button>
+    </section>
+
+    <section class="section" id="section-assets">
+      <div class="section-head">
+        <div class="section-index">D</div>
+        <div>
+          <h2 class="section-title">Asset locations</h2>
+          <p class="section-copy">Track bins, containers, docks, storage areas, pickup points, photos, and QR codes.</p>
+        </div>
+      </div>
+      <div id="asset-list"></div>
+      <button class="btn" type="button" onclick="addAsset()"><i class="ti ti-plus"></i> Add asset location</button>
+    </section>
+
+    <section class="section" id="section-contacts">
+      <div class="section-head">
+        <div class="section-index">E</div>
+        <div>
+          <h2 class="section-title">Contacts</h2>
+          <p class="section-copy">Account-level primary and secondary contacts, plus any additional people at this customer.</p>
+        </div>
+      </div>
+      <div class="grid two" id="customer-contacts"></div>
+      <div class="subsection">
+        <div class="subhead"><div>Additional contacts</div><span>Optional — other people at this account</span></div>
+        <div id="contact-list"></div>
+        <button class="btn" type="button" onclick="addContact()"><i class="ti ti-plus"></i> Add contact</button>
+      </div>
+    </section>
+
+    <section class="section" id="section-credit">
+      <div class="section-head">
+        <div class="section-index">F</div>
+        <div>
+          <h2 class="section-title">Credit application</h2>
+          <p class="section-copy">Business details, trade references, banking information, credit terms, and e-signature.</p>
+        </div>
+      </div>
+
+      <div class="notice"><i class="ti ti-lock"></i><div>Bank details should be encrypted, masked, and restricted to approved finance users only.</div></div>
+
+      <div class="subsection">
+        <div class="subhead"><div>Business information</div></div>
+        <div class="grid four">
+          <div class="field"><label>Legal business name</label><input value="Maquiladora Acme S.A. de C.V." /></div>
+          <div class="field"><label>DBA</label><input value="Acme Tijuana" /></div>
+          <div class="field"><label>Tax ID / RFC</label><input placeholder="Enter tax ID" /></div>
+          <div class="field"><label>Entity type</label><select><option selected>S.A. de C.V.</option><option>S. de R.L. de C.V.</option><option>LLC</option><option>Corporation</option></select></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subhead"><div>Billing information</div></div>
+        <div class="grid four">
+          <div class="field span-2"><label>Billing address</label><input placeholder="Street, city, state, postal code" /></div>
+          <div class="field"><label>Billing email</label><input type="email" placeholder="billing@example.com" /></div>
+          <div class="field"><label>Billing phone</label><input placeholder="Phone number" /></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subhead"><div>Trade references</div><span>Reference checks can be marked complete</span></div>
+        <div id="trade-reference-list"></div>
+        <button class="btn small" type="button" onclick="addTradeReference()"><i class="ti ti-plus"></i> Add trade reference</button>
+      </div>
+
+      <div class="subsection">
+        <div class="subhead"><div><i class="ti ti-building-bank"></i> Banking information</div><span>Finance restricted</span></div>
+        <div class="grid four">
+          <div class="field"><label>Bank name</label><input placeholder="Bank name" /></div>
+          <div class="field"><label>Routing number</label><div class="masked">•••• ••••</div></div>
+          <div class="field"><label>Account number</label><div class="masked">•••• 6789</div></div>
+          <div class="field"><label>Account type</label><select><option selected>Checking</option><option>Savings</option></select></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subhead"><div>Credit terms requested</div></div>
+        <div class="grid four">
+          <div class="field"><label>Amount requested</label><input type="number" placeholder="USD" /></div>
+          <div class="field"><label>Terms requested</label><select><option>Prepaid</option><option>Net 15</option><option selected>Net 30</option><option>Net 45</option><option>Net 60</option></select></div>
+          <div class="field"><label>Guarantee</label><select><option selected>None</option><option>Corporate guarantee</option><option>Personal guarantee</option></select></div>
+          <div class="field"><label>Credit decision</label><select><option selected>Pending review</option><option>Approved</option><option>Declined</option><option>More information needed</option></select></div>
+        </div>
+      </div>
+
+      <div class="subsection">
+        <div class="subhead"><div>Authorized signer</div></div>
+        <div class="grid four">
+          <div class="field"><label>Name</label><input /></div>
+          <div class="field"><label>Title</label><input /></div>
+          <div class="field"><label>Email</label><input type="email" /></div>
+          <div class="field"><label>Phone</label><input /></div>
+          <div class="field span-2"><label>Signature</label><div class="signature-box">E-signature capture</div></div>
+          <div class="field"><label>Signed date</label><input type="date" /></div>
+          <div class="field"><label>Application status</label><select><option selected>Draft</option><option>Sent to client</option><option>Client completed</option><option>Approved</option></select></div>
+        </div>
+      </div>
+
+      <div class="client-send">
+        <strong><i class="ti ti-send"></i> Send digitally to client</strong>
+        <input type="email" placeholder="client@email.com" />
+        <button class="btn primary" type="button">Send application</button>
+        <span class="mini-pill">Draft</span>
+      </div>
+    </section>
+
+    <section class="section" id="section-documents">
+      <div class="section-head">
+        <div class="section-index">G</div>
+        <div>
+          <h2 class="section-title">Documents &amp; photos</h2>
+          <p class="section-copy">Contracts, certificates, RFC/W-9, insurance, compliance files, site photos, and facility images.</p>
+        </div>
+      </div>
+      <div class="grid three">
+        <div class="field"><label>Contracts &amp; agreements</label><div class="dropzone"><i class="ti ti-files"></i>Add contracts</div></div>
+        <div class="field"><label>Compliance documents</label><div class="dropzone"><i class="ti ti-shield-upload"></i>Add certificates / RFC / W-9</div></div>
+        <div class="field"><label>Site photos</label><div class="dropzone"><i class="ti ti-camera-plus"></i>Add site / facility photos</div></div>
+      </div>
+    </section>
+
+    <section class="section" id="section-vehicles">
+      <div class="section-head">
+        <div class="section-index">H</div>
+        <div>
+          <h2 class="section-title">Trucks, trailers &amp; drivers</h2>
+          <p class="section-copy">Vehicle, trailer, driver, license plate, and restricted driver-license photo information for drop-offs.</p>
+        </div>
+      </div>
+      <div id="vehicle-list"></div>
+      <button class="btn" type="button" onclick="addVehicle()"><i class="ti ti-plus"></i> Add truck / trailer</button>
+    </section>
+
+    <section class="section" id="section-payment">
+      <div class="section-head">
+        <div class="section-index">I</div>
+        <div>
+          <h2 class="section-title">Payment setup</h2>
+          <p class="section-copy">Preferred payment method, payment terms, direct deposit, W-9, remittance, and tokenized cards.</p>
+        </div>
+      </div>
+
+      <div class="notice"><i class="ti ti-lock"></i><div>Visible to Accounting / Owner roles only. Bank account details should remain tokenized, masked, and encrypted.</div></div>
+
+      <div class="grid three">
+        <div class="field">
+          <label for="payment-method">Preferred payment method</label>
+          <select id="payment-method" onchange="toggleAch()">
+            <option>Check</option>
+            <option>Cash</option>
+            <option selected>Direct deposit / ACH</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Payee name</label><input value="Maquiladora Acme S.A. de C.V." /></div>
+        <div class="field"><label>Payment terms</label><select><option>Prepaid</option><option>Net 15</option><option selected>Net 30</option><option>Net 45</option><option>Net 60</option></select></div>
+      </div>
+
+      <div class="subsection" id="ach-section">
+        <div class="subhead"><div><i class="ti ti-building-bank"></i> Direct deposit / ACH information</div></div>
+        <div class="grid four">
+          <div class="field"><label>Bank name</label><input value="BBVA México" /></div>
+          <div class="field"><label>Routing number</label><div class="masked">•••• ••••</div></div>
+          <div class="field"><label>Account number</label><div class="masked">•••• 6789</div></div>
+          <div class="field"><label>Account type</label><select><option selected>Checking</option><option>Savings</option></select></div>
+        </div>
+      </div>
+
+      <div class="grid two" style="margin-top:14px">
+        <div class="field"><label>W-9 / tax document upload</label><div class="dropzone"><i class="ti ti-file-upload"></i>Upload tax document</div></div>
+        <div class="field"><label>Additional payment instructions</label><textarea placeholder="Remittance email, PO requirements, payment restrictions, or special instructions"></textarea></div>
+      </div>
+
+      <div class="subsection">
+        <div class="subhead"><div>Saved methods</div><span>Cards are tokenized</span></div>
+        <p class="help-text"><span class="mini-pill">Card</span> Visa <span class="masked" style="display:inline-flex; min-height:28px; padding:4px 8px; margin-left:6px;">•••• 4242</span> · default · tokenized</p>
+      </div>
+    </section>
+
+    <section class="section" id="section-approval">
+      <div class="section-head">
+        <div class="section-index">J</div>
+        <div>
+          <h2 class="section-title">Internal review &amp; approval</h2>
+          <p class="section-copy">Final account setup notes, internal routing, review status, and approval record.</p>
+        </div>
+      </div>
+      <div class="grid three">
+        <div class="field"><label>Account owner</label><input placeholder="Assigned sales or operations owner" /></div>
+        <div class="field"><label>Risk level</label><select><option selected>Standard</option><option>Low</option><option>Elevated</option><option>High</option></select></div>
+        <div class="field"><label>Approval status</label><select><option selected>Pending review</option><option>Approved</option><option>Rejected</option><option>Needs more information</option></select></div>
+        <div class="field span-all"><label>Internal notes</label><textarea placeholder="Internal-only comments, special handling notes, onboarding concerns, or approval conditions"></textarea></div>
+      </div>
+    </section>
+
+    <p class="footer-note">Standalone preview · professional neutral styling · no gold borders · sensitive fields masked · not connected to production</p>
+    <input id="file-input" type="file" accept="image/*" multiple style="display:none" />
+  </main>
+
+  <script>
+    /* ----------------------------------------------------------------
+       Customer types (drive Section A dropdown + Section B details).
+       Editable in-app: add new types, rename/redescribe, or delete.
+    -----------------------------------------------------------------*/
+    let customerTypes = [
+      {
+        id: 'maquiladora',
+        label: 'Maquiladora / IMMEX plant',
+        copy: 'IMMEX and plant-specific details.',
+        fields: [
+          ['Number of plants', 'input', '3'],
+          ['IMMEX program number', 'input', ''],
+          ['Regulatory reference', 'input', ''],
+          ['Primary operation', 'operations', '']
+        ]
+      },
+      {
+        id: 'healthcare',
+        label: 'Healthcare / hospital',
+        copy: 'Patient-data and healthcare compliance details.',
+        fields: [
+          ['Compliance / privacy officer', 'input', ''],
+          ['BAA / data-handling reference', 'input', ''],
+          ['Facility type', 'select', 'Hospital|Clinic|Lab|Administrative office']
+        ]
+      },
+      {
+        id: 'financial',
+        label: 'Financial institution',
+        copy: 'Regulated financial institution details.',
+        fields: [
+          ['Facility type', 'select', 'Branch|Data center|Back office|Corporate office'],
+          ['Charter / registration reference', 'input', ''],
+          ['Compliance officer', 'input', '']
+        ]
+      },
+      {
+        id: 'legal',
+        label: 'Legal / professional services',
+        copy: 'Professional-services and client-record handling details.',
+        fields: [
+          ['Practice type', 'select', 'Law firm|Accounting firm|Consulting|Other'],
+          ['Records contact', 'input', ''],
+          ['Retention policy reference', 'input', '']
+        ]
+      },
+      {
+        id: 'government',
+        label: 'Government agency',
+        copy: 'Agency and public-sector handling details.',
+        fields: [
+          ['Agency / department', 'input', ''],
+          ['Procurement reference', 'input', ''],
+          ['Records officer', 'input', '']
+        ]
+      },
+      {
+        id: 'other',
+        label: 'Other commercial',
+        copy: 'No additional fields required for this customer type.',
+        fields: []
+      }
+    ];
+
+    /* Managed list behind the "Primary operation" dropdown (Section B). */
+    let primaryOperations = ['Manufacturing', 'Assembly', 'Logistics', 'Warehouse', 'Other'];
+
+    const times = [];
+    for (let h = 0; h < 24; h += 1) {
+      for (let m = 0; m < 60; m += 30) {
+        const ampm = h < 12 ? 'AM' : 'PM';
+        const hour = (h % 12) || 12;
+        times.push(`${hour}:${String(m).padStart(2, '0')} ${ampm}`);
+      }
+    }
+
+    function defaultHours() {
+      return [
+        ['Monday', true, '8:00 AM', '5:00 PM'],
+        ['Tuesday', true, '8:00 AM', '5:00 PM'],
+        ['Wednesday', true, '8:00 AM', '5:00 PM'],
+        ['Thursday', true, '8:00 AM', '5:00 PM'],
+        ['Friday', true, '8:00 AM', '5:00 PM'],
+        ['Saturday', true, '9:00 AM', '1:00 PM'],
+        ['Sunday', false, '', '']
+      ];
+    }
+
+    function emptyContact() {
+      return { name: '', role: '', cell: '', email: '' };
+    }
+
+    /* ---------------- Service sites (Section C) ---------------- */
+    const locationTypes = ['Plant', 'Branch', 'Corporate office', 'Warehouse', 'Data center'];
+
+    let sites = [
+      {
+        label: 'Plant 1',
+        type: 'Plant',
+        street: 'Blvd. Insurgentes 1234',
+        city: 'Tijuana',
+        state: 'Baja California',
+        zip: '22055',
+        zone: '',
+        access: '',
+        isPrimary: true,
+        hours: defaultHours(),
+        primaryContact: { name: 'Laura Pérez', role: 'Operations Manager', cell: '+52 664 111 2222', email: '' },
+        secondaryContact: emptyContact()
+      }
+    ];
+
+    /* ---------------- Contacts (Section E) ---------------- */
+    let customerContacts = {
+      primary: { name: 'Laura Pérez', role: 'Operations Manager', cell: '+52 664 111 2222', email: '' },
+      secondary: emptyContact()
+    };
+
+    let contacts = [];
+
+    /* ---------------- Assets (Section D) ---------------- */
+    let assets = [
+      {
+        type: 'Bin',
+        name: 'Locked console — Finance',
+        code: 'BIN-117',
+        qty: 2,
+        frequency: 'Weekly',
+        location: 'Building B, 2nd floor, Finance department, next to copier room 204',
+        token: 'a1b2c3d4',
+        photos: []
+      },
+      {
+        type: 'Dock',
+        name: 'Dock 3',
+        code: '',
+        qty: 1,
+        frequency: 'On-call',
+        location: 'South yard, loading dock 3, roll-off staging area',
+        token: '9f8e7d6c',
+        photos: []
+      }
+    ];
+
+    let tradeReferences = [
+      { company: 'Steel Co', contact: '', phone: '+52 ...', checked: false }
+    ];
+
+    let vehicles = [
+      { truckPlate: 'BC-12345', make: 'Freightliner', model: 'M2 106', year: '2019', driver: 'M. Soto', driverCell: '+52 664 555 6666', companyPhone: '' }
+    ];
+
+    const assetTypes = ['Bin', 'Container', 'Equipment', 'Dock', 'Storage area', 'Department', 'Building', 'Pickup / drop-off point', 'Other'];
+    const serviceFrequencies = ['—', 'Weekly', 'Bi-weekly', 'Every 4 weeks', 'Monthly', 'On-call'];
+    let selectedAssetIndex = null;
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function options(items, selected) {
+      return items.map(item => `<option${item === selected ? ' selected' : ''}>${escapeHtml(item)}</option>`).join('');
+    }
+
+    /* ===================== Customer type dropdown ===================== */
+    function renderCustomerTypeSelect(selectedId) {
+      const select = document.getElementById('customer-type');
+      const current = selectedId || select.value || customerTypes[0].id;
+      select.innerHTML = customerTypes.map(type =>
+        `<option value="${escapeHtml(type.id)}"${type.id === current ? ' selected' : ''}>${escapeHtml(type.label)}</option>`
+      ).join('');
+    }
+
+    function onTypeChange() {
+      closeTypeEditor();
+      renderSegmentFields();
+      updateSummary();
+    }
+
+    let typeEditorMode = null;
+
+    function toggleTypeEditor(mode) {
+      const editor = document.getElementById('type-editor');
+      if (typeEditorMode === mode && editor.style.display !== 'none') {
+        closeTypeEditor();
+        return;
+      }
+      typeEditorMode = mode;
+      renderTypeEditor(mode);
+      editor.style.display = 'block';
+    }
+
+    function closeTypeEditor() {
+      const editor = document.getElementById('type-editor');
+      editor.style.display = 'none';
+      editor.innerHTML = '';
+      typeEditorMode = null;
+    }
+
+    function renderTypeEditor(mode) {
+      let label = '';
+      let copy = '';
+      if (mode === 'edit') {
+        const type = customerTypes.find(t => t.id === document.getElementById('customer-type').value);
+        if (type) { label = type.label; copy = type.copy; }
+      }
+      document.getElementById('type-editor').innerHTML = `
+        <div class="inline-editor-title">${mode === 'add' ? 'Add customer type' : 'Edit customer type'}</div>
+        <div class="grid two">
+          <div class="field"><label>Type name <span class="required">*</span></label><input id="type-editor-label" value="${escapeHtml(label)}" placeholder="e.g. Aerospace supplier" /></div>
+          <div class="field"><label>Description</label><input id="type-editor-copy" value="${escapeHtml(copy)}" placeholder="Short note shown under Customer type details" /></div>
+        </div>
+        <div class="editor-actions">
+          <button class="btn small primary" type="button" onclick="saveType('${mode}')"><i class="ti ti-check"></i> ${mode === 'add' ? 'Add type' : 'Save changes'}</button>
+          ${mode === 'edit' ? '<button class="btn danger small" type="button" onclick="deleteType()"><i class="ti ti-trash"></i> Delete type</button>' : ''}
+          <button class="btn small" type="button" onclick="closeTypeEditor()">Cancel</button>
+        </div>`;
+    }
+
+    function slugify(value) {
+      return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || ('type-' + Date.now());
+    }
+
+    function saveType(mode) {
+      const label = document.getElementById('type-editor-label').value.trim();
+      const copy = document.getElementById('type-editor-copy').value.trim() || 'Additional fields based on the selected customer type.';
+      if (!label) { alert('Enter a type name.'); return; }
+
+      if (mode === 'add') {
+        let id = slugify(label);
+        while (customerTypes.some(t => t.id === id)) { id += '-1'; }
+        customerTypes.push({ id, label, copy, fields: [] });
+        renderCustomerTypeSelect(id);
+      } else {
+        const type = customerTypes.find(t => t.id === document.getElementById('customer-type').value);
+        if (type) { type.label = label; type.copy = copy; }
+        renderCustomerTypeSelect(type ? type.id : undefined);
+      }
+      closeTypeEditor();
+      renderSegmentFields();
+      updateSummary();
+    }
+
+    function deleteType() {
+      if (customerTypes.length <= 1) { alert('At least one customer type is required.'); return; }
+      const id = document.getElementById('customer-type').value;
+      customerTypes = customerTypes.filter(t => t.id !== id);
+      renderCustomerTypeSelect(customerTypes[0].id);
+      closeTypeEditor();
+      renderSegmentFields();
+      updateSummary();
+    }
+
+    /* ===================== Section B: type details ===================== */
+    function renderSegmentFields() {
+      const type = customerTypes.find(t => t.id === document.getElementById('customer-type').value) || customerTypes[0];
+      document.getElementById('segment-copy').textContent = type.copy;
+      const wrap = document.getElementById('segment-fields');
+
+      if (!type.fields.length) {
+        wrap.innerHTML = '<div class="help-text span-all">No additional fields are required for this customer type.</div>';
+        return;
+      }
+
+      wrap.innerHTML = type.fields.map(([label, ftype, data]) => {
+        if (ftype === 'operations') {
+          return `
+            <div class="field span-all">
+              <label>${escapeHtml(label)}</label>
+              <div class="input-with-actions">
+                <select id="primary-operation">${options(primaryOperations, primaryOperations[0])}</select>
+                <button class="btn small" type="button" onclick="togglePrimaryOpsEditor()"><i class="ti ti-adjustments"></i> Add / edit options</button>
+              </div>
+              <div id="primary-ops-editor" class="inline-editor" style="display:none"></div>
+            </div>`;
+        }
+        if (ftype === 'select') {
+          const items = data.split('|');
+          return `<div class="field"><label>${escapeHtml(label)}</label><select>${options(items, items[0])}</select></div>`;
+        }
+        return `<div class="field"><label>${escapeHtml(label)}</label><input value="${escapeHtml(data)}" placeholder="Optional" /></div>`;
+      }).join('');
+    }
+
+    /* --------- Primary operations: add / edit options --------- */
+    function togglePrimaryOpsEditor() {
+      const editor = document.getElementById('primary-ops-editor');
+      if (!editor) return;
+      if (editor.style.display === 'none') {
+        renderPrimaryOpsEditor();
+        editor.style.display = 'block';
+      } else {
+        editor.style.display = 'none';
+      }
+    }
+
+    function renderPrimaryOpsEditor() {
+      const editor = document.getElementById('primary-ops-editor');
+      if (!editor) return;
+      editor.innerHTML = `
+        <div class="inline-editor-title">Manage primary operation options</div>
+        ${primaryOperations.map((op, index) => `
+          <div class="op-row">
+            <input value="${escapeHtml(op)}" oninput="primaryOperations[${index}] = this.value" />
+            <button class="btn danger small" type="button" onclick="removePrimaryOp(${index})"><i class="ti ti-trash"></i></button>
+          </div>`).join('')}
+        <div class="editor-actions">
+          <button class="btn small" type="button" onclick="addPrimaryOp()"><i class="ti ti-plus"></i> Add option</button>
+          <button class="btn small primary" type="button" onclick="applyPrimaryOps()"><i class="ti ti-check"></i> Done</button>
+        </div>`;
+    }
+
+    function addPrimaryOp() {
+      primaryOperations.push('');
+      renderPrimaryOpsEditor();
+    }
+
+    function removePrimaryOp(index) {
+      primaryOperations.splice(index, 1);
+      renderPrimaryOpsEditor();
+    }
+
+    function applyPrimaryOps() {
+      primaryOperations = primaryOperations.map(op => op.trim()).filter(Boolean);
+      if (!primaryOperations.length) primaryOperations = ['Manufacturing'];
+      refreshPrimaryOperationSelect();
+      const editor = document.getElementById('primary-ops-editor');
+      if (editor) editor.style.display = 'none';
+    }
+
+    function refreshPrimaryOperationSelect() {
+      const select = document.getElementById('primary-operation');
+      if (!select) return;
+      const current = select.value;
+      select.innerHTML = options(primaryOperations, primaryOperations.includes(current) ? current : primaryOperations[0]);
+    }
+
+    /* ===================== Section C: service sites ===================== */
+    function addSite() {
+      sites.push({
+        label: '', type: 'Plant', street: '', city: '', state: '', zip: '', zone: '', access: '',
+        isPrimary: sites.length === 0,
+        hours: defaultHours(),
+        primaryContact: emptyContact(),
+        secondaryContact: emptyContact()
+      });
+      renderSites();
+    }
+
+    function removeSite(index) {
+      if (sites.length <= 1) { alert('At least one service site is required.'); return; }
+      const wasPrimary = sites[index].isPrimary;
+      sites.splice(index, 1);
+      if (wasPrimary && sites.length) sites[0].isPrimary = true;
+      renderSites();
+      updateSummary();
+    }
+
+    function setPrimarySite(index) {
+      sites.forEach((site, i) => { site.isPrimary = i === index; });
+      renderSites();
+      updateSummary();
+    }
+
+    function renderHoursFor(siteIndex) {
+      return sites[siteIndex].hours.map((day, dayIndex) => {
+        const [name, open, start, end] = day;
+        return `
+          <div class="hours-grid">
+            <div class="day-name">${name}</div>
+            <label class="check"><input type="checkbox" ${open ? 'checked' : ''} onchange="sites[${siteIndex}].hours[${dayIndex}][1] = this.checked; renderSites();" /> ${open ? 'Open' : 'Closed'}</label>
+            ${open
+              ? `<select onchange="sites[${siteIndex}].hours[${dayIndex}][2] = this.value">${options(times, start)}</select><select onchange="sites[${siteIndex}].hours[${dayIndex}][3] = this.value">${options(times, end)}</select>`
+              : '<div class="help-text span-2">Closed</div>'}
+          </div>`;
+      }).join('');
+    }
+
+    function renderSiteContact(siteIndex, key, title) {
+      const contact = sites[siteIndex][key];
+      return `
+        <div class="contact-block">
+          <div class="contact-block-title"><i class="ti ti-user"></i> ${title}</div>
+          <div class="field"><label>Name</label><input value="${escapeHtml(contact.name)}" oninput="sites[${siteIndex}].${key}.name = this.value" /></div>
+          <div class="field" style="margin-top:10px"><label>Role / title</label><input value="${escapeHtml(contact.role)}" oninput="sites[${siteIndex}].${key}.role = this.value" /></div>
+          <div class="grid two" style="margin-top:10px">
+            <div class="field"><label>Cell phone</label><input value="${escapeHtml(contact.cell)}" placeholder="+52 ..." oninput="sites[${siteIndex}].${key}.cell = this.value" /></div>
+            <div class="field"><label>Email</label><input type="email" value="${escapeHtml(contact.email)}" placeholder="name@example.com" oninput="sites[${siteIndex}].${key}.email = this.value" /></div>
+          </div>
+        </div>`;
+    }
+
+    function renderSites() {
+      document.getElementById('site-list').innerHTML = sites.map((site, index) => `
+        <div class="row-card">
+          <div class="row-card-head">
+            <div class="row-card-title">Service site ${index + 1}${site.isPrimary ? ' · Primary' : ''}</div>
+            <div style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+              <label class="check"><input type="radio" name="primary-site" ${site.isPrimary ? 'checked' : ''} onchange="setPrimarySite(${index})" /> Primary site</label>
+              <button class="btn danger small" type="button" onclick="removeSite(${index})"><i class="ti ti-trash"></i> Remove</button>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <div class="field"><label>Site label <span class="required">*</span></label><input value="${escapeHtml(site.label)}" oninput="sites[${index}].label = this.value; updateSummary();" /></div>
+            <div class="field"><label>Location type</label><select onchange="sites[${index}].type = this.value">${options(locationTypes, site.type)}</select></div>
+          </div>
+
+          <div class="grid four" style="margin-top:14px">
+            <div class="field span-2"><label>Street address <span class="required">*</span></label><input value="${escapeHtml(site.street)}" oninput="sites[${index}].street = this.value" /></div>
+            <div class="field"><label>City</label><input value="${escapeHtml(site.city)}" oninput="sites[${index}].city = this.value; updateSummary();" /></div>
+            <div class="field"><label>State</label><input value="${escapeHtml(site.state)}" oninput="sites[${index}].state = this.value; updateSummary();" /></div>
+            <div class="field"><label>ZIP / postal code</label><input value="${escapeHtml(site.zip)}" oninput="sites[${index}].zip = this.value" /></div>
+            <div class="field"><label>Service zone</label><input value="${escapeHtml(site.zone)}" placeholder="Route zone or territory" oninput="sites[${index}].zone = this.value" /></div>
+            <div class="field span-2"><label>Access / security notes</label><input value="${escapeHtml(site.access)}" placeholder="Gate, guard shack, dock access, PPE, check-in requirements" oninput="sites[${index}].access = this.value" /></div>
+          </div>
+
+          <div class="subsection">
+            <div class="subhead"><div><i class="ti ti-clock"></i> Hours of operation</div><span>Open / closed by day with open and close times</span></div>
+            <div>${renderHoursFor(index)}</div>
+          </div>
+
+          <div class="site-contacts">
+            ${renderSiteContact(index, 'primaryContact', 'Primary site contact')}
+            ${renderSiteContact(index, 'secondaryContact', 'Secondary site contact')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* ===================== Section E: contacts ===================== */
+    function customerContactBlock(key, title, icon) {
+      const contact = customerContacts[key];
+      return `
+        <div class="contact-block">
+          <div class="contact-block-title"><i class="ti ${icon}"></i> ${title}</div>
+          <div class="grid two">
+            <div class="field"><label>Name</label><input value="${escapeHtml(contact.name)}" oninput="customerContacts.${key}.name = this.value" /></div>
+            <div class="field"><label>Role / title</label><input value="${escapeHtml(contact.role)}" oninput="customerContacts.${key}.role = this.value" /></div>
+          </div>
+          <div class="grid two" style="margin-top:10px">
+            <div class="field"><label>Cell phone</label><input value="${escapeHtml(contact.cell)}" placeholder="+52 ..." oninput="customerContacts.${key}.cell = this.value" /></div>
+            <div class="field"><label>Email</label><input type="email" value="${escapeHtml(contact.email)}" placeholder="name@example.com" oninput="customerContacts.${key}.email = this.value" /></div>
+          </div>
+        </div>`;
+    }
+
+    function renderCustomerContacts() {
+      document.getElementById('customer-contacts').innerHTML =
+        customerContactBlock('primary', 'Primary contact', 'ti-user-star') +
+        customerContactBlock('secondary', 'Secondary contact', 'ti-user');
+    }
+
+    function addContact() {
+      contacts.push({ name: '', role: '', cell: '', company: '', email: '', inactive: false });
+      renderContacts();
+    }
+
+    function renderContacts() {
+      const list = document.getElementById('contact-list');
+      if (!contacts.length) {
+        list.innerHTML = '<div class="help-text">No additional contacts yet. Use the button below to add more people at this account.</div>';
+        return;
+      }
+      list.innerHTML = contacts.map((contact, index) => `
+        <div class="row-card">
+          <div class="row-card-head">
+            <div class="row-card-title">Additional contact ${index + 1}</div>
+            <button class="btn danger small" type="button" onclick="contacts.splice(${index}, 1); renderContacts();"><i class="ti ti-trash"></i> Remove</button>
+          </div>
+          <div class="grid two">
+            <div class="field"><label>Name</label><input value="${escapeHtml(contact.name)}" oninput="contacts[${index}].name = this.value" /></div>
+            <div class="field"><label>Role / title</label><input value="${escapeHtml(contact.role)}" oninput="contacts[${index}].role = this.value" /></div>
+          </div>
+          <div class="grid three" style="margin-top:14px">
+            <div class="field"><label>Cell phone</label><input value="${escapeHtml(contact.cell)}" oninput="contacts[${index}].cell = this.value" /></div>
+            <div class="field"><label>Company phone</label><input value="${escapeHtml(contact.company)}" oninput="contacts[${index}].company = this.value" /></div>
+            <div class="field"><label>Email</label><input type="email" value="${escapeHtml(contact.email)}" oninput="contacts[${index}].email = this.value" /></div>
+          </div>
+          <div class="check-row">
+            <label class="check"><input type="checkbox" ${contact.inactive ? 'checked' : ''} onchange="contacts[${index}].inactive = this.checked" /> No longer works here</label>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* ===================== Section D: assets ===================== */
+    function addAsset() {
+      assets.push({ type: 'Bin', name: '', code: '', qty: 1, frequency: 'Weekly', location: '', token: Math.random().toString(16).slice(2, 10), photos: [] });
+      renderAssets();
+    }
+
+    function pickAssetPhotos(index) {
+      selectedAssetIndex = index;
+      document.getElementById('file-input').click();
+    }
+
+    document.getElementById('file-input').addEventListener('change', event => {
+      const asset = assets[selectedAssetIndex];
+      if (!asset) return;
+      Array.from(event.target.files || []).forEach(file => asset.photos.push(URL.createObjectURL(file)));
+      event.target.value = '';
+      renderAssets();
+    });
+
+    function renderThumbs(assetIndex) {
+      return assets[assetIndex].photos.map((url, photoIndex) => `
+        <div class="thumb" style="background-image:url('${url}')">
+          <button type="button" onclick="assets[${assetIndex}].photos.splice(${photoIndex}, 1); renderAssets();">×</button>
+        </div>
+      `).join('');
+    }
+
+    function renderQrCodes() {
+      if (typeof QRCode === 'undefined') return;
+      assets.forEach((asset, index) => {
+        const element = document.getElementById(`qr-${index}`);
+        if (!element) return;
+        element.innerHTML = '';
+        new QRCode(element, {
+          text: `https://dms.app/assets/${asset.token}`,
+          width: 106,
+          height: 106,
+          colorDark: '#14253d',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      });
+    }
+
+    function renderAssets() {
+      document.getElementById('asset-list').innerHTML = assets.map((asset, index) => `
+        <div class="row-card">
+          <div class="row-card-head">
+            <div class="row-card-title">Asset location ${index + 1}</div>
+            <button class="btn danger small" type="button" onclick="assets.splice(${index}, 1); renderAssets();"><i class="ti ti-trash"></i> Remove</button>
+          </div>
+          <div class="asset-row">
+            <div class="field"><label>Type</label><select onchange="assets[${index}].type = this.value">${options(assetTypes, asset.type)}</select></div>
+            <div class="field"><label>Name / label</label><input value="${escapeHtml(asset.name)}" oninput="assets[${index}].name = this.value" /></div>
+            <div class="field"><label>Code / tag</label><input value="${escapeHtml(asset.code)}" oninput="assets[${index}].code = this.value" /></div>
+            <div class="field"><label>Qty</label><input type="number" value="${escapeHtml(asset.qty)}" oninput="assets[${index}].qty = this.value" /></div>
+            <div class="field"><label>Service frequency</label><select onchange="assets[${index}].frequency = this.value">${options(serviceFrequencies, asset.frequency)}</select></div>
+          </div>
+          <div class="asset-layout">
+            <div>
+              <div class="field"><label>Exact location</label><textarea oninput="assets[${index}].location = this.value" placeholder="Dock, warehouse area, building, department, room, yard section, bin location, or pickup/drop-off point">${escapeHtml(asset.location)}</textarea></div>
+              <div class="field" style="margin-top:12px"><label>Pictures</label><div class="dropzone" onclick="pickAssetPhotos(${index})"><i class="ti ti-camera-plus"></i>Upload or take photos of the asset and location</div><div class="thumbs">${renderThumbs(index)}</div></div>
+            </div>
+            <div class="qr-card">
+              <div class="qr-title">Asset location QR</div>
+              <div class="qr-box" id="qr-${index}"></div>
+              <div class="qr-url">dms.app/assets/${escapeHtml(asset.token)}</div>
+              <div class="qr-actions">
+                <button class="btn small" type="button" onclick="window.print()">View</button>
+                <button class="btn small" type="button" onclick="window.print()">Print</button>
+                <button class="btn small primary" type="button">Scan</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      renderQrCodes();
+    }
+
+    /* ===================== Section F: trade references ===================== */
+    function addTradeReference() {
+      tradeReferences.push({ company: '', contact: '', phone: '', checked: false });
+      renderTradeReferences();
+    }
+
+    function renderTradeReferences() {
+      document.getElementById('trade-reference-list').innerHTML = tradeReferences.map((ref, index) => `
+        <div class="row-card">
+          <div class="grid four" style="align-items:end">
+            <div class="field"><label>Company</label><input value="${escapeHtml(ref.company)}" oninput="tradeReferences[${index}].company = this.value" /></div>
+            <div class="field"><label>Contact</label><input value="${escapeHtml(ref.contact)}" oninput="tradeReferences[${index}].contact = this.value" /></div>
+            <div class="field"><label>Phone / email</label><input value="${escapeHtml(ref.phone)}" oninput="tradeReferences[${index}].phone = this.value" /></div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+              <label class="check"><input type="checkbox" ${ref.checked ? 'checked' : ''} onchange="tradeReferences[${index}].checked = this.checked" /> Checked</label>
+              <button class="btn danger small" type="button" onclick="tradeReferences.splice(${index}, 1); renderTradeReferences();">Remove</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* ===================== Section H: vehicles ===================== */
+    function addVehicle() {
+      vehicles.push({ truckPlate: '', trailerPlate: '', make: '', model: '', year: '', driver: '', driverCell: '', companyPhone: '' });
+      renderVehicles();
+    }
+
+    function renderVehicles() {
+      document.getElementById('vehicle-list').innerHTML = vehicles.map((vehicle, index) => `
+        <div class="row-card">
+          <div class="row-card-head">
+            <div class="row-card-title">Vehicle ${index + 1}</div>
+            <button class="btn danger small" type="button" onclick="vehicles.splice(${index}, 1); renderVehicles();"><i class="ti ti-trash"></i> Remove</button>
+          </div>
+          <div class="grid four">
+            <div class="field"><label>Truck license plate</label><input value="${escapeHtml(vehicle.truckPlate)}" oninput="vehicles[${index}].truckPlate = this.value" /></div>
+            <div class="field"><label>Trailer license plate</label><input value="${escapeHtml(vehicle.trailerPlate)}" oninput="vehicles[${index}].trailerPlate = this.value" /></div>
+            <div class="field"><label>Make</label><input value="${escapeHtml(vehicle.make)}" oninput="vehicles[${index}].make = this.value" /></div>
+            <div class="field"><label>Model</label><input value="${escapeHtml(vehicle.model)}" oninput="vehicles[${index}].model = this.value" /></div>
+          </div>
+          <div class="grid four" style="margin-top:14px">
+            <div class="field"><label>Year</label><input value="${escapeHtml(vehicle.year)}" oninput="vehicles[${index}].year = this.value" /></div>
+            <div class="field"><label>Driver name</label><input value="${escapeHtml(vehicle.driver)}" oninput="vehicles[${index}].driver = this.value" /></div>
+            <div class="field"><label>Driver cell</label><input value="${escapeHtml(vehicle.driverCell)}" oninput="vehicles[${index}].driverCell = this.value" /></div>
+            <div class="field"><label>Driver company phone</label><input value="${escapeHtml(vehicle.companyPhone)}" oninput="vehicles[${index}].companyPhone = this.value" /></div>
+          </div>
+          <div class="grid three" style="margin-top:14px">
+            <div class="field"><label>Vehicle photos</label><div class="dropzone"><i class="ti ti-camera-plus"></i>Add vehicle photos</div></div>
+            <div class="field"><label>Trailer photos</label><div class="dropzone"><i class="ti ti-camera-plus"></i>Add trailer photos</div></div>
+            <div class="field"><label>Driver license photo</label><div class="dropzone"><i class="ti ti-id"></i>Upload restricted photo</div></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleAch() {
+      const method = document.getElementById('payment-method').value;
+      document.getElementById('ach-section').style.display = method === 'Direct deposit / ACH' ? 'block' : 'none';
+    }
+
+    /* ===================== Summary ===================== */
+    function updateSummary() {
+      const typeEl = document.getElementById('summary-type');
+      if (typeEl) {
+        const type = customerTypes.find(t => t.id === document.getElementById('customer-type').value);
+        if (type) typeEl.textContent = type.label;
+      }
+
+      const siteEl = document.getElementById('summary-site');
+      if (siteEl) {
+        const primary = sites.find(s => s.isPrimary) || sites[0];
+        if (primary) {
+          const place = [primary.city, primary.state].filter(Boolean).join(', ');
+          siteEl.textContent = `${primary.label || 'Site'}${place ? ' · ' + place : ''}`;
+        }
+      }
+    }
+
+    /* ===================== Init ===================== */
+    renderCustomerTypeSelect('maquiladora');
+    renderSegmentFields();
+    renderSites();
+    renderCustomerContacts();
+    renderContacts();
+    renderAssets();
+    renderTradeReferences();
+    renderVehicles();
+    toggleAch();
+    updateSummary();
+  </script>
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> — safe copy · changes stay here · <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench →</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

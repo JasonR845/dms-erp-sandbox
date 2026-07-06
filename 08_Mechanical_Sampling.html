@@ -1,0 +1,206 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMS ERP — Mechanical Sampling</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.1.0/dist/tabler-icons.min.css">
+<style>
+:root{--navy:#14253D;--gold:#B68A3A;--goldink:#9A7430;--ink:#2E3338;--line:#e2e7ec;--line2:#cdd5de;--steel:#8C97A4;--mut:#5A6470;--pale:#F4F6F8;--pale2:#fafbfc;--danger:#B3261E;--surf:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:#eceff3;font-size:14px}
+.wrap{max-width:1020px;margin:0 auto;padding:20px 16px 60px}
+.sticky{position:sticky;top:0;z-index:5}
+.hdr{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:12px 12px 0 0;padding:14px 18px}
+.hdr .ti{font-size:22px;color:var(--gold)}.hdr .sn{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:12px;color:#c8d2df}
+.statpill{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:#27425F;color:#fff;border-radius:999px;padding:3px 10px}
+.kpibar{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;box-shadow:0 4px 14px rgba(20,37,61,.08)}
+.kpi{background:var(--surf);padding:10px 14px}.kpi .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut);font-weight:700}.kpi .v{font-size:18px;font-weight:800;color:var(--navy);margin-top:2px}
+.kpi.accent{grid-column:span 2}.meter{height:7px;background:var(--pale);border-radius:999px;overflow:hidden;margin-top:6px}.meter>i{display:block;height:100%;background:var(--navy);width:0;transition:width .2s}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-top:14px}
+.shead{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);border-left:3px solid var(--gold);padding-left:10px;margin:0 0 3px}
+.ssub{font-size:12px;color:var(--mut);margin:0 0 14px;padding-left:13px}
+.f{display:block;font-size:10.5px;color:var(--mut);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.row{display:grid;gap:12px}.r4{grid-template-columns:1fr 1fr 1fr .8fr}.auto{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+select,input,textarea{border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font:inherit;background:#fff;color:var(--ink);width:100%}textarea{resize:vertical;min-height:46px}
+.ig{position:relative}.ig input{text-align:right;padding-right:26px}.ig .u{position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--mut);pointer-events:none}
+.prim{border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:11px;padding:14px;background:var(--pale2)}
+.sub{border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:12px;margin:10px 0;background:#fff}
+.nodehd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.nodehd .ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.nodehd input.title{font-size:15px;font-weight:700;color:var(--navy);border:none;border-bottom:1px solid transparent;border-radius:0;padding:2px 0;margin-top:2px}
+.nodehd input.title:focus{border-bottom-color:var(--gold);outline:none}
+.pct{display:flex;flex-direction:column;align-items:center;border-radius:9px;padding:5px 13px;line-height:1.05;white-space:nowrap}
+.pct.p{background:var(--navy);color:#fff}.pct.s{background:var(--gold);color:#fff}
+.pct .n{font-size:17px;font-weight:800}.pct .l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;opacity:.85}
+.blk{margin-top:12px}.blktitle{font-size:11px;font-weight:700;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:6px}.blktitle .h{font-weight:400;color:var(--mut);font-size:11px}
+table.it{width:100%;border-collapse:collapse;font-size:12.5px}
+table.it th{background:var(--pale);color:var(--mut);font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:6px;text-align:left;border-bottom:1px solid var(--line)}
+table.it td{padding:4px 5px;border-bottom:1px solid var(--line)}table.it td.r,table.it th.r{text-align:right}
+table.it select,table.it input{padding:5px 7px;border-radius:6px}
+.del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:13px}
+.add{margin-top:8px;background:#fff;border:1px dashed var(--line2);color:var(--mut);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:700}.add:hover{border-color:var(--gold);color:var(--navy)}
+details.ev{margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--pale2)}
+details.ev>summary{list-style:none;cursor:pointer;padding:8px 12px;font-size:12px;color:var(--mut);display:flex;align-items:center;gap:8px}
+details.ev>summary::-webkit-details-marker{display:none}
+details.ev[open]>summary{border-bottom:1px solid var(--line)}
+.evbody{padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dz{border:1px dashed var(--line2);border-radius:8px;padding:12px;text-align:center;color:var(--mut);font-size:12px;cursor:pointer;background:#fff}.dz:hover{border-color:var(--gold);color:var(--navy)}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.thumb{position:relative;width:52px;height:52px;border-radius:7px;background-size:cover;background-position:center;border:1px solid var(--line2)}
+.thumb button{position:absolute;top:-7px;right:-7px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;line-height:1}
+table.rep{width:100%;border-collapse:collapse;font-size:12.5px}table.rep th{background:var(--navy);color:#fff;font-weight:500;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;padding:7px;text-align:left}
+table.rep td{padding:6px 7px;border-bottom:1px solid var(--line)}table.rep td.r{text-align:right}
+tr.r2 td:first-child{padding-left:20px;color:var(--mut)}tr.r3 td:first-child{padding-left:36px;color:var(--steel);font-style:italic}
+.chip{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--pale);color:var(--mut);border-radius:4px;padding:1px 5px;margin-left:5px}
+.barcell{position:relative;min-width:130px}.barcell .bg{position:absolute;left:0;top:50%;transform:translateY(-50%);height:14px;background:var(--gold);opacity:.18;border-radius:3px}.barcell span{position:relative}
+.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+.btn{border-radius:9px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--navy)}.btn.sec{background:#fff;color:var(--navy)}.btn.pri{background:var(--navy);color:#fff}
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head><body><div class="wrap">
+<div class="sticky">
+<div class="hdr"><i class="ti ti-microscope"></i><div><h1 style="font-weight:600;font-size:inherit;font-family:inherit;margin:0">Mechanical Sample</h1><div class="sn">MS-000742 · created 2026-06-29</div></div><span class="statpill" style="margin-left:auto">Draft</span></div>
+<div class="kpibar">
+  <div class="kpi"><div class="l">Starting</div><div class="v" id="kStart">—</div></div>
+  <div class="kpi accent"><div class="l">Accounted</div><div class="v" id="kAcc">—</div><div class="meter"><i id="kMeter"></i></div></div>
+  <div class="kpi"><div class="l">Recovered</div><div class="v" id="kRec">—</div></div>
+  <div class="kpi"><div class="l">Shrinkage</div><div class="v" id="kShr">—</div></div>
+  <div class="kpi"><div class="l">Recovery</div><div class="v" id="kRecPct">—</div></div>
+</div></div>
+
+<div class="card"><div class="shead">Sample details</div><div class="ssub">Identify the incoming sample and record its starting weight.</div>
+  <div class="row r4">
+    <div><label class="f">Classification</label><select id="scls" onchange="sCas('cls')"></select></div>
+    <div><label class="f">Category</label><select id="scat" onchange="sCas('cat')"></select></div>
+    <div><label class="f">Grade</label><select id="sgrd"></select></div>
+    <div><label class="f">Starting weight</label><div class="ig"><input id="start" type="number" value="1000" oninput="calc()"><span class="u">lb</span></div></div>
+  </div>
+  <div class="row auto" style="margin-top:12px">
+    <div><label class="f">Description</label><input value="Whole alternator core load"></div>
+    <div><label class="f">Customer</label><select><option>Maquiladora Acme</option></select></div>
+    <div><label class="f">Operator</label><select><option>J. Russell</option></select></div>
+    <div><label class="f">Date</label><input type="date" value="2026-06-29"></div>
+  </div>
+</div>
+
+<div class="card"><div class="shead">Component breakdown</div><div class="ssub">Record the primary component, its sub-components, and the materials recovered (intrinsic values). Enter weights only — every percentage is calculated automatically.</div>
+  <div class="prim">
+    <div class="nodehd">
+      <div style="flex:1"><div class="ttl"><i class="ti ti-package"></i> Primary component</div><input class="title" id="pdesc" value="Alternator core breakdown" placeholder="Describe the primary component"></div>
+      <span class="pct p"><span class="n" id="ppct">—</span><span class="l">of sample</span></span>
+    </div>
+    <div class="blk"><div class="blktitle"><i class="ti ti-atom-2"></i> Intrinsic values <span class="h">— materials recovered directly from this component</span></div><div id="pintr"></div></div>
+    <details class="ev"><summary><i class="ti ti-photo"></i> <span id="evsum_p">Photos &amp; notes</span></summary>
+      <div class="evbody">
+        <div><label class="f">Notes</label><textarea placeholder="condition, handling, observations…" oninput="primary.notes=this.value">Hand-broken on line 1; minimal contamination.</textarea></div>
+        <div><label class="f">Photos</label><div class="dz" onclick="pick('p:0')"><i class="ti ti-camera-plus"></i> Add photos</div><div class="thumbs" id="ph_p:0"></div></div>
+      </div>
+    </details>
+    <div class="blk"><div class="blktitle"><i class="ti ti-binary-tree-2"></i> Sub-components <span class="h">— physical parts broken out of this component</span></div><div id="subs"></div>
+      <button class="add" onclick="addSub()"><i class="ti ti-plus"></i> Add sub-component</button>
+    </div>
+  </div>
+</div>
+
+<div class="card"><div class="shead">Recovery analysis</div><div class="ssub">Auto-calculated from entered weights.</div>
+  <div class="blk"><div class="blktitle">Breakdown detail</div>
+    <table class="rep"><thead><tr><th>Component / sub-component</th><th>Material</th><th class="r">Weight</th><th class="r">% of part</th><th class="r">% of sample</th></tr></thead><tbody id="rectbl"></tbody></table>
+  </div>
+  <div class="blk"><div class="blktitle">Material recovery by category</div>
+    <table class="rep"><thead><tr><th>Category</th><th class="r">Weight</th><th>Share of original</th></tr></thead><tbody id="rollup"></tbody></table>
+  </div>
+</div>
+<div class="actions"><button class="btn sec">Save draft</button><button class="btn pri">Finalize sample</button></div>
+<p style="text-align:center;margin-top:8px;font-size:12px;color:var(--mut)">Standalone production preview · weights only, no value · not wired to production</p>
+<input type="file" id="filein" accept="image/*" multiple style="display:none">
+</div>
+<script src="dms_materials.js"></script>
+<script>
+var TAX={
+ "Breakage":{"Alternator Components":["Whole Alternator","Stator","Rotor","Aluminum Casing","Steel Hardware","Residue / fines"],"Starter Components":["Whole Starter","Field Coil","Armature","Housing"]},
+ "Non-Ferrous":{"Copper":["Bare Bright Copper","Copper #1","Copper #2","Insulated Copper / Copper Bearing"],"Aluminum":["Aluminum Cast","Aluminum 6063","Aluminum UBC"],"Brass":["Yellow Brass"]},
+ "Ferrous":{"Steel":["No. 1 HMS","No. 2 HMS","Prepared Steel"],"Cast Iron":["Cast Iron Borings"]},
+ "Other":{"Residue":["Residue / fines"],"Trace materials":["Precious trace"]}
+};
+var DEMO_TAX=TAX;
+function buildTax(){
+  var M=window.DMS_MATERIALS||{}, act=window.dmsLoadActiveSet(), out={};
+  Object.keys(M).forEach(function(c){ Object.keys(M[c]).forEach(function(f){
+    var g=M[c][f].filter(function(r){ return act.has(window.dmsMatKey(c,f,r)); })
+                 .map(function(r){ return r.g+(r.code?" \u00b7 "+r.code:""); });
+    if(g.length){ (out[c]=out[c]||{})[f]=g; }
+  });});
+  return out;
+}
+TAX=buildTax();
+var CLS=Object.keys(TAX);function cats(c){return Object.keys(TAX[c]||{});}function grds(c,a){return (TAX[c]||{})[a]||[];}
+function opt(a,s){return a.map(function(x){return '<option'+(x===s?' selected':'')+'>'+x+'</option>';}).join('');}
+function lab(n){return n.cls+' › '+n.cat+' › '+n.grade;}
+function fmt(n){return Math.round(n).toLocaleString();}
+function casc(n,k,v){n[k]=v;if(k==='cls'){n.cat=cats(v)[0];n.grade=grds(v,n.cat)[0];}if(k==='cat'){n.grade=grds(n.cls,v)[0];}}
+var smp={cls:"Breakage",cat:"Alternator Components",grade:"Whole Alternator"};
+if(CLS.length){smp={cls:CLS[0],cat:cats(CLS[0])[0],grade:grds(CLS[0],cats(CLS[0])[0])[0]};}
+function fillS(){if(!CLS.length){["scls","scat","sgrd"].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML="<option disabled selected>Enable grades in Material Master</option>";});return;}document.getElementById('scls').innerHTML=opt(CLS,smp.cls);document.getElementById('scat').innerHTML=opt(cats(smp.cls),smp.cat);document.getElementById('sgrd').innerHTML=opt(grds(smp.cls,smp.cat),smp.grade);}
+function sCas(w){if(w==='cls'){smp.cls=document.getElementById('scls').value;smp.cat=cats(smp.cls)[0];smp.grade=grds(smp.cls,smp.cat)[0];}else{smp.cat=document.getElementById('scat').value;smp.grade=grds(smp.cls,smp.cat)[0];}fillS();}
+function NI(c,a,g,w){return {cls:c,cat:a,grade:g,w:w};}
+function NS(d,c,a,g,w){return {desc:d,cls:c,cat:a,grade:g,w:w,intr:[],notes:"",photos:[]};}
+var primary={desc:"Alternator core breakdown",notes:"",intr:[NI("Other","Residue","Residue / fines",60)],photos:[],subs:[
+  NS("Aluminum casing","Non-Ferrous","Aluminum","Aluminum Cast",420),
+  (function(){var s=NS("Stator assembly","Breakage","Alternator Components","Stator",220);s.intr=[NI("Non-Ferrous","Copper","Copper #2",99),NI("Ferrous","Steel","Prepared Steel",121)];return s;})(),
+  (function(){var s=NS("Rotor","Breakage","Alternator Components","Rotor",180);s.intr=[NI("Non-Ferrous","Copper","Copper #2",36),NI("Ferrous","Steel","Prepared Steel",126),NI("Non-Ferrous","Brass","Yellow Brass",18)];return s;})(),
+  NS("Steel hardware","Ferrous","Steel","No. 2 HMS",90)
+]};
+var pickTarget=null;
+function photosOf(path){return path==='p:0'?primary.photos:primary.subs[+path.split(':')[1]].photos;}
+function pick(path){pickTarget=path;document.getElementById('filein').click();}
+document.getElementById('filein').addEventListener('change',function(e){var arr=photosOf(pickTarget);Array.prototype.forEach.call(e.target.files,function(f){arr.push(URL.createObjectURL(f));});e.target.value="";render();});
+function thumbs(path,arr){return arr.map(function(u,i){return '<div class="thumb" style="background-image:url('+u+')"><button onclick="photosOf(\''+path+'\').splice('+i+',1);render()">✕</button></div>';}).join('');}
+function addSub(){primary.subs.push(NS("","Breakage",cats("Breakage")[0],grds("Breakage",cats("Breakage")[0])[0],0));render();}
+function itable(path,list,isPrimary){var h='<table class="it"><thead><tr><th>Classification</th><th>Category</th><th>Grade</th><th class="r">Weight</th>'+(isPrimary?'<th class="r">% of sample</th>':'<th class="r">% of part</th><th class="r">% of sample</th>')+'<th></th></tr></thead><tbody>';
+ list.forEach(function(m,ii){h+='<tr><td><select onchange="setISel(\''+path+'\','+ii+',\'cls\',this.value)">'+opt(CLS,m.cls)+'</select></td><td><select onchange="setISel(\''+path+'\','+ii+',\'cat\',this.value)">'+opt(cats(m.cls),m.cat)+'</select></td><td><select onchange="setISel(\''+path+'\','+ii+',\'grade\',this.value)">'+opt(grds(m.cls,m.cat),m.grade)+'</select></td><td class="r"><div class="ig"><input type="number" value="'+m.w+'" oninput="setIW(\''+path+'\','+ii+',this.value)"><span class="u">lb</span></div></td>'+(isPrimary?'<td class="r" id="ips_'+path+'_'+ii+'">—</td>':'<td class="r" id="ipp_'+path+'_'+ii+'">—</td><td class="r" id="ips_'+path+'_'+ii+'">—</td>')+'<td><button class="del" onclick="getI(\''+path+'\').splice('+ii+',1);render()">✕</button></td></tr>';});
+ h+='</tbody></table><button class="add" onclick="getI(\''+path+'\').push(NI(CLS[0],cats(CLS[0])[0],grds(CLS[0],cats(CLS[0])[0])[0],0));render()"><i class="ti ti-plus"></i> Add intrinsic value</button>';return h;}
+function node3(path,n){return '<div class="row r4">'
+ +'<div><label class="f">Classification</label><select onchange="setSel(\''+path+'\',\'cls\',this.value)">'+opt(CLS,n.cls)+'</select></div>'
+ +'<div><label class="f">Category</label><select onchange="setSel(\''+path+'\',\'cat\',this.value)">'+opt(cats(n.cls),n.cat)+'</select></div>'
+ +'<div><label class="f">Grade</label><select onchange="setSel(\''+path+'\',\'grade\',this.value)">'+opt(grds(n.cls,n.cat),n.grade)+'</select></div>'
+ +'<div><label class="f">Gross weight</label><div class="ig"><input type="number" value="'+n.w+'" oninput="setW(\''+path+'\',this.value)"><span class="u">lb</span></div></div></div>';}
+function getI(path){var a=path.split(':');return a[0]==='ip'?primary.intr:primary.subs[+a[1]].intr;}
+function setSel(path,k,v){casc(primary.subs[+path.split(':')[1]],k,v);render();}
+function setW(path,v){primary.subs[+path.split(':')[1]].w=+v;calc();}
+function setISel(path,ii,k,v){casc(getI(path)[ii],k,v);render();}
+function setIW(path,ii,v){getI(path)[ii].w=+v;calc();}
+function evsum(label,nphotos,notes){return label+(nphotos?' · '+nphotos+' photo'+(nphotos>1?'s':''):'')+(notes&&notes.trim()?' · note added':'');}
+function render(){fillS();
+  document.getElementById('ph_p:0').innerHTML=thumbs('p:0',primary.photos);
+  document.getElementById('evsum_p').textContent=evsum('Photos & notes',primary.photos.length,primary.notes);
+  document.getElementById('pintr').innerHTML=itable('ip',primary.intr,true);
+  var h='';primary.subs.forEach(function(s,si){h+='<div class="sub"><div class="nodehd"><div style="flex:1"><div class="ttl">Sub-component '+(si+1)+'</div><input class="title" style="font-size:14px" value="'+(s.desc||'').replace(/"/g,'&quot;')+'" placeholder="Describe this sub-component" oninput="primary.subs['+si+'].desc=this.value"></div><span style="display:flex;gap:8px;align-items:center"><span class="pct s"><span class="n" id="subpct_'+si+'">—</span><span class="l">of sample</span></span><button class="del" onclick="primary.subs.splice('+si+',1);render()"><i class="ti ti-trash"></i></button></span></div>'+node3('s:'+si,s)+'<details class="ev"><summary><i class="ti ti-photo"></i> '+evsum('Photos & notes',s.photos.length,s.notes)+'</summary><div class="evbody"><div><label class="f">Notes</label><textarea placeholder="condition, handling, observations…" oninput="primary.subs['+si+'].notes=this.value">'+(s.notes||'')+'</textarea></div><div><label class="f">Photos</label><div class="dz" onclick="pick(\'s:'+si+'\')"><i class="ti ti-camera-plus"></i> Add photos</div><div class="thumbs">'+thumbs('s:'+si,s.photos)+'</div></div></div></details><div class="blk"><div class="blktitle"><i class="ti ti-atom-2"></i> Intrinsic values <span class="h">— materials inside this part</span></div>'+itable('is:'+si,s.intr,false)+'</div></div>';});
+  document.getElementById('subs').innerHTML=h;calc();}
+function calc(){var start=parseFloat(document.getElementById('start').value)||0,leaf=0,roll={},rows='',primW=0;
+ function addL(catn,w){roll[catn]=(roll[catn]||0)+w;leaf+=w;}
+ primary.intr.forEach(function(m,ii){var w=parseFloat(m.w)||0;primW+=w;addL(m.cat,w);var e=document.getElementById('ips_ip_'+ii);if(e)e.textContent=(start?Math.round(w/start*1000)/10:0)+'%';rows+='<tr class="r3"><td>'+m.grade+' <span class="chip">direct</span></td><td style="color:var(--mut)">'+lab(m)+'</td><td class="r">'+fmt(w)+' lb</td><td class="r">—</td><td class="r">'+(start?Math.round(w/start*1000)/10:0)+'%</td></tr>';});
+ primary.subs.forEach(function(s,si){var sw=parseFloat(s.w)||0;primW+=sw;var ofs=start?Math.round(sw/start*1000)/10:0;var sp=document.getElementById('subpct_'+si);if(sp)sp.textContent=ofs+'%';
+   rows+='<tr class="r2"><td>'+(s.desc||s.grade)+'</td><td style="color:var(--mut)">'+lab(s)+'</td><td class="r">'+fmt(sw)+' lb</td><td class="r">—</td><td class="r">'+ofs+'%</td></tr>';
+   if(s.intr.length){s.intr.forEach(function(m,ii){var w=parseFloat(m.w)||0;addL(m.cat,w);var ofp=sw?Math.round(w/sw*1000)/10:0,os=start?Math.round(w/start*1000)/10:0;var ep=document.getElementById('ipp_is:'+si+'_'+ii);if(ep)ep.textContent=ofp+'%';var es=document.getElementById('ips_is:'+si+'_'+ii);if(es)es.textContent=os+'%';rows+='<tr class="r3"><td>'+m.grade+'</td><td style="color:var(--mut)">'+lab(m)+'</td><td class="r">'+fmt(w)+' lb</td><td class="r">'+ofp+'%</td><td class="r">'+os+'%</td></tr>';});}
+   else{addL(s.cat,sw);}});
+ var pp=document.getElementById('ppct');if(pp)pp.textContent=(start?Math.round(primW/start*1000)/10:0)+'%';
+ var shr=start-leaf,shrpct=start?shr/start*100:0,recpct=start?leaf/start*100:0,accPct=start?primW/start*100:0,over=primW>start+.001;
+ function S(id,v){document.getElementById(id).textContent=v;}
+ S('kStart',fmt(start)+' lb');S('kRec',fmt(leaf)+' lb');S('kRecPct',(Math.round(recpct*10)/10)+'%');S('kShr',fmt(shr)+' lb');
+ document.getElementById('kAcc').innerHTML=fmt(primW)+' lb <span style="font-size:12px;font-weight:600;color:'+(over?'var(--danger)':'var(--mut)')+'">'+(over?'over by '+fmt(primW-start)+' lb':'('+(Math.round(accPct*10)/10)+'%)')+'</span>';
+ var mt=document.getElementById('kMeter');mt.style.width=Math.min(accPct,100)+'%';mt.style.background=over?'var(--danger)':'var(--navy)';
+ document.getElementById('rectbl').innerHTML=rows;
+ var keys=Object.keys(roll).sort(function(a,b){return roll[b]-roll[a];});var rh='';keys.forEach(function(k){var p=start?roll[k]/start*100:0;rh+='<tr><td>'+k+'</td><td class="r">'+fmt(roll[k])+' lb</td><td class="barcell"><span class="bg" style="width:'+Math.min(p,100)+'%"></span><span>'+(Math.round(p*10)/10)+'%</span></td></tr>';});var sp2=start?shr/start*100:0;rh+='<tr style="font-weight:700;color:var(--mut)"><td>Shrinkage / loss</td><td class="r">'+fmt(shr)+' lb</td><td class="barcell"><span class="bg" style="width:'+Math.min(sp2,100)+'%;background:var(--steel);opacity:.3"></span><span>'+(Math.round(sp2*10)/10)+'%</span></td></tr>';document.getElementById('rollup').innerHTML=rh;}
+render();
+
+window.addEventListener("storage",function(e){
+  if(e.key===window.DMS_MAT_ACTIVE_KEY){
+    TAX=buildTax();CLS=Object.keys(TAX);
+    if(CLS.length&&!TAX[smp.cls]){smp={cls:CLS[0],cat:cats(CLS[0])[0],grade:grds(CLS[0],cats(CLS[0])[0])[0]};}
+    fillS();render();
+  }
+});
+</script><script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body></html>

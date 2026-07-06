@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Spare Parts Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+  :root{
+    --navy:#14253D; --navy-2:#1B3050; --ink:#2E3338; --muted:#8C97A4;
+    --line:#C5CCD6; --line-soft:#E3E7EC; --gold:#9A7430; --gold-line:#B68A3A;
+    --panel:#F4F6F8; --card:#fff; --bg:#EEF1F4;
+    --ok-c:#1F6B3B; --ok-bg:#D7DCE1;
+    --low-c:#2E3338; --low-bg:#EAD9B4;
+    --out-c:#B3261E; --out-bg:#FBF1F0;
+    --off-c:#8C97A4; --off-bg:#F4F6F8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{background:var(--bg);font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 64px;}
+
+  /* App header */
+  .appbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .appbar .mark{width:38px;height:38px;border-radius:9px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;letter-spacing:.02em;flex:none;}
+  .appbar h1{margin:0;font-size:15px;color:var(--navy);font-weight:800;}
+  .appbar .sub{font-size:11px;color:var(--muted);margin-top:2px;}
+  .appbar .tag{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);background:#F4F6F8;border:0.5px solid var(--gold-line);padding:4px 10px;border-radius:999px;flex:none;}
+
+  #mockupRoot{color:var(--ink);}
+  #mockupRoot button,#mockupRoot a.btn{font-family:'Inter',Arial,Helvetica,sans-serif;transition:background .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease;}
+  #mockupRoot button:focus-visible,#mockupRoot input:focus-visible,#mockupRoot select:focus-visible,#mockupRoot a.btn:focus-visible{outline:2px solid var(--navy);outline-offset:1px;}
+  #mockupRoot ::placeholder{color:#AAB2BC;}
+
+  .card{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,37,61,.05);}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
+  .lbl{font-size:11px;color:var(--muted);margin-bottom:4px;}
+  .lbl-xs{font-size:10px;color:var(--muted);}
+
+  .txt{width:100%;height:30px;border:0.5px solid var(--line);border-radius:6px;padding:0 8px;font-size:12px;color:var(--ink);background:#fff;}
+  .sel{width:100%;height:34px;border:0.5px solid var(--line);border-radius:8px;padding:0 28px 0 10px;font-size:13px;color:var(--ink);cursor:pointer;
+       background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C97A4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 9px center;
+       -webkit-appearance:none;-moz-appearance:none;appearance:none;}
+  .sel:hover{border-color:#AAB4C0;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:8px;border:0.5px solid var(--line);background:#fff;color:var(--navy);font-size:12px;cursor:pointer;white-space:nowrap;text-decoration:none;}
+  .btn.ghost:hover{background:var(--panel);}
+  .btn.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .btn.primary:hover{background:var(--navy-2);color:#fff;}
+  .iconbtn{width:26px;height:26px;border:0.5px solid var(--line);border-radius:6px;background:#fff;color:var(--navy);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:none;}
+  .iconbtn:hover{background:var(--panel);}
+  .iconbtn.danger{color:#A32D2D;}
+  .iconbtn.solid{background:var(--navy);color:#fff;}
+
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  .kpi{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(20,37,61,.05);}
+  .kpi .n{font-size:22px;font-weight:800;color:var(--navy);line-height:1.1;}
+  .kpi .l{font-size:11px;color:var(--muted);margin-top:4px;}
+  .kpi.warn .n{color:var(--low-c);}
+  .kpi.bad .n{color:var(--out-c);}
+
+  .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .toolbar .searchwrap{position:relative;flex:1;min-width:220px;}
+  .toolbar .searchwrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
+  .toolbar input.search{width:100%;height:32px;border:0.5px solid var(--line);border-radius:8px;padding:0 10px 0 30px;font-size:12px;background:#fff;}
+  .chip{height:28px;padding:0 12px;border-radius:999px;border:0.5px solid var(--line);background:#fff;color:var(--ink);font-size:11px;font-weight:700;cursor:pointer;}
+  .chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .chip.active.warnchip{background:var(--low-bg);border-color:var(--gold-line);color:var(--low-c);}
+
+  .tablewrap{overflow-x:auto;border:0.5px solid var(--line-soft);border-radius:10px;}
+  table.inv{width:100%;border-collapse:collapse;font-size:12px;min-width:1080px;}
+  table.inv thead th{position:sticky;top:0;background:var(--navy);color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-align:left;padding:8px 10px;white-space:nowrap;z-index:1;}
+  table.inv tbody td{padding:8px 10px;border-bottom:0.5px solid var(--line-soft);vertical-align:middle;}
+  table.inv tbody tr:hover{background:#FAFBFC;}
+  table.inv tbody tr.row-low{background:#FFFFFF;}
+  table.inv tbody tr.row-out{background:#FFF8F7;}
+  .cell-strong{font-weight:700;color:var(--ink);}
+  .cell-muted{color:var(--muted);}
+  .cell-mono{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:11px;color:var(--ink);}
+  .pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;}
+  .qr{display:grid;grid-template-columns:repeat(8,1fr);overflow:hidden;background:#fff;width:26px;height:26px;border:0.5px solid var(--line);border-radius:5px;cursor:pointer;flex:none;}
+  .actionsrow{display:flex;gap:4px;}
+
+  .divider{border-top:0.5px solid var(--line-soft);}
+  .foot{font-size:11px;color:var(--muted);margin-top:10px;}
+  .note{font-size:10px;color:var(--muted);margin-top:6px;}
+
+  /* Edit modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,37,61,.45);z-index:50;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal-card{background:#fff;border-radius:12px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 12px 40px rgba(20,37,61,.28);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:0.5px solid var(--line-soft);}
+  .modal-head h3{margin:0;font-size:14px;color:var(--navy);font-weight:800;}
+  .modal-body{padding:16px 20px;}
+  .modal-body .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .modal-body label{font-size:10px;color:var(--muted);display:block;margin-bottom:3px;}
+  .modal-foot{display:flex;gap:8px;padding:14px 20px;border-top:0.5px solid var(--line-soft);}
+  .modal-close{width:26px;height:26px;border-radius:6px;border:0.5px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1;}
+  .modal-close:hover{background:var(--panel);}
+
+  @media print{ .appbar,.card:not(#qrPrintCard),.kpis,.toolbar,.modal-overlay{display:none!important;} #qrPrintCard{display:block!important;} }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="appbar">
+    <div class="mark">DMS</div>
+    <div>
+      <h1>Spare Parts Inventory</h1>
+      <div class="sub">Filtered by equipment taxonomy — quantities, min/max levels, storage location &amp; QR</div>
+    </div>
+  </div>
+
+  <div id="mockupRoot">
+  <h2 style="position:absolute;width:1px;height:1px;overflow:hidden;">Spare parts inventory table scoped by equipment category, type and asset, with search, filters, KPI summary, a double-click or edit-icon popup window for editing a part, delete, quantity tracking against min and max levels, storage location, per-part QR codes, and an Add part action that hands off to the Equipment / Part Detail page.</h2>
+
+  <!-- Equipment taxonomy — view/select only, no add or edit of equipment here -->
+  <div class="card">
+    <div class="eyebrow" style="margin-bottom:10px;">Equipment taxonomy · view only</div>
+    <div class="grid3">
+      <div>
+        <div class="lbl">1. Equipment category</div>
+        <select id="catSel" class="sel"></select>
+      </div>
+      <div>
+        <div class="lbl">2. Equipment type</div>
+        <select id="typeSel" class="sel"></select>
+      </div>
+      <div>
+        <div class="lbl">3. Specific equipment / asset</div>
+        <select id="assetSel" class="sel"></select>
+      </div>
+    </div>
+    <div id="breadcrumb" style="margin-top:10px;font-size:12px;color:var(--gold);font-weight:700;"></div>
+    <div class="note">Selecting a category, type or asset scopes the inventory below to spare parts linked to that equipment. Equipment itself can only be added or edited on the Equipment / Part Detail page.</div>
+  </div>
+
+  <div class="kpis" id="kpiRow"></div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div class="searchwrap">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input id="searchInput" class="search" type="text" placeholder="Search part, make, model, part #, component or location…"/>
+      </div>
+      <button class="chip active" data-filter="all">All (<span id="cntAll"></span>)</button>
+      <button class="chip" data-filter="spare">Spare only (<span id="cntSpare"></span>)</button>
+      <button class="chip warnchip" data-filter="low">Low stock (<span id="cntLow"></span>)</button>
+      <button class="chip warnchip" data-filter="out">Out of stock (<span id="cntOut"></span>)</button>
+      <a id="addPartBtn" class="btn primary" href="09_Equipment_Part_Detail.html" style="margin-left:auto;" title="Add a new spare part on the Equipment / Part Detail page"><i class="ti ti-plus" aria-hidden="true" style="font-size:14px;"></i>Add part</a>
+    </div>
+    <div class="note" style="margin-bottom:10px;">Double-click a row — or use the edit icon — to open the edit window.</div>
+
+    <div class="tablewrap">
+      <table class="inv">
+        <thead>
+          <tr>
+            <th>QR</th>
+            <th>Part name</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Part #</th>
+            <th>Component</th>
+            <th>Equipment</th>
+            <th>Qty</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Location</th>
+            <th>Spare</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="foot" id="rowCountFoot"></div>
+    <div class="note">Low stock = spare-flagged part at or below its min level. Out of stock = qty at 0. New parts are created from the Equipment / Part Detail page, under the owning component — click "Add part" above to go there.</div>
+  </div>
+  </div><!-- #mockupRoot -->
+
+  <!-- Edit modal -->
+  <div id="editModalOverlay" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="editModalTitle">Edit spare part</h3>
+        <button id="editModalClose" class="modal-close" aria-label="Close edit window">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid2">
+          <div><label>Part name</label><input id="emName" class="txt"/></div>
+          <div><label>Component</label><input id="emComponent" class="txt"/></div>
+        </div>
+        <div class="grid2">
+          <div><label>Make</label><input id="emMake" class="txt"/></div>
+          <div><label>Model</label><input id="emModel" class="txt"/></div>
+        </div>
+        <div class="grid2">
+          <div><label>Part #</label><input id="emPartNo" class="txt"/></div>
+          <div><label>Equipment / asset</label><select id="emEquipment" class="sel" style="height:30px;font-size:12px;padding:0 24px 0 8px;background-position:right 7px center;"></select></div>
+        </div>
+        <div class="grid2">
+          <div><label>Storage location</label><input id="emLocation" class="txt"/></div>
+          <div><label>Qty on hand</label><input id="emQty" type="number" min="0" class="txt"/></div>
+        </div>
+        <div class="grid2">
+          <div><label>Min level</label><input id="emMin" type="number" min="0" class="txt"/></div>
+          <div><label>Max level</label><input id="emMax" type="number" min="0" class="txt"/></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);cursor:pointer;margin-top:2px;">
+          <input type="checkbox" id="emSpare" style="width:14px;height:14px;"/> Track as spare part
+        </label>
+      </div>
+      <div class="modal-foot">
+        <button id="emSave" class="btn primary">Save changes</button>
+        <button id="emCancel" class="btn ghost" style="color:var(--ink);">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="qrPrintCard" style="display:none;">
+    <div id="printPartName" style="font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13px;font-weight:700;color:#14253D;text-align:center;margin-bottom:6px;"></div>
+    <div id="qrBoxPrint" style="display:grid;grid-template-columns:repeat(8,1fr);overflow:hidden;background:#fff;width:200px;height:200px;margin:0 auto;"></div>
+    <div id="qrLabelPrint" style="font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:11px;color:#2E3338;text-align:center;margin-top:8px;"></div>
+  </div>
+
+  <script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function hash(str){ var h = 0; for (var i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) | 0; } return Math.abs(h); }
+  function hex(str,len){ var h = hash(str).toString(16); while(h.length<len) h += hash(h).toString(16); return h.slice(0,len); }
+  function drawQrInto(boxEl, seed){
+    boxEl.innerHTML = "";
+    var bits = hex(seed, 24);
+    for (var i=0;i<64;i++){
+      var d = document.createElement("div");
+      var on = parseInt(bits[i % bits.length],16) % 2 === 0;
+      d.style.background = on ? "#14253D" : "#fff";
+      boxEl.appendChild(d);
+    }
+  }
+  function printQr(seed, title){
+    drawQrInto($("qrBoxPrint"), seed);
+    var code = "INV-" + hex(seed,8) + hex(seed+"y",6).toUpperCase();
+    $("qrLabelPrint").textContent = code;
+    $("printPartName").textContent = title;
+    window.print();
+  }
+
+  // Same equipment taxonomy as the Equipment / Part Detail mockup — reused read-only here
+  // so spare parts stay tied to a real category/type/asset without letting this page
+  // add or edit equipment itself.
+  var taxonomy = {
+    "Production Vehicles": { types: {
+      "Forklift": ["Toyota 8FGCU25 · 002", "Toyota 8FGCU25 · 001"],
+      "Bobcat": ["Bobcat S650 · 001"], "Front Loader": ["Cat 950M · 001"], "Skid Steer": ["Bobcat T770 · 001"], "Other": []
+    } },
+    "Over-the-Road Vehicles": { types: {
+      "Truck": ["Freightliner M2 106 · 001"], "Trailer": [],
+      "Utility Truck": ["Ford F-250 · 003"], "Car": ["Nissan Versa · 001"], "Other": []
+    } },
+    "Production Machinery": { types: {
+      "Wire Stripper": ["Wire Stripper · 001"], "Hydraulic Press": ["Hydraulic Press · 003"],
+      "Plasma Cutter": ["Plasma Cutter · 001"], "Cutting Torch": ["Cutting Torch · 002"],
+      "Industrial Shredder": ["Shred-Tech ST-15H · SHR-001"], "Conveyor": ["Vibrating Conveyor · 001"], "Magnet": ["Drum Magnet · 001"], "Other": []
+    } },
+    "Production Lines": { types: {
+      "Hammermill Line": ["Hammermill Line · 001"], "Chopping Line": ["Chopping Line · 001"],
+      "Sorting Line": ["Sorting Line · 001"], "Baling Line": ["Baling Line · 001"], "Other": []
+    } },
+    "Facilities": { types: {
+      "Bathroom": ["Bathroom · Main Bldg"], "Warehouse": ["Warehouse Area · 001"],
+      "Hammermill Area": ["Hammermill Area · 001"], "Production Area": ["Production Area · 001"],
+      "Office": ["Office · Front"], "Maintenance Area": ["Maintenance Area · 001"], "Yard": ["Yard · 001"], "Other": []
+    } },
+    "IT & Computer Equipment": { types: {
+      "Desktop Computer": ["Desktop · Office 1"], "Laptop": ["Laptop · Sales 1"], "Server": ["Server Rack · 002"],
+      "Printer": ["Printer · Front Office"], "Scanner": ["Ricoh fi-7900 · SCAN-001"],
+      "Network Equipment": ["Core Switch · 001"], "Security Camera": ["Camera · Gate 1"], "Other": []
+    } }
+  };
+
+  function allAssetsFlat(){
+    var out = [];
+    Object.keys(taxonomy).forEach(function(c){
+      Object.keys(taxonomy[c].types).forEach(function(t){
+        taxonomy[c].types[t].forEach(function(a){ if (out.indexOf(a) === -1) out.push(a); });
+      });
+    });
+    return out;
+  }
+
+  // Flattened from the equipment/component/part hierarchy — same field set (make, model,
+  // part #, qty, min/max, location, spare flag) as one inventory register, tagged to an asset.
+  var PARTS = [
+    { id:1,  name:"Piston ring set",  make:"Toyota OEM", model:"4Y-RING-STD", partNo:"PN-44021", component:"Piston",           equipment:"Toyota 8FGCU25 · 002", qty:4, min:2, max:6, location:"Maintenance crib · Bin A12", spare:true },
+    { id:2,  name:"Wrist pin",        make:"Toyota OEM", model:"4Y-PIN-22",   partNo:"PN-44022", component:"Piston",           equipment:"Toyota 8FGCU25 · 002", qty:4, min:2, max:6, location:"Maintenance crib · Bin A13", spare:true },
+    { id:14, name:"Air filter",       make:"Toyota OEM", model:"4Y-AF-01",    partNo:"PN-44031", component:"Piston",           equipment:"Toyota 8FGCU25 · 002", qty:0, min:2, max:6, location:"Maintenance crib · Bin A14", spare:true },
+    { id:3,  name:"Main bearings",    make:"Toyota OEM", model:"4Y-BRG-STD",  partNo:"PN-44101", component:"Crankshaft",       equipment:"Toyota 8FGCU25 · 002", qty:1, min:1, max:2, location:"Maintenance crib · Bin B04", spare:true },
+    { id:4,  name:"Thrust washer",    make:"Toyota OEM", model:"4Y-TWR-02",   partNo:"PN-44102", component:"Crankshaft",       equipment:"Toyota 8FGCU25 · 002", qty:2, min:0, max:0, location:"Maintenance crib · Bin B05", spare:false },
+    { id:5,  name:"Head gasket",      make:"Toyota OEM", model:"4Y-HDGSKT",   partNo:"PN-44201", component:"Cylinder head",    equipment:"Toyota 8FGCU25 · 002", qty:1, min:1, max:3, location:"Maintenance crib · Bin C02", spare:true },
+    { id:6,  name:"Valve set",        make:"Toyota OEM", model:"4Y-VLV-SET",  partNo:"PN-44202", component:"Cylinder head",    equipment:"Toyota 8FGCU25 · 002", qty:1, min:0, max:0, location:"Maintenance crib · Bin C03", spare:false },
+    { id:7,  name:"Seal kit",         make:"Toyota OEM", model:"LFT-225-SK",  partNo:"PN-55011", component:"Lift cylinder",    equipment:"Toyota 8FGCU25 · 002", qty:1, min:2, max:5, location:"Hydraulic shop · Shelf 2",   spare:true },
+    { id:8,  name:"Barrel",           make:"Toyota OEM", model:"LFT-225-BRL", partNo:"PN-55012", component:"Lift cylinder",    equipment:"Toyota 8FGCU25 · 002", qty:1, min:0, max:0, location:"Hydraulic shop · Shelf 3",   spare:false },
+    { id:9,  name:"Seal kit",         make:"Toyota OEM", model:"TLT-110-SK",  partNo:"PN-55021", component:"Tilt cylinder",    equipment:"Toyota 8FGCU25 · 002", qty:1, min:1, max:3, location:"Hydraulic shop · Shelf 2",   spare:true },
+    { id:10, name:"Chain anchor pin", make:"Tsubaki",     model:"BL644-PIN",  partNo:"PN-66011", component:"Lift chain",       equipment:"Toyota 8FGCU25 · 002", qty:2, min:0, max:0, location:"Mast shop · Drawer 1",       spare:false },
+    { id:11, name:"Stator",           make:"Toyota OEM", model:"TC-2S-STA",  partNo:"PN-77011", component:"Torque converter", equipment:"Toyota 8FGCU25 · 002", qty:1, min:0, max:0, location:"Drivetrain shop · Shelf 1",  spare:false },
+    { id:12, name:"Impeller",         make:"Toyota OEM", model:"TC-2S-IMP",  partNo:"PN-77012", component:"Torque converter", equipment:"Toyota 8FGCU25 · 002", qty:1, min:0, max:0, location:"Drivetrain shop · Shelf 1",  spare:false },
+    { id:13, name:"Spark plug set",   make:"NGK",         model:"BPR6ES",    partNo:"PN-88011", component:"Ignition module",  equipment:"Toyota 8FGCU25 · 002", qty:1, min:2, max:6, location:"Electrical crib · Drawer 4", spare:true }
+  ];
+  var state = { filter:"all", search:"" };
+  var editingPart = null;
+
+  function statusOf(p){
+    if (!p.spare) return { label:"Not tracked", c:"var(--off-c)", bg:"var(--off-bg)" };
+    if (p.qty <= 0) return { label:"Out of stock", c:"var(--out-c)", bg:"var(--out-bg)" };
+    if (p.min != null && p.qty <= p.min) return { label:"Low stock", c:"var(--low-c)", bg:"var(--low-bg)" };
+    return { label:"OK", c:"var(--ok-c)", bg:"var(--ok-bg)" };
+  }
+  function isLow(p){ return p.spare && p.qty > 0 && p.min != null && p.qty <= p.min; }
+  function isOut(p){ return p.spare && p.qty <= 0; }
+
+  /* ---------- Equipment taxonomy (view/select only) ---------- */
+  var catSel = $("catSel"), typeSel = $("typeSel"), assetSel = $("assetSel");
+
+  function fillCategories(){
+    catSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All categories"; catSel.appendChild(allOpt);
+    Object.keys(taxonomy).forEach(function(c){ var o = document.createElement("option"); o.value = c; o.textContent = c; catSel.appendChild(o); });
+  }
+  function fillTypes(){
+    typeSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All types"; typeSel.appendChild(allOpt);
+    if (catSel.value){
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){ var o = document.createElement("option"); o.value = t; o.textContent = t; typeSel.appendChild(o); });
+    }
+  }
+  function fillAssets(){
+    assetSel.innerHTML = "";
+    var allOpt = document.createElement("option"); allOpt.value = ""; allOpt.textContent = "All assets"; assetSel.appendChild(allOpt);
+    if (catSel.value && typeSel.value){
+      (taxonomy[catSel.value].types[typeSel.value] || []).forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; assetSel.appendChild(o); });
+    } else if (catSel.value && !typeSel.value){
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){
+        taxonomy[catSel.value].types[t].forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; assetSel.appendChild(o); });
+      });
+    }
+  }
+  function updateBreadcrumb(){
+    $("breadcrumb").textContent = (catSel.value || "All categories") + "  ›  " + (typeSel.value || "All types") + "  ›  " + (assetSel.value || "All assets");
+  }
+  function scopeAssetSet(){
+    if (!catSel.value) return null; // no restriction
+    if (!typeSel.value){
+      var set = [];
+      Object.keys(taxonomy[catSel.value].types).forEach(function(t){ set = set.concat(taxonomy[catSel.value].types[t]); });
+      return set;
+    }
+    var typeAssets = taxonomy[catSel.value].types[typeSel.value] || [];
+    if (!assetSel.value) return typeAssets;
+    return [assetSel.value];
+  }
+  function updateAddPartLink(){
+    var link = $("addPartBtn");
+    var base = "09_Equipment_Part_Detail.html";
+    link.href = assetSel.value ? (base + "?asset=" + encodeURIComponent(assetSel.value)) : base;
+  }
+
+  catSel.addEventListener("change", function(){ fillTypes(); fillAssets(); updateBreadcrumb(); updateAddPartLink(); renderAll(); });
+  typeSel.addEventListener("change", function(){ fillAssets(); updateBreadcrumb(); updateAddPartLink(); renderAll(); });
+  assetSel.addEventListener("change", function(){ updateBreadcrumb(); updateAddPartLink(); renderAll(); });
+
+  fillCategories(); fillTypes(); fillAssets(); updateBreadcrumb(); updateAddPartLink();
+
+  /* ---------- Edit modal ---------- */
+  function openEditModal(p){
+    editingPart = p;
+    $("emName").value = p.name || "";
+    $("emComponent").value = p.component || "";
+    $("emMake").value = p.make || "";
+    $("emModel").value = p.model || "";
+    $("emPartNo").value = p.partNo || "";
+    $("emLocation").value = p.location || "";
+    $("emQty").value = p.qty;
+    $("emMin").value = p.min;
+    $("emMax").value = p.max;
+    $("emSpare").checked = !!p.spare;
+    var eqSel = $("emEquipment");
+    eqSel.innerHTML = "";
+    allAssetsFlat().forEach(function(a){ var o = document.createElement("option"); o.value = a; o.textContent = a; eqSel.appendChild(o); });
+    eqSel.value = p.equipment;
+    $("editModalOverlay").classList.add("open");
+    $("emName").focus();
+  }
+  function closeEditModal(){
+    $("editModalOverlay").classList.remove("open");
+    editingPart = null;
+  }
+  $("editModalClose").addEventListener("click", closeEditModal);
+  $("emCancel").addEventListener("click", closeEditModal);
+  $("editModalOverlay").addEventListener("click", function(e){ if (e.target === this) closeEditModal(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && editingPart) closeEditModal(); });
+  $("emSave").addEventListener("click", function(){
+    if (!editingPart) return;
+    var name = $("emName").value.trim();
+    if (!name){ $("emName").focus(); return; }
+    editingPart.name = name;
+    editingPart.component = $("emComponent").value.trim() || editingPart.component;
+    editingPart.make = $("emMake").value.trim() || editingPart.make;
+    editingPart.model = $("emModel").value.trim() || editingPart.model;
+    editingPart.partNo = $("emPartNo").value.trim() || editingPart.partNo;
+    editingPart.location = $("emLocation").value.trim() || editingPart.location;
+    editingPart.equipment = $("emEquipment").value;
+    editingPart.qty = parseInt($("emQty").value,10) || 0;
+    editingPart.min = parseInt($("emMin").value,10) || 0;
+    editingPart.max = parseInt($("emMax").value,10) || 0;
+    editingPart.spare = $("emSpare").checked;
+    closeEditModal();
+    renderAll();
+  });
+
+  /* ---------- Inventory table ---------- */
+  function matchesTaxonomy(p){
+    var scope = scopeAssetSet();
+    return !scope || scope.indexOf(p.equipment) !== -1;
+  }
+  function scopedParts(){ return PARTS.filter(matchesTaxonomy); }
+  function matchesFilter(p){
+    if (state.filter === "spare") return p.spare;
+    if (state.filter === "low") return isLow(p);
+    if (state.filter === "out") return isOut(p);
+    return true;
+  }
+  function matchesSearch(p){
+    if (!state.search) return true;
+    var q = state.search.toLowerCase();
+    return [p.name,p.make,p.model,p.partNo,p.component,p.equipment,p.location].some(function(v){
+      return (v||"").toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  function renderKpis(){
+    var scoped = scopedParts();
+    var total = scoped.length;
+    var spareCt = scoped.filter(function(p){ return p.spare; }).length;
+    var lowCt = scoped.filter(isLow).length;
+    var outCt = scoped.filter(isOut).length;
+    var units = scoped.reduce(function(s,p){ return s + (p.qty||0); }, 0);
+    var wrap = $("kpiRow");
+    wrap.innerHTML = "";
+    function card(n,l,cls){
+      var d = document.createElement("div");
+      d.className = "kpi" + (cls ? " " + cls : "");
+      d.innerHTML = '<div class="n">' + n + '</div><div class="l">' + l + '</div>';
+      wrap.appendChild(d);
+    }
+    card(total, "SKUs in current scope");
+    card(spareCt, "Flagged as spare part");
+    card((lowCt+outCt), "Low / out of stock", (outCt>0 ? "bad" : (lowCt>0 ? "warn" : "")));
+    card(units, "Units on hand (this scope)");
+  }
+  function updateChipCounts(){
+    var scoped = scopedParts();
+    $("cntAll").textContent = scoped.length;
+    $("cntSpare").textContent = scoped.filter(function(p){ return p.spare; }).length;
+    $("cntLow").textContent = scoped.filter(isLow).length;
+    $("cntOut").textContent = scoped.filter(isOut).length;
+  }
+  function td(content){
+    var el = document.createElement("td");
+    if (content instanceof Node) el.appendChild(content); else el.textContent = content;
+    return el;
+  }
+
+  function renderTable(){
+    var tbody = $("tbody");
+    tbody.innerHTML = "";
+    var rows = scopedParts().filter(matchesFilter).filter(matchesSearch);
+
+    if (rows.length === 0){
+      var tr0 = document.createElement("tr");
+      var td0 = document.createElement("td");
+      td0.colSpan = 14;
+      td0.style.cssText = "text-align:center;color:var(--muted);font-size:12px;padding:18px;";
+      td0.textContent = "No spare parts match this equipment scope / search / filter.";
+      tr0.appendChild(td0);
+      tbody.appendChild(tr0);
+    }
+
+    rows.forEach(function(p){
+      var st = statusOf(p);
+      var tr = document.createElement("tr");
+      if (st.label === "Low stock") tr.className = "row-low";
+      if (st.label === "Out of stock") tr.className = "row-out";
+      tr.style.cursor = "pointer";
+      tr.title = "Double-click to edit " + p.name;
+      tr.addEventListener("dblclick", function(){ openEditModal(p); });
+
+      var qrBtn = document.createElement("div");
+      qrBtn.className = "qr";
+      qrBtn.title = "Print QR for " + p.name;
+      drawQrInto(qrBtn, p.name + "·" + p.partNo + "·inv");
+      qrBtn.addEventListener("click", function(e){ e.stopPropagation(); printQr(p.name + "·" + p.partNo + "·inv", p.name + " — Spare Part QR"); });
+      tr.appendChild(td(qrBtn));
+
+      var nameSpan = document.createElement("span");
+      nameSpan.className = "cell-strong";
+      nameSpan.textContent = p.name || "—";
+      tr.appendChild(td(nameSpan));
+
+      tr.appendChild(td(p.make || "—"));
+      tr.appendChild(td(p.model || "—"));
+
+      var pnSpan = document.createElement("span");
+      pnSpan.className = "cell-mono";
+      pnSpan.textContent = p.partNo || "—";
+      tr.appendChild(td(pnSpan));
+
+      tr.appendChild(td(p.component || "—"));
+      tr.appendChild(td(p.equipment || "—"));
+
+      var qtySpan = document.createElement("span");
+      qtySpan.className = "cell-strong";
+      qtySpan.textContent = "×" + p.qty;
+      tr.appendChild(td(qtySpan));
+
+      tr.appendChild(td(String(p.min)));
+      tr.appendChild(td(String(p.max)));
+      tr.appendChild(td(p.location || "—"));
+
+      var pill = document.createElement("span");
+      pill.className = "pill";
+      pill.style.color = p.spare ? "var(--gold)" : "var(--off-c)";
+      pill.style.background = p.spare ? "#F4F6F8" : "var(--off-bg)";
+      pill.textContent = p.spare ? "Yes" : "No";
+      tr.appendChild(td(pill));
+
+      var statusPill = document.createElement("span");
+      statusPill.className = "pill";
+      statusPill.style.color = st.c; statusPill.style.background = st.bg;
+      statusPill.textContent = st.label;
+      tr.appendChild(td(statusPill));
+
+      var actions = document.createElement("div");
+      actions.className = "actionsrow";
+
+      var stepDown = document.createElement("button");
+      stepDown.className = "iconbtn"; stepDown.title = "Decrease qty"; stepDown.setAttribute("aria-label","Decrease quantity of " + p.name);
+      stepDown.textContent = "−";
+      stepDown.addEventListener("click", function(e){ e.stopPropagation(); p.qty = Math.max(0, p.qty - 1); renderAll(); });
+
+      var stepUp = document.createElement("button");
+      stepUp.className = "iconbtn"; stepUp.title = "Increase qty"; stepUp.setAttribute("aria-label","Increase quantity of " + p.name);
+      stepUp.textContent = "+";
+      stepUp.addEventListener("click", function(e){ e.stopPropagation(); p.qty = p.qty + 1; renderAll(); });
+
+      var editBtn = document.createElement("button");
+      editBtn.className = "iconbtn"; editBtn.title = "Edit"; editBtn.setAttribute("aria-label","Edit " + p.name);
+      editBtn.innerHTML = '<i class="ti ti-edit" aria-hidden="true" style="font-size:13px;"></i>';
+      editBtn.addEventListener("click", function(e){ e.stopPropagation(); openEditModal(p); });
+
+      var delBtn = document.createElement("button");
+      delBtn.className = "iconbtn danger"; delBtn.title = "Remove"; delBtn.setAttribute("aria-label","Remove " + p.name);
+      delBtn.innerHTML = '<i class="ti ti-trash" aria-hidden="true" style="font-size:13px;"></i>';
+      delBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        var idx = PARTS.indexOf(p);
+        if (idx > -1) PARTS.splice(idx,1);
+        renderAll();
+      });
+
+      actions.appendChild(stepDown); actions.appendChild(stepUp); actions.appendChild(editBtn); actions.appendChild(delBtn);
+      tr.appendChild(td(actions));
+
+      tbody.appendChild(tr);
+    });
+
+    $("rowCountFoot").textContent = "Showing " + rows.length + " of " + scopedParts().length + " spare-part records in the current equipment scope.";
+  }
+
+  function renderAll(){
+    renderKpis();
+    updateChipCounts();
+    renderTable();
+  }
+
+  $("searchInput").addEventListener("input", function(){ state.search = this.value; renderTable(); });
+  document.querySelectorAll(".chip[data-filter]").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      document.querySelectorAll(".chip[data-filter]").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      state.filter = btn.getAttribute("data-filter");
+      renderTable();
+    });
+  });
+
+  renderAll();
+})();
+  </script>
+
+</div><!-- .wrap -->
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

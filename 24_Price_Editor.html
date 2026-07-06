@@ -1,0 +1,166 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Price Editor</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.31.0/iconfont/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--surface-2:#fff;--surface-1:#f4f6f8;--border:#DDE3EA;--border-strong:#c5ccd6;--text-primary:#2E3338;--text-secondary:#5A6470;--text-muted:#8C97A4;--radius:12px;--bg-warning:#f5ecdc;--text-warning:#8a6420;--bg-success:#e1f5ee;--text-success:#1F6B3B;--bg-danger:#fcebeb;--text-danger:#B3261E;--navy:#14253D;--gold:#B68A3A;--goldink:#9A7430}
+body{font-family:'Inter',Arial,Helvetica,sans-serif;background:#eef1f5;color:var(--text-primary);max-width:820px;margin:0 auto;padding:18px 16px 70px;font-size:14px}
+input,select{font:inherit;border:1.5px solid var(--border);border-radius:6px;background:#fff;color:var(--text-primary);padding:5px 7px;box-sizing:border-box}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:12px;padding:12px 14px}
+.bar h1{font:inherit;font-weight:600;font-size:14px;margin:0;color:#fff}
+.card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:14px}
+.shead{border-left:3px solid var(--gold);padding-left:10px;font-size:15px;font-weight:600}
+.f{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px}
+.note{font-size:12px;color:var(--text-muted)}
+.btnp{background:var(--gold);color:#1a1205;border:none;border-radius:var(--radius);padding:8px 14px;font-size:13px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.btng{background:transparent;border:1px solid rgba(255,255,255,.4);border-radius:var(--radius);padding:8px 12px;font-size:12px;cursor:pointer;color:#fff;display:inline-flex;align-items:center;gap:5px}
+.btnsm{background:#fff;border:1.5px solid var(--border-strong);color:var(--navy);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.btndg{background:#fff;border:1.5px solid var(--text-danger);color:var(--text-danger);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.tier{border:1.5px solid var(--border);border-radius:8px;padding:7px 9px;font-size:11px;cursor:pointer;background:#fff;min-width:96px;text-align:left}
+.tier b{display:block;font-size:12px} .tier.on{border-color:var(--navy);background:var(--navy);color:#fff}
+.sub{border-left:3px solid var(--gold);padding-left:10px;font-size:14px;font-weight:600;margin:22px 0 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.divider{height:1px;background:var(--border);margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+th,td{border:1px solid var(--border);padding:6px 7px;text-align:center} th{background:var(--navy);color:#fff;font-weight:600;font-size:11px}
+td:first-child,th:first-child{text-align:left}
+table input{width:100%;text-align:right}
+table input.name{text-align:left}
+td.x,th.x{width:46px;text-align:center}
+.xbtn{background:transparent;border:none;color:var(--text-danger);cursor:pointer;font-size:14px;padding:2px 4px;line-height:1;flex:0 0 auto}
+.namecell{display:flex;gap:6px;align-items:center}
+.namecell input{flex:1;min-width:0}
+.addbtn{margin-top:8px}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+</style></head><body>
+<div class="bar"><i class="ti ti-adjustments-dollar" style="font-size:22px;color:var(--gold)"></i><div style="font-weight:700;letter-spacing:.5px">DMS</div><div style="width:1px;height:18px;background:rgba(255,255,255,.3)"></div><h1>Price Editor — rate book</h1>
+  <span style="margin-left:auto;display:inline-flex;gap:8px;flex-wrap:wrap"><button class="btng" onclick="exportJSON()"><i class="ti ti-download"></i> Export</button><button class="btng" onclick="resetAll()"><i class="ti ti-rotate"></i> Reset</button><button class="btnp" onclick="saveAll()"><i class="ti ti-device-floppy"></i> Save to pricing platform</button></span></div>
+<div id="savemsg" class="note" style="margin-top:8px;min-height:16px"></div>
+
+<div class="card">
+  <div class="shead" style="margin-bottom:14px">Rate book</div>
+  <div id="segRow"></div>
+  <div class="divider"></div>
+  <div id="svcCtl"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px" id="tierbtns"></div>
+  <div class="note" style="margin-top:8px">Options &amp; Common values are stored per tier. Percentages are per service. Everything below is fully editable.</div>
+  <div id="tables" style="margin-top:4px;overflow-x:auto"></div>
+</div>
+<p class="note" style="margin-top:12px;text-align:center">Edit prices per segment, then <b>Save to pricing platform</b>. The Pricing / Quote page reads the saved rate book on load. Saves to this browser; use Export to move data. In the ERP these share one database.</p>
+
+<script>
+var TLAB={1:"Standard",2:"Moderate",3:"Higher/recurring",4:"Preferred",5:"Premium",6:"Custom"};
+var MULT={1:1,2:.92,3:.85,4:.78,5:.71,6:.64};
+var NTIERS=6;
+var CNAMES={dropoff:'Drop-off fee',pbase:'Pickup base',mile:'Per mile',labor:'Labor/hr',min:'Minimum'};
+function esc(s){return (''+s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function gEl(id){return document.getElementById(id);}
+function clone(o){return JSON.parse(JSON.stringify(o));}
+
+var SEED=[
+ {key:'shredding',label:'Shredding',rows:[{name:'35-gallon',qty:4,rec:18,one:28},{name:'65-gallon',qty:2,rec:28,one:42},{name:'95-gallon',qty:1,rec:38,one:58}],common:{dropoff:120,pbase:220,mile:8,labor:180,min:600},pct:6},
+ {key:'ewaste',label:'E-waste hauling',rows:[{name:'CRT monitor',qty:10,rec:0,one:18},{name:'Flat panel / LCD',qty:10,rec:0,one:9},{name:'Desktop / server',qty:8,rec:0,one:12},{name:'Bulk pallet',qty:1,rec:0,one:140}],common:{dropoff:90,pbase:210,mile:7,labor:170,min:400},pct:6},
+ {key:'scanning',label:'Document scanning',rows:[{name:'Per banker’s box',qty:40,rec:0,one:32},{name:'General prep / box',qty:40,rec:0,one:8},{name:'Staple removal / box',qty:10,rec:0,one:6},{name:'Clip removal / box',qty:5,rec:0,one:4},{name:'Document cleanup (flat)',qty:1,rec:0,one:120},{name:'Special handling (flat)',qty:1,rec:0,one:200}],common:{dropoff:150,pbase:300,mile:6,labor:160,min:1500},pct:5},
+ {key:'hdd',label:'Hard drive destruction',rows:[{name:'Per drive (unit)',qty:120,rec:0,one:220,floor:180},{name:'Witnessed destruction (flat)',qty:1,rec:0,one:150}],common:{dropoff:100,pbase:250,mile:8,labor:180,min:900},pct:6}
+];
+function makeBook(){
+  var LAB={},SVC={},PCT={},ORDER=[];
+  SEED.forEach(function(s){LAB[s.key]=s.label;ORDER.push(s.key);SVC[s.key]={};
+    for(var t=1;t<=NTIERS;t++){SVC[s.key][t]={
+      rows:s.rows.map(function(r){var rec=Math.round(r.rec*MULT[t]),one=Math.round(r.one*MULT[t]);if(r.floor){if(rec>0&&rec<r.floor)rec=r.floor;if(one>0&&one<r.floor)one=r.floor;}return {name:r.name,qty:r.qty,rec:rec,one:one};}),
+      common:['dropoff','pbase','mile','labor','min'].map(function(k){var v=s.common[k];return {name:CNAMES[k],val:(k==='mile'?Math.round(v*MULT[t]*100)/100:Math.round(v*MULT[t]))};})};}
+    PCT[s.key]=[{name:'Surcharge',pct:s.pct}];});
+  return {ORDER:ORDER,LAB:LAB,SVC:SVC,PCT:PCT};
+}
+
+var SEGMENTS=['Maquiladora / IMMEX','Bank / Financial','Healthcare','Other commercial'];
+var BOOKS={};SEGMENTS.forEach(function(s){BOOKS[s]=makeBook();});
+var activeSeg=SEGMENTS[0];
+/* load any previously saved rate books */
+(function(){try{var b=JSON.parse(localStorage.getItem('dmssbx-books')||'null');
+  if(b&&b.SEGMENTS&&b.BOOKS){SEGMENTS=b.SEGMENTS;BOOKS=b.BOOKS;activeSeg=(b.active&&SEGMENTS.indexOf(b.active)>=0)?b.active:SEGMENTS[0];}
+}catch(e){}})();
+var ORDER,LAB,SVC,PCT,svc,tier=1;
+
+function loadSeg(name){activeSeg=name;var b=BOOKS[name];ORDER=b.ORDER;LAB=b.LAB;SVC=b.SVC;PCT=b.PCT;if(!svc||ORDER.indexOf(svc)<0)svc=ORDER[0];if(!tier)tier=1;renderAll();}
+function renderAll(){renderSegRow();renderSvcCtl();renderTiers();renderTables();}
+
+/* ---- Segment ---- */
+function renderSegRow(){
+  var h='<div class="row"><div style="min-width:250px"><label class="f">Segment rate book</label>'+
+    '<select id="segSel" onchange="loadSeg(this.value)" style="width:100%">'+SEGMENTS.map(function(s){return '<option value="'+esc(s)+'"'+(s===activeSeg?' selected':'')+'>'+esc(s)+'</option>';}).join('')+'</select></div>'+
+    '<button class="btnsm" onclick="addSegment()" title="Add a segment"><i class="ti ti-plus"></i> Add</button>'+
+    '<button class="btnsm" onclick="editSegment()" title="Rename this segment"><i class="ti ti-pencil"></i> Edit</button>'+
+    (SEGMENTS.length>1?'<button class="btndg" onclick="delSegment()" title="Remove this segment"><i class="ti ti-trash"></i> Remove</button>':'')+'</div>';
+  h+='<div class="note" style="margin-top:8px">Each segment keeps its own prices — edits below apply to <b>'+esc(activeSeg)+'</b>.</div>';
+  gEl('segRow').innerHTML=h;
+}
+function addSegment(){var v=prompt('New segment name (e.g., Government, Education):');if(!v)return;if(SEGMENTS.indexOf(v)>=0){alert('That segment already exists.');return;}SEGMENTS.push(v);BOOKS[v]=clone(BOOKS[activeSeg]);svc=null;loadSeg(v);}
+function editSegment(){var nn=prompt('Rename segment:',activeSeg);if(!nn||nn===activeSeg)return;if(SEGMENTS.indexOf(nn)>=0){alert('That segment already exists.');return;}var i=SEGMENTS.indexOf(activeSeg);SEGMENTS[i]=nn;BOOKS[nn]=BOOKS[activeSeg];delete BOOKS[activeSeg];activeSeg=nn;renderAll();}
+function delSegment(){if(SEGMENTS.length<2)return;if(!confirm('Remove segment "'+activeSeg+'" and its prices?'))return;var i=SEGMENTS.indexOf(activeSeg);delete BOOKS[activeSeg];SEGMENTS.splice(i,1);svc=null;loadSeg(SEGMENTS[0]);}
+
+/* ---- Services ---- */
+function renderSvcCtl(){
+  var h='<div class="row"><div style="min-width:220px"><label class="f">Service</label>'+
+    '<select onchange="setSvc(this.value)" style="width:100%">'+ORDER.map(function(k){return '<option value="'+k+'"'+(k===svc?' selected':'')+'>'+esc(LAB[k])+'</option>';}).join('')+'</select></div>'+
+    '<div style="flex:1;min-width:200px"><label class="f">Service name</label><input value="'+esc(LAB[svc])+'" oninput="LAB[svc]=this.value" style="width:100%"></div>'+
+    '<button class="btnsm" onclick="addService()"><i class="ti ti-plus"></i> Add service</button>'+
+    (ORDER.length>1?'<button class="btndg" onclick="delService()"><i class="ti ti-trash"></i> Remove</button>':'')+'</div>';
+  gEl('svcCtl').innerHTML=h;
+}
+function renderTiers(){var h='';for(var t=1;t<=NTIERS;t++)h+='<button class="tier'+(t===tier?' on':'')+'" onclick="setTier('+t+')">Tier '+t+'<b>'+TLAB[t]+'</b></button>';gEl('tierbtns').innerHTML=h;}
+function renderTables(){
+  var d=SVC[svc][tier],P=PCT[svc];
+  var h='<div class="sub">Service options</div><table><colgroup><col><col style="width:90px"><col style="width:130px"><col style="width:130px"></colgroup><tr><th>Option</th><th>Qty</th><th>Recurring MXN/unit</th><th>One-time MXN/unit</th></tr>';
+  d.rows.forEach(function(r,i){h+='<tr>'+
+    '<td><div class="namecell"><input class="name" value="'+esc(r.name)+'" oninput="SVC[svc][tier].rows['+i+'].name=this.value"><button class="xbtn" title="Remove option" onclick="delRow('+i+')">✕</button></div></td>'+
+    '<td><input value="'+r.qty+'" oninput="SVC[svc][tier].rows['+i+'].qty=+this.value"></td>'+
+    '<td><input value="'+r.rec+'" oninput="SVC[svc][tier].rows['+i+'].rec=+this.value"></td>'+
+    '<td><input value="'+r.one+'" oninput="SVC[svc][tier].rows['+i+'].one=+this.value"></td></tr>';});
+  h+='</table><button class="btnsm addbtn" onclick="addRow()"><i class="ti ti-plus"></i> Add option</button>';
+
+  h+='<div class="sub">Common</div><table><colgroup><col><col style="width:150px"></colgroup><tr><th>Item</th><th>Value</th></tr>';
+  d.common.forEach(function(c,i){h+='<tr>'+
+    '<td><div class="namecell"><input class="name" value="'+esc(c.name)+'" oninput="SVC[svc][tier].common['+i+'].name=this.value"><button class="xbtn" title="Remove item" onclick="delCommon('+i+')">✕</button></div></td>'+
+    '<td><input value="'+c.val+'" oninput="SVC[svc][tier].common['+i+'].val=+this.value"></td></tr>';});
+  h+='</table><button class="btnsm addbtn" onclick="addCommon()"><i class="ti ti-plus"></i> Add common item</button>';
+
+  h+='<div class="sub">Percentages</div><table><colgroup><col><col style="width:150px"></colgroup><tr><th>Name</th><th>Percentage %</th></tr>';
+  P.forEach(function(p,i){h+='<tr>'+
+    '<td><div class="namecell"><input class="name" value="'+esc(p.name)+'" oninput="PCT[svc]['+i+'].name=this.value"><button class="xbtn" title="Remove percentage" onclick="delPct('+i+')">✕</button></div></td>'+
+    '<td><input value="'+p.pct+'" oninput="PCT[svc]['+i+'].pct=+this.value"></td></tr>';});
+  h+='</table><button class="btnsm addbtn" onclick="addPct()"><i class="ti ti-plus"></i> Add percentage</button>';
+  gEl('tables').innerHTML=h;
+}
+function addRow(){SVC[svc][tier].rows.push({name:'New option',qty:1,rec:0,one:0});renderTables();}
+function delRow(i){SVC[svc][tier].rows.splice(i,1);renderTables();}
+function addCommon(){SVC[svc][tier].common.push({name:'New item',val:0});renderTables();}
+function delCommon(i){SVC[svc][tier].common.splice(i,1);renderTables();}
+function addPct(){PCT[svc].push({name:'New percentage',pct:0});renderTables();}
+function delPct(i){PCT[svc].splice(i,1);renderTables();}
+function defCommon(){return ['dropoff','pbase','mile','labor','min'].map(function(k){return {name:CNAMES[k],val:0};});}
+function addService(){var v=prompt('New service name (e.g., Battery recycling):');if(!v)return;var key='svc_'+Date.now();LAB[key]=v;ORDER.push(key);SVC[key]={};for(var t=1;t<=NTIERS;t++)SVC[key][t]={rows:[{name:'Option 1',qty:1,rec:0,one:0}],common:defCommon()};PCT[key]=[{name:'Surcharge',pct:6}];svc=key;tier=1;renderSvcCtl();renderTiers();renderTables();}
+function delService(){if(ORDER.length<2)return;var i=ORDER.indexOf(svc);ORDER.splice(i,1);delete LAB[svc];delete SVC[svc];delete PCT[svc];svc=ORDER[0];renderSvcCtl();renderTiers();renderTables();}
+function setSvc(v){svc=v;renderSvcCtl();renderTables();}
+function setTier(t){tier=t;renderTiers();renderTables();}
+
+/* ---- Save / export ---- */
+function status(msg,kind){var m=gEl('savemsg');m.style.color=kind==='ok'?'var(--text-success)':(kind==='warn'?'var(--text-warning)':'var(--text-muted)');m.innerHTML='<i class="ti ti-'+(kind==='ok'?'check':'info-circle')+'"></i> '+msg;}
+function saveAll(){try{
+  localStorage.setItem('dmssbx-books',JSON.stringify({SEGMENTS:SEGMENTS,BOOKS:BOOKS,active:activeSeg}));
+  localStorage.setItem('dmssbx-segments',JSON.stringify(SEGMENTS));
+  localStorage.setItem('dmssbx-rate_book',JSON.stringify({ORDER:ORDER,LAB:LAB,SVC:SVC,PCT:PCT}));
+  status('Saved. The "'+esc(activeSeg)+'" prices and all segments are now live in the Pricing / Quote platform.','ok');
+}catch(e){status('Saved for this session, but browser storage is blocked here — use Export to move the data.','warn');}}
+function exportJSON(){var data={segments:SEGMENTS,active:activeSeg,books:BOOKS};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dms_rate_book.json';document.body.appendChild(a);a.click();document.body.removeChild(a);
+  status('Exported dms_rate_book.json.','ok');}
+function resetAll(){if(!confirm('Reset all segments and prices to defaults? This clears saved data.'))return;try{localStorage.removeItem('dmssbx-books');localStorage.removeItem('dmssbx-segments');localStorage.removeItem('dmssbx-rate_book');}catch(e){}location.reload();}
+
+loadSeg(activeSeg);
+</script>
+<script src="sbx_annotate.js"></script>
+</body></html>

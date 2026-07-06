@@ -1,0 +1,1021 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DMS ERP — Create Job → Dispatch</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.1.0/dist/tabler-icons.min.css" />
+<style>
+  /* Page-specific layout. Design tokens are inlined below per DMS Brand Standards v2.0 (navy lead, muted-gold accent). */
+  .wrap{max-width:1240px}
+  .pagehead{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .pagehead .sub{margin:2px 0 2px}
+  .pagehead .tabs{margin-left:auto}
+
+  .tabs{display:inline-flex;background:#fff;border:1px solid var(--hair);border-radius:10px;padding:3px;gap:2px}
+  .tab{border:none;background:transparent;color:var(--gray);font:inherit;font-weight:700;font-size:12.5px;padding:7px 14px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .tab.active{background:var(--navy);color:#fff}
+  .tab .tabn{background:var(--graybg);color:var(--navy);border-radius:999px;min-width:20px;height:18px;padding:0 6px;display:inline-grid;place-items:center;font-size:10.5px;font-weight:800;margin-left:4px}
+  .tab.active .tabn{background:#fff;color:var(--navy)}
+
+  .view{display:none} .view.active{display:block}
+
+  .create-grid{display:grid;grid-template-columns:1fr 340px;gap:14px;align-items:start}
+  .section{padding:16px;background:#fff;border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:14px}
+  .section:last-child{margin-bottom:0}
+  .sec-head{display:flex;align-items:center;gap:9px;margin:0 0 12px}
+  .sec-num{width:24px;height:24px;border-radius:7px;background:var(--graybg);color:var(--navy);display:grid;place-items:center;font-weight:800;font-size:12px;flex:none}
+  .sec-head h2{margin:0;font-size:14px;font-weight:800;color:var(--navy)}
+  .sec-head .sub{color:var(--gray);font-size:11px;font-weight:600;margin:0 0 0 auto}
+
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .field:last-child{margin-bottom:0}
+  .field label{color:var(--gray);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  .field label .req{color:var(--red)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  select,input,textarea{min-height:37px;border:1px solid var(--hair);border-radius:8px;padding:8px 10px;color:var(--ink);background:#fff;font:inherit;font-size:13px;width:100%;outline:none}
+  textarea{min-height:62px;resize:vertical}
+  select:focus,input:focus,textarea:focus{border-color:var(--navy)}
+  select:disabled{background:var(--panel);color:var(--gray);cursor:not-allowed}
+  .help{color:var(--gray);font-size:11px;margin-top:-1px}
+
+  .segment{display:inline-flex;border:1px solid var(--hair);border-radius:9px;overflow:hidden;background:#fff;flex-wrap:wrap}
+  .segment button{border:none;background:#fff;color:var(--gray);font:inherit;font-weight:700;font-size:12.5px;padding:8px 14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .segment button+button{border-left:1px solid var(--hair)}
+  .segment button.on{background:var(--navy);color:#fff}
+
+  .chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .chk{border:1px solid var(--hair);border-radius:var(--r);padding:10px 11px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;background:#fff}
+  .chk:hover{border-color:var(--navy)}
+  .chk.on{border-color:var(--navy);background:var(--bluebg)}
+  .chk .box{width:18px;height:18px;border-radius:5px;border:2px solid #C9D2DC;flex:none;margin-top:1px;display:grid;place-items:center;color:#fff;font-size:12px;background:#fff}
+  .chk.on .box{background:var(--navy);border-color:var(--navy)}
+  .chk.on .box::after{content:"\2713";font-weight:900}
+  .chk .ic{width:30px;height:30px;border-radius:8px;background:var(--graybg);color:var(--navy);display:grid;place-items:center;font-size:17px;flex:none}
+  .chk.on .ic{background:var(--navy);color:#fff}
+  .chk .t{font-weight:700;color:var(--navy);font-size:12.5px}
+  .chk .d{color:var(--gray);font-size:10.5px;margin-top:2px}
+
+  .svc-detail{border:1px solid var(--hair);border-radius:var(--r);padding:12px 13px;margin-top:10px;background:var(--panel)}
+  .svc-detail .sd-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .svc-detail .sd-head i{color:var(--navy);font-size:15px}
+  .svc-detail .sd-head b{color:var(--navy);font-size:12.5px}
+  .svc-detail .sd-head .tag{margin-left:auto;font-size:9.5px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+
+  .hidden{display:none !important}
+  .divider{height:1px;background:var(--hair);margin:14px 0}
+
+  .sd-panel{border:1px solid var(--hair);border-radius:var(--r);overflow:hidden}
+  .sd-ribbon{display:flex;align-items:center;gap:10px;background:var(--panel);border-bottom:1px solid var(--hair);padding:10px 13px;flex-wrap:wrap}
+  .sd-ribbon .lk{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:var(--navy);font-size:12.5px}
+  .sd-ribbon .lk i{color:var(--blue)}
+  .sd-ribbon .acts{margin-left:auto;display:flex;gap:7px}
+  .sd-body{padding:14px}
+  .sd-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 16px}
+  .sd-item .k{color:var(--gray);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  .sd-item .v{color:var(--ink);font-size:13px;font-weight:600;margin-top:2px}
+  .sd-sub{margin-top:13px;border-top:1px dashed var(--hair);padding-top:11px}
+  .sd-sub .lbl{color:var(--gray);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+  .sd-sub .lbl .cnt{color:var(--navy)}
+  .contact-row{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px dashed var(--hair)}
+  .contact-row:last-child{border-bottom:none}
+  .contact-row .ava{width:29px;height:29px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700;font-size:11.5px;flex:none}
+  .contact-row .cn{font-weight:700;color:var(--navy);font-size:12.5px}
+  .contact-row .cr{color:var(--gray);font-size:11px}
+  .contact-row .cp{margin-left:auto;color:var(--gray);font-size:12px;font-weight:600}
+  .sd-empty{color:var(--gray);font-size:12.5px;text-align:center;padding:20px 10px;font-style:italic}
+
+  .asset-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--hair);border-radius:9px;margin-bottom:7px;cursor:pointer;background:#fff}
+  .asset-row:last-child{margin-bottom:0}
+  .asset-row:hover{border-color:var(--navy)}
+  .asset-row.on{border-color:var(--navy);background:var(--bluebg)}
+  .asset-row .abox{width:17px;height:17px;border-radius:4px;border:2px solid #C9D2DC;flex:none;display:grid;place-items:center;color:#fff;font-size:11px;background:#fff}
+  .asset-row.on .abox{background:var(--navy);border-color:var(--navy)}
+  .asset-row.on .abox::after{content:"\2713";font-weight:900}
+  .asset-row .aic{width:28px;height:28px;border-radius:7px;background:var(--graybg);color:var(--navy);display:grid;place-items:center;font-size:15px;flex:none}
+  .asset-row .ainfo b{color:var(--navy);font-size:12.5px;font-weight:700;display:block;line-height:1.2}
+  .asset-row .ainfo span{color:var(--gray);font-size:11px}
+  .asset-row .atag{margin-left:auto;font-size:9.5px;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+  .asset-row.on .atag{color:var(--green)}
+  .assets-empty{color:var(--gray);font-size:11.5px;font-style:italic;padding:4px 0}
+
+  .filechips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .filechip{display:inline-flex;align-items:center;gap:6px;background:var(--bluebg);border:1px solid #D7DCE1;color:var(--navy);border-radius:999px;padding:4px 6px 4px 10px;font-size:11.5px;font-weight:600}
+  .filechip i{color:var(--blue)}
+  .filechip .rm{border:none;background:transparent;color:var(--red);cursor:pointer;font-size:15px;line-height:1;padding:0 2px}
+
+  .pl-row{display:grid;grid-template-columns:1fr 80px 120px 32px;gap:8px;align-items:center;margin-bottom:8px}
+  .pl-row input,.pl-row select{min-height:34px;font-size:12.5px}
+  .pl-x{border:1px solid var(--hair);background:#fff;color:var(--red);border-radius:8px;height:34px;cursor:pointer;font-size:16px}
+  .pl-x:hover{border-color:var(--red);background:var(--redbg)}
+  .pl-head{display:grid;grid-template-columns:1fr 80px 120px 32px;gap:8px;margin-bottom:6px}
+  .pl-head span{color:var(--gray);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  .pl-empty{color:var(--gray);font-size:12px;padding:8px 0;font-style:italic}
+
+  .special-wrap{border:1px solid #EAD9B4;background:var(--amberbg);border-radius:var(--r);padding:12px 13px}
+  .special-wrap label{color:var(--amber);display:flex;align-items:center;gap:7px;margin-bottom:7px;font-weight:700;font-size:12px}
+  .special-wrap label i{font-size:15px}
+  .special-wrap textarea{background:#fff;border-color:#EAD9B4}
+
+  .rail{position:sticky;top:66px}
+  .ticket{padding:0;overflow:hidden}
+  .ticket-head{background:var(--navy);color:#fff;padding:13px 16px}
+  .ticket-head .lbl{font-size:9.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#B9C4D4}
+  .ticket-head .no{font-size:16px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+  .ticket-body{padding:13px 16px}
+  .trow{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--hair)}
+  .trow:last-child{border-bottom:none}
+  .trow .tk{width:24px;color:var(--navy);font-size:15px;flex:none;text-align:center}
+  .trow .tt{color:var(--gray);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+  .trow .tv{font-weight:600;color:var(--ink);font-size:12.5px}
+  .trow .tv.empty{color:var(--gray);font-weight:400;font-style:italic}
+  .ticket-note{background:var(--amberbg);border-top:1px solid #EAD9B4;color:var(--amber);padding:10px 16px;font-size:11.5px;font-weight:600;display:flex;gap:8px;align-items:flex-start}
+  .ticket-note i{font-size:14px;flex:none}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:700;white-space:nowrap;background:var(--graybg);color:var(--gray)}
+  .pill.dot::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pill.rush{color:var(--red);background:var(--redbg)}
+  .pill.recur{color:var(--amber);background:var(--amberbg)}
+  .pill.cust{color:#14253D;background:var(--bluebg)}
+  .pill.sup{color:var(--navy);background:#E5EAF2}
+  .pill.truck{color:var(--green);background:var(--greenbg)}
+  .pill.special{color:var(--amber);background:var(--amberbg)}
+  .pill.doc{color:var(--gray);background:var(--graybg)}
+  .pill.asset{color:var(--amber);background:var(--amberbg)}
+
+  .footer-bar{display:flex;gap:9px;justify-content:flex-end;align-items:center;margin-top:2px;flex-wrap:wrap}
+  .footer-bar .spacer{margin-right:auto;color:var(--gray);font-size:11.5px}
+
+  .board-toolbar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;background:#fff;border:1px solid var(--hair);border-radius:var(--r);padding:12px 14px;box-shadow:var(--shadow)}
+  .board-toolbar .field{margin-bottom:0}
+  .board-toolbar .count{margin-left:auto;align-self:center;display:flex;gap:8px}
+  .board-toolbar .kpi{background:var(--panel);border:1px solid var(--hair);border-radius:9px;padding:6px 12px;text-align:center;box-shadow:none;margin:0}
+  .board-toolbar .kpi b{display:block;color:var(--navy);font-size:16px;font-weight:800;line-height:1}
+  .board-toolbar .kpi span{color:var(--gray);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+
+  .lanes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px;align-items:start}
+  .lane{background:var(--graybg);border:1px solid var(--hair);border-radius:var(--r);min-height:180px;display:flex;flex-direction:column}
+  .lane-head{padding:10px 12px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--hair)}
+  .lane-head .tk{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:15px;flex:none;background:#fff;border:1px solid var(--hair);color:var(--navy)}
+  .lane-head .nm{font-weight:800;color:var(--navy);font-size:12.5px;line-height:1.1}
+  .lane-head .mt{color:var(--gray);font-size:10.5px}
+  .lane-head .n{margin-left:auto;background:#fff;border:1px solid var(--hair);color:var(--navy);font-weight:800;font-size:11.5px;border-radius:999px;min-width:24px;height:22px;padding:0 7px;display:grid;place-items:center}
+  .lane.unassigned{background:var(--amberbg);border-color:#EAD9B4}
+  .lane.unassigned .lane-head{border-color:#EAD9B4}
+  .lane.unassigned .lane-head .tk{color:var(--amber);border-color:#EAD9B4}
+  .lane-body{padding:10px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .lane-empty{color:var(--gray);font-size:11.5px;text-align:center;padding:16px 6px}
+
+  .jobcard{background:#fff;border:1px solid var(--hair);border-radius:9px;padding:10px 11px;box-shadow:var(--shadow);border-left:3px solid var(--navy);animation:rise .18s ease}
+  .jobcard.rush{border-left-color:var(--red)}
+  @keyframes rise{from{transform:translateY(8px);opacity:.3}to{transform:translateY(0);opacity:1}}
+  .jc-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+  .jc-id{color:var(--gray);font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums;margin-left:auto}
+  .jc-name{font-weight:700;color:var(--navy);font-size:13px;line-height:1.2}
+  .jc-meta{color:var(--gray);font-size:11.5px;margin-top:3px;display:flex;flex-direction:column;gap:2px}
+  .jc-meta i{color:var(--gray);font-size:12px;width:15px;display:inline-block}
+  .jc-svcs{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+  .jc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+  .jc-actions{display:flex;gap:6px;margin-top:9px}
+  .jc-actions .btn{flex:1;min-height:28px;font-size:11px;padding:5px 8px}
+
+  .overlay{position:fixed;inset:0;z-index:120;display:none;align-items:flex-start;justify-content:center;padding:48px 16px;overflow-y:auto;background:rgba(20,37,61,.45)}
+  .overlay.open{display:flex}
+  .modal{width:100%;max-width:470px;background:#fff;border-radius:12px;box-shadow:0 18px 50px rgba(20,37,61,.3);overflow:hidden;animation:rise .16s ease;padding:0;max-height:none}
+  .modal-head{display:flex;align-items:flex-start;gap:12px;padding:15px 18px;border-bottom:1px solid var(--hair);background:var(--panel)}
+  .modal-head .mh-ic{width:36px;height:36px;border-radius:9px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:18px;flex:none}
+  .modal-head h3{margin:0;font-size:15px;color:var(--navy);font-weight:800}
+  .modal-head p{margin:2px 0 0;color:var(--gray);font-size:12px}
+  .modal-head .x{margin-left:auto;border:none;background:transparent;color:var(--gray);font-size:22px;cursor:pointer;line-height:1}
+  .modal-body{padding:16px 18px}
+  .modal-foot{padding:13px 18px;border-top:1px solid var(--hair);display:flex;gap:9px;justify-content:flex-end;background:var(--panel)}
+  .modal-warn{background:var(--redbg);border:1px solid #F0C9C6;color:var(--red);border-radius:9px;padding:9px 11px;font-size:12px;font-weight:600;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start}
+  .modal-warn i{font-size:15px;flex:none}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:200;background:var(--navy);color:#fff;border-radius:10px;padding:12px 16px;font-weight:600;font-size:12.5px;box-shadow:0 14px 34px rgba(20,37,61,.35);display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;max-width:560px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast i{color:#B9C1CA;font-size:16px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:34px;border-radius:8px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;border:1px solid var(--hair);color:var(--navy);background:#fff}
+  .btn:hover{border-color:var(--navy)}
+  .btn.primary{color:#fff;background:var(--navy);border-color:var(--navy)}
+  .btn.primary:hover{background:var(--navy2)}
+  .btn.small{min-height:30px;padding:6px 10px;font-size:11.5px}
+  .btn.tiny{min-height:27px;padding:4px 9px;font-size:11px;border-radius:7px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  @media(max-width:960px){.create-grid{grid-template-columns:1fr}.rail{position:static}.lanes{grid-template-columns:1fr 1fr}.sd-grid{grid-template-columns:1fr}.pagehead .tabs{margin-left:0}}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAG+klEQVR42u1ZXYxUZxl+3vf7zpkzsMMuA1iolIIFCg0haUVLtxcWtZCWQm2hXsiF9sKf1l7UYEz0ojHxkqSpJibGpgmYmJgSa6ItaPSS/kFbKKWtLSzrsmwX9m/2zOzOOXPOd97Xi7MsP1KdWWaNGN7kJJMz33zf+z7f8/4OcENuyA1pvxDlz5WfrwuF27m2CTEz1PhTlTBe0fPnlpcF82/eNqd865O2WJrPbKtQmVRxclWDMHODqLWl+i9v2QusF5QWe0FntwnmPer5c7aS9Tryb3X6CHXpRJrUX8ni6ktpHL6WxrVzksau2XPaYMCUwrZgbNCxyCt23e0FpUdMYe42Nn4ZBEAEqgKoJFAIGAyBgMAg9okYYAYUkCwZyxqTf0rj2h/SaPxNF08Mi2tks3YDxfm33ON3LPym9edsZ+stARGgCpUMgCQQCJgsQAyAr7KFACoQdWAwwD6xwYV9xKWDLqn/MZkY2RdV+l9vqwFEjPKKjZ8YP1gimQOQNaPwf5IrDDI+G4ssiQfHet+4WVWa2sQ2ZyaTQCokyYJcYfZnpPIVbASIcxByLxFJRCAVEBNUtI0GAExUBNgHmoRmRgaxZaJiK57ZHI4KqEj630gpKpK2EISaNUAUkArl0MzWDUi+v1SapU/TBqgKVLLBi7F9VrCfwiob1BZYys0GKknTj/OsOVs+oAKi/JwWIjw3qT+yNDoOIkBmiUICAVF+TgsZqulgmKX1E7NbDxKYueVzuElqwjUmeiECMNt2Ks5EsNYgU7XVsIo0nuhtxdW4WedyjXpN0qQHRLYdkcgYhjGMqNHA0MiYFAoFe/+XNvRapLVWgkWTFCKoOHVJ7UUiBiDuWtBWVYyHNYyHNaxcvgzP/PB77tUDv8FT33rkxTiOlLn5NN90JoYCyWRlv19a9OO8DmoNbQCoRw3U6xEWzO/Eww98Gbt2Poj7N3XDs0astXju2T37AYCZIdLOWkjz60wmx06oS2Mw+82gzYaRphnGw5wVa1d/Dju2fRWPPbwFt69cPr02TVO/0WjEBw8eeA9A08o3b8B0JIrSJKq+UOgoP6GSJnlt9G/QjiKUuzqx/YFN2LVzKzZv6kYxKOCCkqqASJZYa+2hQ4f2njx5MmkF/dYMmKrbk9rQLwqlBd+/pNmaRtu5i2ivWZWj/fWvXY52lmUgorw1hkKgICLeu2/fc63SZ0YdGbGlruUbPrC2sDr3NeIoijFZj1Ce34n77t2Ab+zcii2bulEsBhfRFgFxXu0Qmylm5ln93EBvz9p1d90ehqESEVR1digEyqNRUj2/m8vLXqmOhzHAwZrVK/DoQznaa1atmF7uXAqiPHWwvXiUZA614ZMY6j2SpMPHgp/v/fPuMAzVMCGT1mqtGY0DjBeYxavuObfxi3eWd+14EFu+ci/PmUI7cw4KhbXeZb+Ja0OoDBzHSO9hjJ09htpIn2hWF5dR9TvP/v2m0ZpzgEJbrBVt6wnIIEvj7PHH7nvqZz995nfOudhaEzjnYK2FmUI6cw1Uz3+E0b63MNJ3BNVzH6ExOQpVhbEFKNuk3LUo+O1f+58cqaYuR39WxypTDjvlZEuXLjUnTrw/UCp1LCAiJiKuh5+gcvZdjPS+ibGzx1Ef70eWxiC2MF4ANt4UhUSMgdRjN/rtPUc/O1ZNskui9ewOtlQVxhiEYai+Z965e93ix08d2d849erz9uSh59H/3ssIBz9EltbBtgDrz4Exfo6VCqAKJ9Lomuv5+/7Sv/3wB5XThgkywzZjRj6QTwcJvgH9avf61xd1yBccrHheYMnY6SboAqSqeWWjChDBdQTMfUPR4e/uOdadpJnqDNFvqZy+SmJGnKr++uWBHaWuhcxe0YEYKhkkyyCiyCRX3LNARwGYVwSYxA3VmH/50j92xkmmIJqx8tcwG82NYCacOV+vLV0UZGtvLW2ejFzChoxngaKXP6LAUBU4doZw8F0kvz9aKOz729BPek6fOdBqzG8bhS6bywIoz/PNCz+6q3dhp1kyESmPToBPDxM+HCR8fA4YqBCqEUSUhCkdqJ99+zZIkmkb2utrnnMzEUQVG9d95rb16+849VZPEg+GJqhGQKaAZwDfAIYkZusH4cD7K6PqUE+rQ9y2U+jSdoeIcHZosvLO2SCc1K6HNHNx4JMNPMAyAJUY1g+i8cEfTI72HZwaDrSnFW1fawiwsdS57POvsQ02qmYOIAuoIzI2S+M3Kn1vd6tk2s7RTBv/+8lR9YrzOjtvuXMMkiUgslB1YOOH/UfLaVQN20Wdawqjn0omIqRRNZwc7ukm6weiUiXrB5PDPd1pVA3bSZ3ZnI8AAEpL1jx90x2btbRkzdOXhazrRYgtlRavfYLYXmea/3/JDfBvyP+8/BOoWmUyUtUH8QAAAABJRU5ErkJggg==">
+<style id="dms-tokens">
+/* Design tokens formerly in dms_styles.css — inlined per DMS Brand Standards v2.0 */
+:root{--navy:#14253D;--navy2:#1B3050;--ink:#2E3338;--gray:#5A6470;--graybg:#EEF1F4;
+--hair:#DDE3EA;--line:#C9D2DC;--panel:#FFFFFF;--r:12px;
+--shadow:0 1px 2px rgba(20,37,61,.08),0 1px 6px rgba(20,37,61,.05);
+--red:#B3261E;--redbg:#FBEBEA;--green:#1B3050;--greenbg:#D7DCE1;
+--blue:#1B3050;--bluebg:#EAF0F7;--amber:#9A7430;--amberbg:#EAD9B4;--gold:#B68A3A;}
+html,body{margin:0;padding:0;background:#F4F6F8;color:var(--ink);
+font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13.5px;line-height:1.45;}
+.wrap{margin:0 auto;padding:20px 22px 34px;}
+.crumb{color:var(--gray);font-size:12px;margin:0 0 10px;}
+.crumb b{color:var(--navy);}
+h1.page{font-family:'Archivo','Inter',Arial,sans-serif;font-size:21px;font-weight:800;
+color:var(--navy);margin:0;letter-spacing:.2px;}
+.sub{color:var(--gray);font-size:12.5px;}
+input,select,textarea{background:#fff;border:1px solid var(--line);border-radius:9px;
+padding:8px 10px;font-size:13px;color:var(--ink);}
+input:focus,select:focus,textarea:focus{border-color:var(--navy2);outline:none;
+box-shadow:0 0 0 3px rgba(20,37,61,.10);}
+button{cursor:pointer;}
+</style>
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="crumb">Jobs › <b>Create Job → Dispatch</b></div>
+  <div class="pagehead">
+    <div>
+      <h1 class="page">Create Job → Dispatch</h1>
+      <div class="sub">Turn a customer or supplier request into a dispatchable job.</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-view="create" onclick="switchView('create')"><i class="ti ti-file-plus"></i> Create Job</button>
+      <button class="tab" data-view="board" onclick="switchView('board')"><i class="ti ti-layout-kanban"></i> Dispatch Board <span id="boardBadge" class="tabn">0</span></button>
+    </div>
+  </div>
+
+  <!-- ============ CREATE VIEW ============ -->
+  <div id="view-create" class="view active">
+    <div class="create-grid">
+      <div>
+        <!-- 1. Account & Location -->
+        <div class="section">
+          <div class="sec-head"><span class="sec-num">1</span><h2>Account &amp; Location</h2><span class="sub">Who &amp; where</span></div>
+          <div class="field">
+            <label>Bill / serve this job to <span class="req">*</span></label>
+            <div class="segment" id="partyType">
+              <button type="button" class="on" data-pt="customer" onclick="setPartyType('customer')"><i class="ti ti-building-store"></i> Customer</button>
+              <button type="button" data-pt="supplier" onclick="setPartyType('supplier')"><i class="ti ti-recycle"></i> Supplier</button>
+            </div>
+          </div>
+          <div class="field">
+            <label id="partyLabel">Customer <span class="req">*</span></label>
+            <select id="party" onchange="onPartyChange()"><option value="">Select account…</option></select>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Service site <span class="req">*</span></label>
+              <select id="site" disabled onchange="onSiteChange()"><option value="">Select site…</option></select></div>
+            <div class="field"><label>Site contact <span class="req">*</span></label>
+              <select id="contact" disabled onchange="renderTicket()"><option value="">Select contact…</option></select></div>
+          </div>
+        </div>
+
+        <!-- 2. Site Details (from profile) + on-site assets -->
+        <div class="section">
+          <div class="sec-head"><span class="sec-num">2</span><h2>Site Details</h2><span class="sub">Profile info &amp; on-site assets</span></div>
+          <div id="siteDetails"></div>
+        </div>
+
+        <!-- 3. Services (multi) -->
+        <div class="section">
+          <div class="sec-head"><span class="sec-num">3</span><h2>Services</h2><span class="sub">Check all being performed</span></div>
+          <div class="chk-grid" id="svcGrid"></div>
+          <div id="svcDetail"></div>
+          <div class="divider"></div>
+          <div class="field">
+            <label>Service notes</label>
+            <textarea id="serviceNotes" placeholder="Notes about the services on this job — scope, exceptions, what to expect on site…" oninput="renderTicket()"></textarea>
+          </div>
+          <div class="field">
+            <label>Service documents</label>
+            <input type="file" id="svcDocsInput" multiple class="hidden" onchange="onDocs('service',this)" />
+            <div><button class="btn tiny" onclick="document.getElementById('svcDocsInput').click()"><i class="ti ti-paperclip"></i> Upload documents</button></div>
+            <div class="help">Quotes, service agreements, waste profiles, site photos…</div>
+            <div class="filechips" id="svcDocList"></div>
+          </div>
+        </div>
+
+        <!-- 4. Truck & Equipment -->
+        <div class="section">
+          <div class="sec-head"><span class="sec-num">4</span><h2>Truck &amp; Equipment</h2><span class="sub">Type needed</span></div>
+          <div class="help" style="margin-bottom:11px;"><i class="ti ti-bulb"></i> Auto-suggested from the services above — adjust if needed. The dispatcher assigns the specific unit &amp; driver on the board.</div>
+          <div class="chk-grid" id="truckGrid"></div>
+        </div>
+
+        <!-- 5. Scheduling -->
+        <div class="section">
+          <div class="sec-head"><span class="sec-num">5</span><h2>Scheduling</h2><span class="sub">When</span></div>
+          <div class="field">
+            <label>Job type <span class="req">*</span></label>
+            <div class="segment" id="schedType">
+              <button type="button" class="on" data-st="onetime" onclick="setSchedType('onetime')"><i class="ti ti-calendar-event"></i> One-time</button>
+              <button type="button" data-st="recurring" onclick="setSchedType('recurring')"><i class="ti ti-rotate-clockwise"></i> Recurring</button>
+              <button type="button" data-st="oncall" onclick="setSchedType('oncall')"><i class="ti ti-phone-call"></i> On-call / as needed</button>
+            </div>
+          </div>
+          <div id="oneTimeFields">
+            <div class="row2">
+              <div class="field"><label>Requested date <span class="req">*</span></label><input type="date" id="reqDate" onchange="renderTicket()" /></div>
+              <div class="field"><label>Time window</label>
+                <select id="window" onchange="renderTicket()">
+                  <option value="Any / dispatcher decides" selected>Any — dispatcher decides</option>
+                  <option>Morning (7a–12p)</option><option>Afternoon (12p–5p)</option>
+                  <option>Before 10:00 AM</option><option>After 3:00 PM</option>
+                </select></div>
+            </div>
+          </div>
+          <div id="recurFields" class="hidden">
+            <div class="row3">
+              <div class="field"><label>Frequency <span class="req">*</span></label>
+                <select id="freq" onchange="renderTicket()">
+                  <option value="Weekly">Weekly</option>
+                  <option value="Every 2 weeks" selected>Every 2 weeks</option>
+                  <option value="Every 4 weeks">Every 4 weeks</option>
+                  <option value="Monthly">Monthly</option>
+                  <option value="Quarterly">Quarterly</option>
+                  <option value="Yearly">Yearly</option>
+                </select></div>
+              <div class="field"><label>Preferred day</label>
+                <select id="dow" onchange="renderTicket()"><option>Monday</option><option selected>Tuesday</option>
+                  <option>Wednesday</option><option>Thursday</option><option>Friday</option></select></div>
+              <div class="field"><label>First stop <span class="req">*</span></label><input type="date" id="startDate" onchange="renderTicket()" /></div>
+            </div>
+            <div class="help"><i class="ti ti-info-circle"></i> Recurring jobs create a route schedule. Only the next stop shows on the board; each completed stop rolls forward.</div>
+          </div>
+          <div id="onCallFields" class="hidden">
+            <div class="help" style="margin-top:2px;"><i class="ti ti-phone-call"></i> No fixed date — this account is on file and dispatched when they call in. It parks in an "On-call" list, not the daily board, until scheduled.</div>
+          </div>
+          <div class="field" style="margin-top:14px;">
+            <label>Priority</label>
+            <div class="segment" id="priority">
+              <button type="button" class="on" data-p="Standard" onclick="setPriority('Standard')"><i class="ti ti-flag"></i> Standard</button>
+              <button type="button" data-p="Rush" onclick="setPriority('Rush')"><i class="ti ti-alert-triangle"></i> Rush</button>
+              <button type="button" data-p="Scheduled route" onclick="setPriority('Scheduled route')"><i class="ti ti-route"></i> Route</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Packing List & Special Instructions -->
+        <div class="section">
+          <div class="sec-head"><span class="sec-num">6</span><h2>Packing List &amp; Special Instructions</h2><span class="sub">Manifest &amp; must-reads</span></div>
+          <div class="field">
+            <label>Packing list <span style="color:var(--gray);font-weight:400;">(what the driver is collecting)</span></label>
+            <div class="pl-head"><span>Item / description</span><span>Qty</span><span>Unit</span><span></span></div>
+            <div id="plRows"></div>
+            <button class="btn tiny" style="margin-top:4px;" onclick="addPackLine()"><i class="ti ti-plus"></i> Add line</button>
+          </div>
+          <div class="field">
+            <label>Packing document</label>
+            <input type="file" id="packDocsInput" multiple class="hidden" onchange="onDocs('pack',this)" />
+            <div><button class="btn tiny" onclick="document.getElementById('packDocsInput').click()"><i class="ti ti-file-upload"></i> Upload document</button></div>
+            <div class="help">Attach a manifest, inventory sheet, or scanned packing list.</div>
+            <div class="filechips" id="packDocList"></div>
+          </div>
+          <div class="special-wrap" style="margin-top:8px;">
+            <label><i class="ti ti-alert-hexagon"></i> Special instructions</label>
+            <textarea id="special" placeholder="Anything the driver MUST know — hazards, manifest required, witness, badge/escort, do-not-mix, load order…" oninput="renderTicket()"></textarea>
+          </div>
+        </div>
+
+        <!-- 7. Access & Reference -->
+        <div class="section">
+          <div class="sec-head"><span class="sec-num">7</span><h2>Access &amp; Reference</h2><span class="sub">Logistics</span></div>
+          <div class="row2">
+            <div class="field"><label>Customer PO / reference</label><input type="text" id="po" placeholder="e.g. PO-88213" oninput="renderTicket()" /></div>
+            <div class="field"><label>On-site hours / access</label><input type="text" id="access" placeholder="Gate code, dock #, security desk…" /></div>
+          </div>
+        </div>
+
+        <div class="footer-bar">
+          <span class="spacer"><i class="ti ti-shield-lock"></i> NAID chain-of-custody starts at pickup</span>
+          <button class="btn" onclick="resetForm()">Cancel</button>
+          <button class="btn" onclick="saveDraft()"><i class="ti ti-device-floppy"></i> Save draft</button>
+          <button class="btn primary" id="sendBtn" onclick="sendToDispatch()"><i class="ti ti-send"></i> Send to Dispatch</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: live ticket -->
+      <div class="rail">
+        <div class="section ticket">
+          <div class="ticket-head"><div class="lbl">Dispatch ticket · preview</div><div class="no" id="ticketNo">JOB-—</div></div>
+          <div class="ticket-body" id="ticketBody"></div>
+          <div class="ticket-note"><i class="ti ti-truck"></i> <span>Truck &amp; driver are assigned by the dispatcher on the board — you set the truck <b>type</b> needed here.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ BOARD VIEW ============ -->
+  <div id="view-board" class="view">
+    <div class="board-toolbar">
+      <div class="field"><label>Date</label><input type="date" id="bDate" onchange="renderBoard()" /></div>
+      <div class="field"><label>Service</label>
+        <select id="bSvc" onchange="renderBoard()"><option value="">All services</option></select></div>
+      <div class="field"><label>Zone</label>
+        <select id="bZone" onchange="renderBoard()"><option value="">All zones</option>
+          <option>Central</option><option>East / Otay</option><option>Tecate</option><option>US / San Diego</option></select></div>
+      <div class="count">
+        <div class="kpi"><b id="kUn">0</b><span>Unassigned</span></div>
+        <div class="kpi"><b id="kAs">0</b><span>Assigned</span></div>
+        <div class="kpi"><b id="kRush">0</b><span>Rush</span></div>
+      </div>
+    </div>
+    <div class="lanes" id="lanes"></div>
+  </div>
+
+</div>
+
+<!-- Assign modal -->
+<div class="overlay" id="assignOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="mh-ic"><i class="ti ti-truck-delivery"></i></div>
+      <div><h3>Assign to a truck</h3><p id="assignSub">—</p></div>
+      <button class="x" onclick="closeAssign()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="assignWarn"></div>
+      <div class="field"><label>Truck / unit <span class="req">*</span></label><select id="aTruck"></select></div>
+      <div class="field"><label>Driver <span class="req">*</span></label><select id="aDriver"></select></div>
+      <div class="row2">
+        <div class="field"><label>Service date</label><input type="date" id="aDate" /></div>
+        <div class="field"><label>Stop sequence</label><input type="number" id="aSeq" min="1" value="1" /></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeAssign()">Cancel</button>
+      <button class="btn primary" onclick="confirmAssign()"><i class="ti ti-check"></i> Assign &amp; schedule</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* Static-preview stubs for the not-yet-connected data layer (dms_seed.js / dms_data.js / dms_ui.js).
+   Detailed data will be wired in during the data phase. */
+window.SERVICES=window.SERVICES||{};window.TRUCK_TYPES=window.TRUCK_TYPES||{};
+window.DB=window.DB||{jobs:[],accounts:[],locations:[],trucks:[],drivers:[]};
+</script>
+<script>
+/* ---------------- Sample data ---------------- */
+const PARTIES = {
+  customer: [
+    {id:'CUST-1001', name:'Maquiladora Acme S.A. de C.V.', dba:'Acme Tijuana', type:'Maquiladora', status:'Active', sites:[
+      {id:'S-01', name:'Acme Plant 1', addr:'Blvd. Insurgentes 1200, Otay', city:'Tijuana', zone:'East / Otay', hours:'Mon–Fri 7:00–17:00', access:'Dock B · sign in at guard shack',
+        contacts:[{id:'C-01', name:'Rosa Medina', role:'Facilities Mgr', phone:'664-555-0110'},{id:'C-02', name:'Luis Tapia', role:'Security Lead', phone:'664-555-0111'}],
+        assets:[{id:'A-04',icon:'ti-box',label:'2 × 40-yd roll-off',sub:'Dock B · last svc Apr 2026'},{id:'A-05',icon:'ti-packages',label:'1 × vertical baler',sub:'Warehouse · PM due'},{id:'A-06',icon:'ti-trash',label:'8 × shred consoles',sub:'Offices'}]},
+      {id:'S-02', name:'Acme Plant 2', addr:'Parque Ind. Pacífico, Nave 7', city:'Tijuana', zone:'Central', hours:'Mon–Sat 6:00–15:00', access:'Rear gate · call ahead',
+        contacts:[{id:'C-03', name:'Rosa Medina', role:'Facilities Mgr', phone:'664-555-0110'}],
+        assets:[{id:'A-07',icon:'ti-box',label:'1 × compactor',sub:'Rear dock · last svc Feb 2026'}]}]},
+    {id:'CUST-1004', name:'Hospital General de Tijuana', dba:'', type:'Healthcare', status:'Active', sites:[
+      {id:'S-03', name:'Main Hospital — Records', addr:'Av. Centenario 10851, Zona Río', city:'Tijuana', zone:'Central', hours:'24/7 · loading 8:00–16:00', access:'Escort required past records dept.',
+        contacts:[{id:'C-04', name:'Dra. Elena Ruiz', role:'Compliance Officer', phone:'664-555-0140'},{id:'C-05', name:'Marco Peña', role:'Medical Records', phone:'664-555-0141'}],
+        assets:[{id:'A-01',icon:'ti-trash',label:'6 × 64-gal secure consoles',sub:'Records dept'},{id:'A-02',icon:'ti-box',label:'1 × 96-gal bin',sub:'Lab'}]}]},
+    {id:'CUST-1006', name:'Banco Fronterizo', dba:'BanFron', type:'Financial', status:'Active', sites:[
+      {id:'S-04', name:'BanFron HQ', addr:'Av. Revolución 800, Centro', city:'Tijuana', zone:'Central', hours:'Mon–Fri 9:00–18:00', access:'Vault access 9–10 AM · badge at desk',
+        contacts:[{id:'C-06', name:'Jorge Salas', role:'Operations', phone:'664-555-0160'}],
+        assets:[{id:'A-08',icon:'ti-trash',label:'4 × executive consoles',sub:'Exec floor'},{id:'A-09',icon:'ti-server-2',label:'1 × HDD tote',sub:'IT room'}]},
+      {id:'S-05', name:'BanFron Branch — Otay', addr:'Plaza Otay, Local 14', city:'Tijuana', zone:'East / Otay', hours:'Mon–Fri 9:00–17:00', access:'Front desk',
+        contacts:[{id:'C-07', name:'Ana Lira', role:'Branch Manager', phone:'664-555-0161'}],
+        assets:[{id:'A-10',icon:'ti-trash',label:'2 × 64-gal consoles',sub:'Branch'}]}]},
+    {id:'CUST-1008', name:'Bufete Legal Herrera', dba:'Herrera & Asoc.', type:'Legal', status:'Active', sites:[
+      {id:'S-06', name:'Herrera Office', addr:'Torre Río, Piso 6, Zona Río', city:'Tijuana', zone:'Central', hours:'Mon–Fri 8:00–19:00', access:'Freight elevator · reception on 6',
+        contacts:[{id:'C-08', name:'Lic. Andrés Herrera', role:'Partner', phone:'664-555-0180'}],
+        assets:[{id:'A-11',icon:'ti-box',label:'3 × bankers-box bins',sub:'File room'}]}]}
+  ],
+  supplier: [
+    {id:'SUP-2001', name:'Metales del Norte', dba:'', type:'Scrap yard', status:'Active', sites:[
+      {id:'S-07', name:'Metales Yard', addr:'Nave 4, Parque El Florido', city:'Tijuana', zone:'East / Otay', hours:'Mon–Sat 7:00–16:00', access:'Scale house on entry',
+        contacts:[{id:'C-09', name:'Pedro Návar', role:'Yard Manager', phone:'664-555-0210'}],
+        assets:[{id:'A-12',icon:'ti-box',label:'3 × 40-yd roll-off',sub:'Yard'},{id:'A-13',icon:'ti-scale',label:'1 × platform scale',sub:'Scale house · calibration due'}]}]},
+    {id:'SUP-2003', name:'Aluminios Baja', dba:'', type:'Plant', status:'Active', sites:[
+      {id:'S-08', name:'Aluminios Baja Plant', addr:'Blvd. Industrial 55', city:'Tecate', zone:'Tecate', hours:'Mon–Fri 6:00–14:00', access:'Shipping office',
+        contacts:[{id:'C-10', name:'Sofía Cano', role:'Shipping', phone:'665-555-0230'}],
+        assets:[{id:'A-14',icon:'ti-packages',label:'2 × gaylord stations',sub:'Line'}]}]},
+    {id:'SUP-2007', name:'Ferrous Traders LLC', dba:'', type:'Broker', status:'Active', sites:[
+      {id:'S-09', name:'Ferrous Yard', addr:'2100 Main St', city:'San Diego, CA', zone:'US / San Diego', hours:'Mon–Fri 7:00–15:00', access:'Gate 2 · CBP paperwork',
+        contacts:[{id:'C-11', name:'Mike Doyle', role:'Trader', phone:'619-555-0270'}],
+        assets:[{id:'A-15',icon:'ti-box',label:'1 × roll-off',sub:'Gate 2'}]}]}
+  ]
+};
+
+/* Five services — available to both party types */
+const SERVICES = {
+  shred:    {label:'Document shredding', short:'Shredding', icon:'ti-shredder'},
+  scan:     {label:'Paper scanning', short:'Scanning', icon:'ti-scan'},
+  hdd:      {label:'Hard drive destruction', short:'HDD', icon:'ti-server-2'},
+  recycle:  {label:'Recycling', short:'Recycling', icon:'ti-recycle'},
+  maint:    {label:'Maintenance / equipment service', short:'Maintenance', icon:'ti-tool'}
+};
+const SVC_ORDER = ['shred','scan','hdd','recycle','maint'];
+
+const TRUCK_TYPES = {
+  shredtruck:  {label:'Shred truck (M2-106)', icon:'ti-truck', covers:['shred','hdd']},
+  scanvan:     {label:'Scan van', icon:'ti-car', covers:['scan']},
+  boxtruck:    {label:'Box truck', icon:'ti-truck-loading', covers:['scan','hdd','recycle']},
+  rolloff:     {label:'Roll-off rig', icon:'ti-dump-truck', covers:['recycle']},
+  servicetruck:{label:'Service truck', icon:'ti-tools', covers:['maint']}
+};
+const SUGGEST = { shred:'shredtruck', scan:'scanvan', hdd:'shredtruck', recycle:'rolloff', maint:'servicetruck' };
+
+const TRUCKS = [
+  {id:'FL-01', name:'FL-01 · M2-106 Shred Truck', services:['shred','hdd']},
+  {id:'FL-02', name:'FL-02 · Box Truck', services:['scan','hdd','recycle']},
+  {id:'SV-01', name:'SV-01 · Scan Van', services:['scan']},
+  {id:'SR-01', name:'SR-01 · Service Truck', services:['maint']}
+];
+const CORE_LANES = ['FL-01','FL-02','SV-01'];
+const DRIVERS = ['Raúl Ortega','Diana Cruz','Hugo Vela','Beto Ramírez','Ariana Solís'];
+
+let seq = (window.DMS? DMS.peekId('JOB')-1 : 4025);
+let JOBS = [
+  {no:'JOB-4020', ptype:'customer', party:'Maquiladora Acme S.A. de C.V.', pid:'CUST-1001', site:'Acme Plant 1', zone:'East / Otay',
+   contact:'Rosa Medina', phone:'664-555-0110', services:[{svc:'maint',detail:'Preventive (PM) · 2 assets'}],
+   truckTypes:['servicetruck'], when:'Today · Morning', priority:'Scheduled route', recurring:false, freq:'',
+   special:'Baler PM + swap 2 full consoles.', packing:0, docs:1, assets:2, status:'unassigned', truck:null, driver:null},
+  {no:'JOB-4022', ptype:'customer', party:'Banco Fronterizo', pid:'CUST-1006', site:'BanFron HQ', zone:'Central',
+   contact:'Jorge Salas', phone:'664-555-0160', services:[{svc:'hdd',detail:'24 HDDs · witnessed'}],
+   truckTypes:['shredtruck'], when:'Today · Before 10:00 AM', priority:'Rush', recurring:false, freq:'',
+   special:'Vault access 9–10 AM only. Badge at security desk.', packing:1, docs:1, assets:0, status:'unassigned', truck:null, driver:null},
+  {no:'JOB-4025', ptype:'customer', party:'Bufete Legal Herrera', pid:'CUST-1008', site:'Herrera Office', zone:'Central',
+   contact:'Lic. Andrés Herrera', phone:'664-555-0180', services:[{svc:'scan',detail:'14 boxes · legal files'}],
+   truckTypes:['scanvan'], when:'Today · Any', priority:'Standard', recurring:false, freq:'',
+   special:'Return originals after scan.', packing:1, docs:1, assets:0, status:'assigned', truck:'SV-01', driver:'Hugo Vela'}
+];
+
+/* ---------------- Form state ---------------- */
+let state = {ptype:'customer', schedType:'onetime', priority:'Standard', services:new Set(), truckTypes:new Set(), assets:new Set()};
+let packing = [];
+let docs = {service:[], pack:[]};
+
+function switchView(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.view===v));
+  if(v==='board') renderBoard();
+}
+
+function setPartyType(pt){
+  state.ptype=pt; state.services=new Set(); state.truckTypes=new Set(); state.assets=new Set();
+  document.querySelectorAll('#partyType button').forEach(b=>b.classList.toggle('on', b.dataset.pt===pt));
+  document.getElementById('partyLabel').innerHTML=(pt==='customer'?'Customer':'Supplier')+' <span class="req">*</span>';
+  const sel=document.getElementById('party'); sel.innerHTML='<option value="">Select account…</option>';
+  PARTIES[pt].forEach(p=>{const o=document.createElement('option');o.value=p.id;
+    o.textContent=p.id+' · '+p.name+(p.dba?(' ('+p.dba+')'):''); sel.appendChild(o);});
+  const s=document.getElementById('site'); s.innerHTML='<option value="">Select site…</option>'; s.disabled=true;
+  const c=document.getElementById('contact'); c.innerHTML='<option value="">Select contact…</option>'; c.disabled=true;
+  buildServiceCards(); buildTruckCards(); renderSvcDetails(); renderSiteDetails(); renderTicket();
+}
+
+function currentParty(){ return PARTIES[state.ptype].find(p=>p.id===document.getElementById('party').value); }
+function currentSite(){ const p=currentParty(); if(!p) return null; return p.sites.find(s=>s.id===document.getElementById('site').value); }
+function currentContact(){ const s=currentSite(); if(!s) return null; return s.contacts.find(c=>c.id===document.getElementById('contact').value); }
+
+function onPartyChange(){
+  const p=currentParty();
+  const s=document.getElementById('site'); s.innerHTML='<option value="">Select site…</option>';
+  const c=document.getElementById('contact'); c.innerHTML='<option value="">Select contact…</option>'; c.disabled=true;
+  state.assets=new Set();
+  if(p){ s.disabled=false;
+    p.sites.forEach(st=>{const o=document.createElement('option');o.value=st.id;o.textContent=st.name+' — '+st.city;s.appendChild(o);});
+    if(p.sites.length===1){ s.value=p.sites[0].id; onSiteChange(); }
+  } else s.disabled=true;
+  renderSiteDetails(); renderTicket();
+}
+function onSiteChange(){
+  const st=currentSite();
+  const c=document.getElementById('contact'); c.innerHTML='<option value="">Select contact…</option>';
+  state.assets=new Set();
+  if(st){ c.disabled=false;
+    st.contacts.forEach(ct=>{const o=document.createElement('option');o.value=ct.id;o.textContent=ct.name+' — '+ct.role;c.appendChild(o);});
+    if(st.contacts.length===1) c.value=st.contacts[0].id;
+  } else c.disabled=true;
+  renderSiteDetails(); renderTicket();
+}
+
+/* ---- Site Details (from profile) + on-site assets ---- */
+function renderSiteDetails(){
+  const el=document.getElementById('siteDetails');
+  const p=currentParty(), st=currentSite();
+  if(!st){ el.innerHTML='<div class="sd-empty">Select an account and site above — the full site details and on-site assets from the profile appear here.</div>'; return; }
+  const contacts=st.contacts.map((ct,i)=>`<div class="contact-row">
+      <div class="ava">${ct.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+      <div><div class="cn">${ct.name} ${i===0?'<span class="pill" style="font-size:9.5px;">Primary</span>':''}</div><div class="cr">${ct.role}</div></div>
+      <div class="cp"><i class="ti ti-phone"></i> ${ct.phone}</div></div>`).join('');
+  const assets=(st.assets||[]).map(a=>{
+    const on=state.assets.has(a.id);
+    return `<div class="asset-row ${on?'on':''}" onclick="toggleAsset('${a.id}')">
+      <span class="abox"></span><span class="aic"><i class="ti ${a.icon||'ti-box'}"></i></span>
+      <span class="ainfo"><b>${a.label}</b><span>${a.sub||''}</span></span>
+      <span class="atag">${on?'✓ Service this visit':'Needs service?'}</span></div>`;
+  }).join('');
+  const assetsBlock = (st.assets&&st.assets.length)
+    ? `<div class="sd-sub"><div class="lbl"><i class="ti ti-packages"></i> On-site assets <span class="cnt">· tick any that need servicing</span></div>${assets}</div>`
+    : `<div class="sd-sub"><div class="lbl"><i class="ti ti-packages"></i> On-site assets</div><div class="assets-empty">No assets on file for this site.</div></div>`;
+  el.innerHTML=`<div class="sd-panel">
+    <div class="sd-ribbon">
+      <span class="lk"><i class="ti ti-link"></i> Linked to ${p.id} · ${p.name} ${state.ptype==='customer'?'<span class="pill cust">customer</span>':'<span class="pill sup">supplier</span>'} profile</span>
+      <span class="acts">
+        <button class="btn tiny" onclick="toast('Opens the ${p.id} profile (preview).',false)"><i class="ti ti-external-link"></i> View profile</button>
+        <button class="btn tiny" onclick="toast('Add / edit sites &amp; assets on the ${p.id} profile (preview).',false)"><i class="ti ti-plus"></i> Add / edit</button>
+      </span>
+    </div>
+    <div class="sd-body">
+      <div class="sd-grid">
+        <div class="sd-item"><div class="k">Site</div><div class="v">${st.name}</div></div>
+        <div class="sd-item"><div class="k">Account type</div><div class="v">${p.type} · ${p.status}</div></div>
+        <div class="sd-item"><div class="k">Address</div><div class="v">${st.addr}, ${st.city}</div></div>
+        <div class="sd-item"><div class="k">Zone</div><div class="v">${st.zone}</div></div>
+        <div class="sd-item"><div class="k">Site hours</div><div class="v">${st.hours||'—'}</div></div>
+        <div class="sd-item"><div class="k">Access / security</div><div class="v">${st.access||'—'}</div></div>
+      </div>
+      <div class="sd-sub"><div class="lbl"><i class="ti ti-address-book"></i> Site contacts (from profile)</div>${contacts}</div>
+      ${assetsBlock}
+    </div>
+  </div>`;
+}
+function toggleAsset(id){
+  if(state.assets.has(id)) state.assets.delete(id); else state.assets.add(id);
+  // if any asset flagged and Maintenance not yet selected, gently suggest it (auto-add truck type)
+  renderSiteDetails(); renderTicket();
+}
+
+/* ---- Services (multi) ---- */
+function buildServiceCards(){
+  const grid=document.getElementById('svcGrid'); grid.innerHTML='';
+  SVC_ORDER.forEach(key=>{
+    const sv=SERVICES[key]; const on=state.services.has(key);
+    const div=document.createElement('div'); div.className='chk'+(on?' on':'');
+    div.onclick=()=>toggleService(key);
+    div.innerHTML=`<div class="box"></div><div class="ic"><i class="ti ${sv.icon}"></i></div>
+      <div><div class="t">${sv.label}</div></div>`;
+    grid.appendChild(div);
+  });
+}
+function toggleService(key){
+  if(state.services.has(key)) state.services.delete(key); else state.services.add(key);
+  if(state.services.has(key) && SUGGEST[key]) state.truckTypes.add(SUGGEST[key]);
+  buildServiceCards(); buildTruckCards(); renderSvcDetails(); renderTicket();
+}
+function renderSvcDetails(){
+  const wrap=document.getElementById('svcDetail'); wrap.innerHTML='';
+  SVC_ORDER.filter(k=>state.services.has(k)).forEach(key=>{
+    const sv=SERVICES[key]; const d=document.createElement('div'); d.className='svc-detail';
+    d.innerHTML=`<div class="sd-head"><i class="ti ${sv.icon}"></i><b>${sv.label}</b><span class="tag">detail</span></div>${detailFields(key)}`;
+    wrap.appendChild(d);
+  });
+}
+function detailFields(key){
+  if(key==='shred') return `<div class="row2">
+    <div class="field"><label>Container type</label><select id="${key}_a" onchange="renderTicket()">
+      <option>64-gal secure console</option><option>96-gal bin</option><option>Executive console</option><option>Bulk / boxes</option></select></div>
+    <div class="field"><label>Quantity</label><input type="number" id="${key}_b" min="1" value="6" oninput="renderTicket()"></div></div>
+    <div class="field"><label>Service mode</label><select id="${key}_c" onchange="renderTicket()">
+      <option>Scheduled recurring purge</option><option>One-time purge / cleanout</option></select></div>`;
+  if(key==='scan') return `<div class="row2">
+    <div class="field"><label>Boxes / bankers</label><input type="number" id="${key}_a" min="1" value="14" oninput="renderTicket()"></div>
+    <div class="field"><label>Prep level</label><select id="${key}_b" onchange="renderTicket()">
+      <option>Standard (remove staples/clips)</option><option>Light (as-is)</option><option>Heavy (bound/legal)</option></select></div></div>
+    <div class="field"><label>Originals</label><select id="${key}_c" onchange="renderTicket()">
+      <option>Destroy after scan (NAID)</option><option>Return originals to client</option></select></div>`;
+  if(key==='hdd') return `<div class="row2">
+    <div class="field"><label># Drives / devices</label><input type="number" id="${key}_a" min="1" value="24" oninput="renderTicket()"></div>
+    <div class="field"><label>Location</label><select id="${key}_b" onchange="renderTicket()">
+      <option>On-site (mobile truck)</option><option>Pickup to facility</option></select></div></div>
+    <div class="field"><label>Witnessed destruction</label><select id="${key}_c" onchange="renderTicket()">
+      <option>Yes — client witness</option><option>No</option></select></div>`;
+  if(key==='recycle') return `<div class="row2">
+    <div class="field"><label>Stream</label><select id="${key}_a" onchange="renderTicket()">
+      <option>Mixed recyclables</option><option>Cardboard / OCC</option><option>Scrap metal (ferrous)</option><option>Non-ferrous / copper</option><option>E-waste</option><option>Plastics</option></select></div>
+    <div class="field"><label>Container</label><select id="${key}_b" onchange="renderTicket()">
+      <option>Roll-off (open top)</option><option>Gaylord(s)</option><option>Toters / carts</option><option>Baled</option><option>Loose / customer load</option></select></div></div>
+    <div class="field"><label>Estimated weight / volume</label><input type="text" id="${key}_c" value="~8 tons" oninput="renderTicket()"></div>`;
+  if(key==='maint') return `<div class="row2">
+    <div class="field"><label>Maintenance type</label><select id="${key}_a" onchange="renderTicket()">
+      <option>Preventive (PM)</option><option>Repair</option><option>Swap-out / exchange</option><option>Relocation</option><option>Inspection</option></select></div>
+    <div class="field"><label>Priority level</label><select id="${key}_b" onchange="renderTicket()">
+      <option>Routine</option><option>Same-week</option><option>Urgent (down)</option></select></div></div>
+    <div class="help"><i class="ti ti-arrow-up"></i> Tick the on-site assets that need servicing in the <b>Site Details</b> section above — they attach to this job.</div>`;
+  return '';
+}
+function detailText(key){
+  const g=id=>{const e=document.getElementById(id);return e?e.value:'';};
+  if(key==='shred')    return `${g(key+'_b')} × ${g(key+'_a')}`;
+  if(key==='scan')     return `${g(key+'_a')} boxes · ${g(key+'_b')}`;
+  if(key==='hdd')      return `${g(key+'_a')} drives · ${g(key+'_b')}`;
+  if(key==='recycle')  return `${g(key+'_a')} · ${g(key+'_b')} · ${g(key+'_c')}`;
+  if(key==='maint')    return `${g(key+'_a')}${state.assets.size?(' · '+state.assets.size+' asset'+(state.assets.size>1?'s':'')):''}`;
+  return '';
+}
+
+/* ---- Truck types (multi) ---- */
+function buildTruckCards(){
+  const grid=document.getElementById('truckGrid'); grid.innerHTML='';
+  Object.entries(TRUCK_TYPES).forEach(([key,tt])=>{
+    const on=state.truckTypes.has(key);
+    const covers=tt.covers.filter(c=>state.services.has(c));
+    const div=document.createElement('div'); div.className='chk'+(on?' on':'');
+    div.onclick=()=>toggleTruck(key);
+    const sub = covers.length? ('Covers: '+covers.map(c=>SERVICES[c].short).join(', ')) : 'Optional';
+    div.innerHTML=`<div class="box"></div><div class="ic"><i class="ti ${tt.icon}"></i></div>
+      <div><div class="t">${tt.label}</div><div class="d">${sub}</div></div>`;
+    grid.appendChild(div);
+  });
+}
+function toggleTruck(key){
+  if(state.truckTypes.has(key)) state.truckTypes.delete(key); else state.truckTypes.add(key);
+  buildTruckCards(); renderTicket();
+}
+
+/* ---- Uploads (simulated: filenames only) ---- */
+function onDocs(kind, input){ [...input.files].forEach(f=>docs[kind].push(f.name)); input.value=''; renderDocs(); renderTicket(); }
+function removeDoc(kind, i){ docs[kind].splice(i,1); renderDocs(); renderTicket(); }
+function renderDocs(){
+  [['service','svcDocList'],['pack','packDocList']].forEach(([kind,elId])=>{
+    const el=document.getElementById(elId);
+    el.innerHTML=docs[kind].map((n,i)=>`<span class="filechip"><i class="ti ti-file"></i> ${n}<button class="rm" onclick="removeDoc('${kind}',${i})">&times;</button></span>`).join('');
+  });
+}
+
+/* ---- Packing list ---- */
+function addPackLine(){ packing.push({desc:'',qty:1,unit:'boxes'}); renderPacking(); }
+function removePackLine(i){ packing.splice(i,1); renderPacking(); }
+function renderPacking(){
+  const wrap=document.getElementById('plRows');
+  if(!packing.length){ wrap.innerHTML='<div class="pl-empty">No lines yet — add the items/containers being picked up.</div>'; renderTicket(); return; }
+  wrap.innerHTML='';
+  packing.forEach((row,i)=>{
+    const div=document.createElement('div'); div.className='pl-row';
+    div.innerHTML=`<input type="text" placeholder="e.g. Bankers boxes, HDD totes…" value="${row.desc.replace(/"/g,'&quot;')}" oninput="packing[${i}].desc=this.value;renderTicket()">
+      <input type="number" min="1" value="${row.qty}" oninput="packing[${i}].qty=this.value;renderTicket()">
+      <select onchange="packing[${i}].unit=this.value;renderTicket()">
+        ${['boxes','consoles','bins','drives','gaylords','drums','tubs','carts','pallets','tons','lbs','units'].map(u=>`<option${u===row.unit?' selected':''}>${u}</option>`).join('')}
+      </select>
+      <button class="pl-x" onclick="removePackLine(${i})" title="Remove">&times;</button>`;
+    wrap.appendChild(div);
+  });
+  renderTicket();
+}
+
+function setSchedType(st){
+  state.schedType=st;
+  document.querySelectorAll('#schedType button').forEach(b=>b.classList.toggle('on', b.dataset.st===st));
+  document.getElementById('oneTimeFields').classList.toggle('hidden', st!=='onetime');
+  document.getElementById('recurFields').classList.toggle('hidden', st!=='recurring');
+  document.getElementById('onCallFields').classList.toggle('hidden', st!=='oncall');
+  renderTicket();
+}
+function setPriority(p){
+  state.priority=p;
+  document.querySelectorAll('#priority button').forEach(b=>b.classList.toggle('on', b.dataset.p===p));
+  renderTicket();
+}
+function whenText(){
+  if(state.schedType==='oncall') return 'On-call / as needed';
+  if(state.schedType==='recurring'){
+    const f=document.getElementById('freq').value, d=document.getElementById('dow').value, s=document.getElementById('startDate').value;
+    return `${f} · ${d}${s?(' · from '+fmt(s)):''}`;
+  }
+  const dt=document.getElementById('reqDate').value, w=document.getElementById('window').value;
+  return `${dt?fmt(dt):'—'} · ${w}`;
+}
+function fmt(d){ if(!d) return ''; const p=d.split('-'); return `${p[1]}/${p[2]}/${p[0].slice(2)}`; }
+
+function svcSummary(){
+  const arr=SVC_ORDER.filter(k=>state.services.has(k));
+  if(!arr.length) return null;
+  return arr.map(k=>SERVICES[k].short+(detailText(k)?(' ('+detailText(k)+')'):'')).join(' · ');
+}
+function truckSummary(){ const arr=[...state.truckTypes]; return arr.length? arr.map(k=>TRUCK_TYPES[k].label).join(' · ') : null; }
+
+function renderTicket(){
+  const p=currentParty(), st=currentSite(), ct=currentContact();
+  const body=document.getElementById('ticketBody');
+  const special=document.getElementById('special')? document.getElementById('special').value.trim() : '';
+  const notes=document.getElementById('serviceNotes')? document.getElementById('serviceNotes').value.trim() : '';
+  const packCount=packing.filter(r=>r.desc).length;
+  const docCount=docs.service.length+docs.pack.length;
+  const rows=[
+    ['ti-user','Account', p?(p.name+(p.dba?(' ('+p.dba+')'):'')):null, p?state.ptype:null],
+    ['ti-map-pin','Site', st?(st.name+' · '+st.zone):null],
+    ['ti-address-book','Contact', ct?(ct.name+' · '+ct.phone):null],
+    ['ti-checkup-list','Services', svcSummary()],
+    ['ti-packages','Assets to service', state.assets.size? (state.assets.size+' selected'):null],
+    ['ti-note','Notes', notes||null],
+    ['ti-truck','Truck type', truckSummary()],
+    ['ti-calendar','When', whenText()],
+    ['ti-flag','Priority', state.priority],
+    ['ti-clipboard-list','Packing', packCount? (packCount+' line'+(packCount>1?'s':'')):null],
+    ['ti-paperclip','Documents', docCount? (docCount+' file'+(docCount>1?'s':'')):null],
+    ['ti-alert-hexagon','Special', special||null]
+  ];
+  let h='';
+  rows.forEach(r=>{
+    let tag='';
+    if(r[1]==='Account' && r[3]) tag=` <span class="pill ${r[3]==='customer'?'cust':'sup'}" style="margin-left:4px;">${r[3]}</span>`;
+    h+=`<div class="trow"><div class="tk"><i class="ti ${r[0]}"></i></div><div>
+      <div class="tt">${r[1]}</div>
+      <div class="tv ${r[2]?'':'empty'}">${r[2]?r[2]:'Not set'}${r[2]?tag:''}</div></div></div>`;
+  });
+  body.innerHTML=h;
+  const ready=p&&st&&ct&&state.services.size>0;
+  document.getElementById('sendBtn').disabled=!ready;
+}
+
+/* ---------------- Send ---------------- */
+function sendToDispatch(){
+  const p=currentParty(), st=currentSite(), ct=currentContact();
+  if(!(p&&st&&ct&&state.services.size>0)) return;
+  seq = window.DMS? parseInt(DMS.nextId('JOB').split('-')[1],10) : seq+1;
+  const services=SVC_ORDER.filter(k=>state.services.has(k)).map(k=>({svc:k, detail:detailText(k)}));
+  const special=document.getElementById('special').value.trim();
+  const job={
+    no:'JOB-'+seq, ptype:state.ptype, party:p.name, pid:p.id, site:st.name, zone:st.zone,
+    contact:ct.name, phone:ct.phone, services, truckTypes:[...state.truckTypes],
+    when: state.schedType==='recurring'? ('Next: '+whenText()) : whenText(),
+    priority:state.priority, recurring:state.schedType==='recurring', oncall:state.schedType==='oncall',
+    freq: state.schedType==='recurring'? document.getElementById('freq').value : '',
+    special, packing:packing.filter(r=>r.desc).length, docs:docs.service.length+docs.pack.length,
+    assets:state.assets.size, status:'unassigned', truck:null, driver:null
+  };
+  JOBS.unshift(job);
+  if(window.dmsPersistNewJob) dmsPersistNewJob(job);
+  updateBoardBadge();
+  const dest = state.schedType==='oncall' ? 'On-call list' : 'Dispatch';
+  toast(`${job.no} created for ${p.name} — ${services.length} service${services.length>1?'s':''} · added to ${dest}`, true);
+  resetForm();
+  setTimeout(()=>switchView('board'), 700);
+}
+function saveDraft(){ toast('Draft saved (preview only — nothing is persisted).', false); }
+
+function resetForm(){
+  state={ptype:'customer', schedType:'onetime', priority:'Standard', services:new Set(), truckTypes:new Set(), assets:new Set()};
+  packing=[]; docs={service:[],pack:[]};
+  setPartyType('customer');
+  document.getElementById('party').value=''; onPartyChange();
+  setSchedType('onetime'); setPriority('Standard');
+  ['reqDate','startDate','po','access','special','serviceNotes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('window').selectedIndex=0;
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('reqDate').value=today; document.getElementById('startDate').value=today;
+  renderPacking(); renderDocs();
+  document.getElementById('ticketNo').textContent='JOB-'+(seq+1);
+  renderTicket();
+}
+
+/* ---------------- Board ---------------- */
+function updateBoardBadge(){ document.getElementById('boardBadge').textContent=JOBS.filter(j=>j.status==='unassigned'&&!j.oncall).length; }
+function fillServiceFilter(){
+  const sel=document.getElementById('bSvc');
+  SVC_ORDER.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=SERVICES[k].label;sel.appendChild(o);});
+}
+function filteredJobs(){
+  const svc=document.getElementById('bSvc').value, zone=document.getElementById('bZone').value;
+  return JOBS.filter(j=>!j.oncall && (!svc||j.services.some(s=>s.svc===svc)) && (!zone||j.zone===zone));
+}
+function jobCardHTML(j){
+  const svcPills=j.services.map(s=>`<span class="pill"><i class="ti ${SERVICES[s.svc].icon}"></i> ${SERVICES[s.svc].short}</span>`).join('');
+  const tags=[];
+  tags.push(j.priority==='Rush'?'<span class="pill rush dot">Rush</span>':`<span class="pill">${j.priority}</span>`);
+  if(j.recurring) tags.push(`<span class="pill recur"><i class="ti ti-rotate-clockwise"></i> ${j.freq}</span>`);
+  (j.truckTypes||[]).forEach(t=>tags.push(`<span class="pill truck"><i class="ti ${TRUCK_TYPES[t].icon}"></i> ${TRUCK_TYPES[t].label.split(' ')[0]}</span>`));
+  tags.push(`<span class="pill ${j.ptype==='customer'?'cust':'sup'}">${j.ptype}</span>`);
+  if(j.assets) tags.push(`<span class="pill asset"><i class="ti ti-packages"></i> ${j.assets} asset${j.assets>1?'s':''}</span>`);
+  if(j.special) tags.push(`<span class="pill special" title="${j.special.replace(/"/g,'&quot;')}"><i class="ti ti-alert-hexagon"></i> Special</span>`);
+  if(j.packing) tags.push(`<span class="pill"><i class="ti ti-clipboard-list"></i> ${j.packing}</span>`);
+  if(j.docs) tags.push(`<span class="pill doc"><i class="ti ti-paperclip"></i> ${j.docs}</span>`);
+  const detailLine=j.services.map(s=>s.detail).filter(Boolean).join(' · ');
+  const actions=j.status==='unassigned'
+    ? `<button class="btn primary" onclick="openAssign('${j.no}')"><i class="ti ti-truck"></i> Assign</button>
+       <button class="btn" onclick="viewJob('${j.no}')">View</button>`
+    : `<button class="btn" onclick="unassign('${j.no}')"><i class="ti ti-arrow-back-up"></i> Unassign</button>
+       <button class="btn" onclick="viewJob('${j.no}')">View</button>`;
+  return `<div class="jobcard ${j.priority==='Rush'?'rush':''}">
+    <div class="jc-top"><span class="pill" style="font-size:10px;">${j.services.length} service${j.services.length>1?'s':''}</span><span class="jc-id">${j.no}</span></div>
+    <div class="jc-name">${j.party}</div>
+    <div class="jc-svcs">${svcPills}</div>
+    <div class="jc-meta">
+      <span><i class="ti ti-map-pin"></i> ${j.site} · ${j.zone}</span>
+      <span><i class="ti ti-user"></i> ${j.contact} · ${j.phone}</span>
+      ${detailLine?`<span><i class="ti ti-box"></i> ${detailLine}</span>`:''}
+      <span><i class="ti ti-clock"></i> ${j.when}</span>
+    </div>
+    <div class="jc-tags">${tags.join('')}</div>
+    <div class="jc-actions">${actions}</div>
+  </div>`;
+}
+function renderBoard(){
+  const jobs=filteredJobs();
+  const lanes=document.getElementById('lanes');
+  const unassigned=jobs.filter(j=>j.status==='unassigned');
+  let laneHTML=`<div class="lane unassigned">
+    <div class="lane-head"><div class="tk"><i class="ti ti-inbox"></i></div>
+      <div><div class="nm">Unassigned</div><div class="mt">Ready for dispatch</div></div>
+      <div class="n">${unassigned.length}</div></div>
+    <div class="lane-body">${unassigned.length?unassigned.map(jobCardHTML).join(''):'<div class="lane-empty">Nothing waiting — nice.</div>'}</div></div>`;
+  const laneTruckIds=[...new Set([...CORE_LANES, ...jobs.filter(j=>j.status==='assigned'&&j.truck).map(j=>j.truck)])];
+  laneTruckIds.forEach(tid=>{
+    const t=TRUCKS.find(x=>x.id===tid); if(!t) return;
+    const tj=jobs.filter(j=>j.status==='assigned'&&j.truck===t.id);
+    laneHTML+=`<div class="lane">
+      <div class="lane-head"><div class="tk"><i class="ti ti-truck"></i></div>
+        <div><div class="nm">${t.name.split('·')[0].trim()}</div><div class="mt">${t.name.split('·')[1].trim()}</div></div>
+        <div class="n">${tj.length}</div></div>
+      <div class="lane-body">${tj.length?tj.map(jobCardHTML).join(''):'<div class="lane-empty">No stops assigned</div>'}</div></div>`;
+  });
+  lanes.innerHTML=laneHTML;
+  document.getElementById('kUn').textContent=jobs.filter(j=>j.status==='unassigned').length;
+  document.getElementById('kAs').textContent=jobs.filter(j=>j.status==='assigned').length;
+  document.getElementById('kRush').textContent=jobs.filter(j=>j.priority==='Rush').length;
+  updateBoardBadge();
+}
+function viewJob(no){
+  const j=JOBS.find(x=>x.no===no);
+  const svcs=j.services.map(s=>SERVICES[s.svc].label+(s.detail?(' — '+s.detail):'')).join('  |  ');
+  toast(`${no}: ${svcs}${j.assets?('  ·  '+j.assets+' asset(s) to service'):''}${j.special?('  ·  Special: '+j.special):''}`, false);
+}
+
+/* ---------------- Assign ---------------- */
+let assignTarget=null;
+function openAssign(no){
+  assignTarget=JOBS.find(j=>j.no===no);
+  const svcKeys=assignTarget.services.map(s=>s.svc);
+  document.getElementById('assignSub').textContent=`${assignTarget.no} · ${assignTarget.party} · ${assignTarget.services.length} service(s)`;
+  const full=TRUCKS.filter(t=>svcKeys.every(k=>t.services.includes(k)));
+  const tsel=document.getElementById('aTruck'); tsel.innerHTML='';
+  const warn=document.getElementById('assignWarn');
+  const list=full.length?full:TRUCKS;
+  list.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name;tsel.appendChild(o);});
+  warn.innerHTML = full.length ? '' :
+    `<div class="modal-warn"><i class="ti ti-alert-triangle"></i><span>No single unit covers all ${assignTarget.services.length} services on this job — you may need to split it across trucks, or send a unit that covers part of it.</span></div>`;
+  const dsel=document.getElementById('aDriver'); dsel.innerHTML='';
+  DRIVERS.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;dsel.appendChild(o);});
+  document.getElementById('assignOverlay').classList.add('open');
+}
+function closeAssign(){ document.getElementById('assignOverlay').classList.remove('open'); assignTarget=null; }
+function confirmAssign(){
+  if(!assignTarget) return;
+  assignTarget.status='assigned';
+  assignTarget.truck=document.getElementById('aTruck').value;
+  assignTarget.driver=document.getElementById('aDriver').value;
+  const no=assignTarget.no, drv=assignTarget.driver;
+  if(window.dmsPersistAssign) dmsPersistAssign(assignTarget);
+  closeAssign(); renderBoard(); toast(`${no} assigned to ${drv}`, true);
+}
+function unassign(no){
+  const j=JOBS.find(x=>x.no===no); j.status='unassigned'; j.truck=null; j.driver=null;
+  if(window.dmsPersistUnassign) dmsPersistUnassign(j);
+  renderBoard(); toast(`${no} moved back to Unassigned`, false);
+}
+
+/* ---------------- Toast ---------------- */
+let toastT=null;
+function toast(msg, ok){
+  const t=document.getElementById('toast');
+  t.innerHTML=`<i class="ti ${ok?'ti-circle-check':'ti-info-circle'}"></i> ${msg}`;
+  t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), 3400);
+}
+
+/* ---------------- Init ---------------- */
+(function init(){
+  const today=new Date().toISOString().slice(0,10);
+  fillServiceFilter();
+  document.getElementById('reqDate').value=today;
+  document.getElementById('startDate').value=today;
+  document.getElementById('bDate').value=today;
+  document.getElementById('aDate').value=today;
+  document.getElementById('ticketNo').textContent='JOB-'+(seq+1);
+  setPartyType('customer'); renderPacking(); renderDocs(); updateBoardBadge(); renderTicket();
+})();
+
+/* === DMS WIRING — your screen, live on the verified database. Layout untouched. === */
+if(window.DMS){(function(){
+ const parties=DMS.get('parties'),sitesAll=DMS.get('sites'),ctsAll=DMS.get('contacts'),astAll=DMS.get('siteAssets');
+ function mapParty(p,kind){const ss=sitesAll.filter(s=>s.partyId===p.id).map(s=>({id:s.legacy||s.id,name:s.label,addr:s.street||'',city:s.city||'',zone:s.zone||'',hours:s.hoursText||'',access:s.access||'',contacts:ctsAll.filter(c=>c.partyId===p.id&&c.siteId===s.id).map(c=>({id:c.legacy||c.id,name:c.name,role:c.role||'',phone:c.cell||''})),assets:astAll.filter(a=>a.siteId===s.id).map(a=>({id:a.legacy||a.id,icon:a.icon||'ti-box',label:a.label,sub:a.sub||''}))}));return {id:(p.legacy&&p.legacy[0])||p.id,name:p.name,dba:p.dba||'',type:String((p.facets[kind]||{}).type||''),status:p.status,sites:ss};}
+ PARTIES.customer.length=0;PARTIES.supplier.length=0;
+ parties.forEach(p=>{if(p.facets.customer&&sitesAll.some(x=>x.partyId===p.id))PARTIES.customer.push(mapParty(p,'customer'));if(p.facets.supplier&&sitesAll.some(x=>x.partyId===p.id))PARTIES.supplier.push(mapParty(p,'supplier'));});
+ TRUCKS.length=0;DMS.get('trucks').forEach(t=>{const eq=DMS.byId('equipment',t.equipmentId);TRUCKS.push({id:t.id,name:t.name+(eq&&eq.status!=='In Service'?' · '+eq.status.toUpperCase():''),services:t.services});});
+ DRIVERS.length=0;DMS.get('drivers').forEach(d=>DRIVERS.push(d.name));
+ JOBS=DMS.get('jobs').map(j=>({no:j.no,ptype:j.ptype||'customer',party:j.party,pid:j.pid||j.partyId,site:j.site,zone:j.zone,contact:j.contact,phone:j.phone,services:j.services||[],truckTypes:j.truckTypes||[],when:j.when||'',priority:j.priority||'Standard',recurring:!!j.recurring,oncall:!!(j.oncall||j.schedType==='oncall'),freq:j.freq||'',special:j.special||'',packing:typeof j.packing==='number'?j.packing:((j.packing&&j.packing.length)||0),docs:typeof j.docs==='number'?j.docs:(((j.docs||{}).service||[]).length+(((j.docs||{}).pack||[]).length)),assets:typeof j.assets==='number'?j.assets:((j.assets&&j.assets.length)||0),status:(j.status==='in progress'||j.status==='completed')?'assigned':j.status,truck:j.truck||null,driver:j.driver||null,_id:j.id})).reverse();
+ window.dmsPersistNewJob=function(job){const p=parties.find(x=>(x.legacy||[]).includes(job.pid)||x.id===job.pid);const site=p?sitesAll.find(s=>s.partyId===p.id&&s.label===job.site):null;const ct=p?ctsAll.find(c=>c.partyId===p.id&&c.name===job.contact):null;DMS.add('jobs',Object.assign({},job,{id:job.no,partyId:p?p.id:null,siteId:site?site.id:null,contactId:ct?ct.id:null}));job._id=job.no;DMS.notify({kind:'sub',text:job.no+' created — '+job.party,refId:job.no});};
+ window.dmsPersistAssign=function(job){DMS.update('jobs',job._id||job.no,{status:'assigned',truck:job.truck,driver:job.driver});const d=DMS.get('drivers').find(x=>x.name===job.driver);DMS.add('assignments',{id:DMS.nextId('ASG'),jobNo:job.no,truck:job.truck,driverId:d?d.id:null,driver:job.driver,date:DMS.today,seq:DMS.get('assignments').filter(a=>a.date===DMS.today).length+1});DMS.notify({kind:'sub',text:job.no+' assigned → '+job.truck+' / '+job.driver,refId:job.no});};
+ window.dmsPersistUnassign=function(job){DMS.update('jobs',job._id||job.no,{status:'unassigned',truck:null,driver:null});DMS.put('assignments',DMS.get('assignments').filter(a=>a.jobNo!==job.no));};
+ try{resetForm();updateBoardBadge();}catch(e){}
+})();}
+
+/* v2 suite chrome */
+if(window.DMSUI){ DMSUI.topbar('p08_jobs.html'); DMSUI.footer(); }
+</script>
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

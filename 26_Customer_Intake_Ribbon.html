@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DMS ERP — New Customer (Ribbon)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14253D;--navy2:#1C3152;--navy3:#33486B;--gold:#B68A3A;--golddk:#9A7430;
+  --ink:#2E3338;--steel:#8C97A4;--pale:#F4F6F8;--line:#DDE3EA;--danger:#B3261E;
+  --dangerbg:#F6E3E1;--amberbg:#F5ECDC;--white:#fff;--ok:#1f6b3b;--okbg:#e7f1ea;
+  --radius:14px;--shadow:0 1px 3px rgba(20,37,61,.10),0 1px 2px rgba(20,37,61,.06);
+  --tap:52px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:var(--pale);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+button{font-family:inherit;cursor:pointer}
+.hide{display:none!important}
+
+/* ---------- Sticky header stack ---------- */
+.stick{position:sticky;top:0;z-index:40;background:var(--pale)}
+.topbar{display:flex;align-items:center;gap:12px;background:var(--navy);color:#fff;padding:10px 16px}
+.brand{font-size:19px;font-weight:800;letter-spacing:.5px}.brand .erp{color:var(--gold)}
+.crumb{font-size:11.5px;color:#9fb0c6;display:none}
+.topacts{margin-left:auto;display:flex;gap:8px}
+.tbtn{background:var(--gold);color:var(--navy);border:none;border-radius:9px;padding:9px 12px;font-weight:800;font-size:12.5px;min-height:40px}
+.tbtn.ghost{background:transparent;color:#fff;border:1px solid var(--navy3)}
+
+.headband{background:#fff;border-bottom:1px solid var(--line);padding:11px 16px}
+.headrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.headrow h1{font-size:19px;color:var(--navy);margin:0;font-weight:800}
+.chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em}
+.chip.code{background:var(--pale);color:var(--navy3);border:1px solid var(--line)}
+.chip.draft{background:var(--dangerbg);color:var(--danger)}
+.chip.ready{background:var(--okbg);color:var(--ok)}
+.progwrap{margin-top:10px;display:flex;align-items:center;gap:10px}
+.progbar{flex:1;height:9px;border-radius:999px;background:var(--line);overflow:hidden}
+.progfill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--golddk));transition:width .3s ease}
+.progpct{font-size:12px;font-weight:800;color:var(--navy);min-width:74px;text-align:right}
+
+/* ---------- Ribbon ---------- */
+.ribbonwrap{position:relative;background:#fff;border-bottom:1px solid var(--line)}
+.ribbon{display:flex;gap:9px;justify-content:safe center;overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;padding:8px 12px;scrollbar-width:none}
+.ribbon::-webkit-scrollbar{display:none}
+.rbtn{flex:0 0 auto;position:relative;width:82px;min-height:46px;border:1.5px solid var(--line);background:#fff;border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 5px;
+  color:var(--navy);font-weight:700;font-size:10px;text-align:center;line-height:1.1;transition:.15s;scroll-snap-align:start}
+.rbtn .ic{font-size:16px;line-height:1}
+.rbtn .lab{font-size:9.5px;font-weight:800}
+.rbtn .num{position:absolute;top:6px;left:8px;font-size:9.5px;font-weight:800;color:var(--steel)}
+.rbtn .dot{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--line);border:1px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.rbtn .dot.part{background:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.rbtn .dot.done{background:var(--ok);box-shadow:0 0 0 1px var(--ok)}
+.rbtn.active{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 4px 10px rgba(20,37,61,.22)}
+.rbtn.active .lab,.rbtn.active .num{color:#fff}
+.rbtn.active .num{color:#c7d2e2}
+.rbtn.active .dot{border-color:var(--navy);box-shadow:0 0 0 1px rgba(255,255,255,.4)}
+.ribfade{position:absolute;top:0;bottom:0;width:26px;pointer-events:none}
+.ribfade.l{left:0;background:linear-gradient(90deg,#fff,#fff0)}
+.ribfade.r{right:0;background:linear-gradient(270deg,#fff,#fff0)}
+
+/* ---------- Content ---------- */
+.main{max-width:900px;margin:0 auto;padding:16px 14px 120px}
+.sec{animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sechead{display:flex;align-items:center;gap:11px;margin:2px 0 4px}
+.sechead .bignum{background:var(--navy);color:#fff;border-radius:10px;width:38px;height:38px;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.sechead .st{font-size:18px;font-weight:800;color:var(--navy);line-height:1.15}
+.sechead .ss{font-size:12px;color:var(--steel);margin-top:1px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-top:14px}
+
+.field{margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.req{color:var(--danger)}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:11px;padding:13px 13px;font-size:16px;font-family:inherit;background:#fff;min-height:var(--tap)}
+textarea{min-height:96px;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(20,37,61,.08)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+input.ro{background:var(--pale);color:var(--steel)}
+input.good{border-color:var(--ok)}input.bad{border-color:var(--danger);background:#fdf6f5}
+.hint{font-size:11.5px;color:var(--steel);margin-top:6px}
+.err{color:var(--danger);font-size:12px;font-weight:700;margin-top:6px}
+.two{display:grid;gap:14px}
+@media(min-width:620px){.two{grid-template-columns:1fr 1fr}}
+
+.addbtn{width:100%;background:var(--pale);border:1.5px dashed var(--navy3);color:var(--navy);border-radius:12px;padding:14px;font-weight:800;font-size:14px;min-height:var(--tap);margin-top:12px}
+.addbtn:active{background:#fff}
+.addbtn.sm{width:auto;padding:11px 14px;font-size:13px;min-height:44px}
+.subcard{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;background:#fbfcfd}
+.subhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.subhead .t{font-weight:800;color:var(--navy);font-size:14px;display:flex;align-items:center;gap:7px}
+.rm{background:none;border:none;color:var(--danger);font-weight:800;font-size:13px;padding:8px;min-height:40px}
+.grouphd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 2px}
+.grouphd:first-child{margin-top:4px}
+.grouphd .gt{font-weight:800;color:var(--navy);font-size:15px;display:flex;align-items:center;gap:8px}
+.empty{font-size:13px;color:var(--steel);padding:10px 2px}
+
+.switch{display:flex;align-items:center;gap:10px;background:var(--pale);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;font-size:13.5px;color:var(--navy)}
+.switch input{width:auto;min-height:auto;transform:scale(1.35);margin:0}
+.chkline{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--ink);padding:8px 0}
+.chkline input{width:auto;min-height:auto;transform:scale(1.3);margin:0;flex:none}
+
+/* upload */
+.upload{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--navy3);border-radius:12px;padding:12px;background:var(--pale)}
+.upload .uic{font-size:20px}
+.upload .ut{flex:1;font-size:13px;font-weight:700;color:var(--navy)}
+.upload .ut small{display:block;font-weight:600;color:var(--steel);font-size:11.5px;margin-top:2px}
+.upload label.file{background:var(--navy);color:#fff;border-radius:9px;padding:10px 13px;font-weight:800;font-size:12.5px;min-height:42px;display:flex;align-items:center}
+.upload input[type=file]{display:none}
+.filepill{display:inline-flex;align-items:center;gap:6px;background:var(--okbg);color:var(--ok);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:800;margin-top:8px}
+
+/* status chips for docs */
+.stat{display:inline-block;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:800;text-transform:uppercase}
+.s-on{background:var(--okbg);color:var(--ok)}.s-miss{background:var(--dangerbg);color:var(--danger)}.s-exp{background:var(--amberbg);color:var(--golddk)}
+
+/* approval */
+.check{display:flex;align-items:center;gap:12px;font-size:14.5px;padding:11px 0;font-weight:600;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:none}
+.check .mark{width:26px;height:26px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff}
+.m-ok{background:var(--ok)}.m-no{background:var(--steel)}
+.check .go{margin-left:auto;background:#fff;border:1.5px solid var(--navy);color:var(--navy);border-radius:9px;padding:8px 11px;font-weight:800;font-size:12px;min-height:38px}
+.check.opt .mark{background:var(--gold)}
+.reqdoc{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700;color:var(--navy)}
+.reqdoc:last-child{border-bottom:none}
+.banner{border-radius:12px;padding:13px 15px;font-size:13.5px;font-weight:700;margin-bottom:6px}
+.banner.warn{background:var(--amberbg);color:var(--golddk);border-left:4px solid var(--gold)}
+.banner.ok{background:var(--okbg);color:var(--ok);border-left:4px solid var(--ok)}
+
+/* ---------- Bottom action bar ---------- */
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:45;background:#fff;border-top:1px solid var(--line);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;box-shadow:0 -3px 14px rgba(20,37,61,.08)}
+.navbtn{flex:0 0 auto;background:#fff;border:1.5px solid var(--line);color:var(--navy);border-radius:12px;min-height:var(--tap);padding:0 15px;font-weight:800;font-size:14px}
+.navbtn:disabled{opacity:.4}
+.navbtn.next{background:var(--navy);border-color:var(--navy);color:#fff;flex:1}
+.navbtn.save{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+.navbtn.submit{background:var(--ok);border-color:var(--ok);color:#fff;flex:1}
+.navbtn.submit:disabled{background:var(--steel);border-color:var(--steel)}
+
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:13px 20px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:var(--shadow);z-index:70;max-width:92vw}
+
+.demoTip{background:#fff;border:1px dashed var(--gold);border-radius:12px;padding:11px 14px;font-size:12.5px;color:var(--golddk);margin-top:14px}
+.demoTip b{color:var(--navy)}
+
+@media(min-width:720px){
+  .crumb{display:block}
+  .rbtn{width:96px;font-size:11px}
+  .headrow h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="stick">
+  <div class="topbar">
+    <div class="brand">DMS <span class="erp">ERP</span></div>
+    <div class="crumb">Sales &rsaquo; Customers &rsaquo; <b style="color:#fff">New</b></div>
+    <div class="topacts">
+      <button class="tbtn ghost" onclick="emailForm()">&#9993; Email form</button>
+    </div>
+  </div>
+
+  <div class="headband">
+    <div class="headrow">
+      <h1>New Customer</h1>
+      <span class="chip code" id="codeChip">CUST-000148</span>
+      <span class="chip draft" id="statusChip">Draft</span>
+    </div>
+    <div class="progwrap">
+      <div class="progbar"><div class="progfill" id="progFill"></div></div>
+      <div class="progpct" id="progPct">0% ready</div>
+    </div>
+  </div>
+
+  <div class="ribbonwrap">
+    <div class="ribbon" id="ribbon"></div>
+    <div class="ribfade l"></div><div class="ribfade r"></div>
+  </div>
+</div>
+
+<div class="main" id="main"></div>
+
+<div class="actionbar">
+  <button class="navbtn" id="backBtn" onclick="go(-1)">&#8249; Back</button>
+  <button class="navbtn save" onclick="saveDraft()">Save</button>
+  <button class="navbtn next" id="nextBtn" onclick="go(1)">Next &#8250;</button>
+</div>
+
+<div id="toastWrap"></div>
+
+<script>
+/* ============ CONFIG ============ */
+var SECTIONS=[
+ {key:'identity',  n:1, ic:'🏢', lab:'Customer Identity'},
+ {key:'billing',   n:2, ic:'🏦', lab:'Billing & Terms'},
+ {key:'contacts',  n:3, ic:'📇', lab:'Contacts'},
+ {key:'sites',     n:4, ic:'📍', lab:'Service Sites'},
+ {key:'services',  n:5, ic:'🗂️', lab:'Services'},
+ {key:'compliance',n:6, ic:'🛡️', lab:'Compliance & Docs'},
+ {key:'notes',     n:7, ic:'📝', lab:'Notes'},
+ {key:'approval',  n:8, ic:'✅', lab:'Approval'}
+];
+var SUB={identity:'Who the customer is and how they are classified.',
+ billing:'How this account is billed, its terms and credit.',
+ contacts:'People you deal with at this customer. At least one is required.',
+ sites:'Locations DMS services for this customer. At least one is required.',
+ services:'What DMS does for this customer and how often.',
+ compliance:'Regulatory drivers, the signed service agreement and documents.',
+ notes:'Special instructions and internal staff notes.',
+ approval:'Everything needed before this customer account can go active.'};
+
+var CUSTOMER_TYPES=[
+ {id:'maquiladora',label:'Maquiladora / IMMEX plant'},
+ {id:'healthcare', label:'Healthcare / hospital'},
+ {id:'financial',  label:'Financial institution'},
+ {id:'legal',      label:'Legal / professional services'},
+ {id:'government', label:'Government agency'},
+ {id:'other',      label:'Other commercial'}
+];
+var PRIMARY_OPS=['Manufacturing','Assembly','Logistics','Warehouse','Distribution','Administrative','Other'];
+var SITE_TYPES=['Plant','Branch','Corporate office','Warehouse','Data center','Clinic','Lab','Other'];
+var SERVICES=['Shredding — recurring route','One-time purge / cleanout','Hard-drive & media destruction','Scanning & digitization','Product destruction','Other'];
+var FREQ=['—','Weekly','Bi-weekly','Every 4 weeks','Monthly','Quarterly','On-call'];
+var TERMS=['Prepaid','Net 15','Net 30','Net 45','Net 60'];
+var METHODS=['','Direct deposit / ACH','Check','Credit card','Cash','Other'];
+var ENTITY_TYPES=['S.A. de C.V.','S. de R.L. de C.V.','Persona Física','LLC','Corporation','Other'];
+var DOC_TYPES=['RFC / Constancia de Situación Fiscal','Insurance certificate (COI)','Site access authorization','Purchase order / contract','Other'];
+
+/* ============ STATE ============ */
+var S=load()||{
+  identity:{ctype:'maquiladora',legalName:'',dbaName:'',rfc:'',website:'',parent:'',primaryOp:'Manufacturing',tags:''},
+  billing:{terms:'Net 30',currency:'MXN',method:'',creditLimit:'',creditDecision:'Pending review',entityType:'S.A. de C.V.',usoCfdi:'',billEmail:'',billPhone:'',billAddress:''},
+  contacts:[],
+  sites:[],
+  services:[],
+  compliance:{drivers:{lfpdppp:false,nom024:false,cnbv:false,sat:false},codRequired:false,agreementFile:'',ndaFile:'',docs:[]},
+  notes:{special:'',internal:''}
+};
+var cur='identity';
+var ids={c:0,st:0,sv:0,doc:0};
+
+/* ============ HELPERS ============ */
+function esc(s){return (s==null?'':''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function $(id){return document.getElementById(id);}
+function setPath(path,v){var p=path.split('.');var o=S;for(var i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=v;}
+function set(path,v){setPath(path,v);refresh();}     /* full re-render: selects + toggles */
+function setL(path,v){setPath(path,v);refresh(true);} /* light: text inputs, preserves caret */
+function validRfc(r){r=(r||'').toUpperCase().trim();return /^[A-ZÑ&]{3,4}[0-9]{6}[A-Z0-9]{2,3}$/.test(r)&&r.length>=12;}
+function contactOk(){return S.contacts.some(function(c){return c.name&&c.name.trim();});}
+function siteOk(){return S.sites.some(function(s){return s.label&&s.label.trim();});}
+function serviceOk(){return S.services.some(function(s){return s.type;});}
+function billingOk(){return !!S.billing.terms && !!S.billing.method;}
+function agreementOk(){return !!S.compliance.agreementFile;}
+
+/* section completion: returns 'done' | 'part' | 'empty' */
+function status(key){
+  switch(key){
+    case 'identity': if(S.identity.legalName&&validRfc(S.identity.rfc))return 'done'; if(S.identity.legalName||S.identity.rfc)return 'part'; return 'empty';
+    case 'billing': if(billingOk())return 'done'; if(S.billing.method||S.billing.billEmail||S.billing.creditLimit)return 'part'; return 'empty';
+    case 'contacts': if(contactOk())return 'done'; return S.contacts.length?'part':'empty';
+    case 'sites': if(siteOk())return 'done'; return S.sites.length?'part':'empty';
+    case 'services': if(serviceOk())return 'done'; return S.services.length?'part':'empty';
+    case 'compliance': if(agreementOk())return 'done'; if(S.compliance.docs.length||S.compliance.ndaFile||anyDriver())return 'part'; return 'empty';
+    case 'notes': return (S.notes.special||S.notes.internal)?'done':'empty';
+    case 'approval': return approvalReady()?'done':'part';
+  }
+  return 'empty';
+}
+function anyDriver(){var d=S.compliance.drivers;return d.lfpdppp||d.nom024||d.cnbv||d.sat;}
+function typeLabel(id){var t=CUSTOMER_TYPES.filter(function(x){return x.id===id;})[0];return t?t.label:id;}
+function reqItems(){
+  return [
+    {t:'Legal name entered', ok:!!(S.identity.legalName&&S.identity.legalName.trim()), go:'identity', req:true},
+    {t:'RFC (Tax ID) valid', ok:validRfc(S.identity.rfc), go:'identity', req:true},
+    {t:'Billing terms & method set', ok:billingOk(), go:'billing', req:true},
+    {t:'At least one contact', ok:contactOk(), go:'contacts', req:true},
+    {t:'At least one service site', ok:siteOk(), go:'sites', req:true},
+    {t:'At least one service selected', ok:serviceOk(), go:'services', req:true},
+    {t:'Signed service agreement on file', ok:agreementOk(), go:'compliance', req:true},
+    {t:'Regulatory driver noted (recommended)', ok:anyDriver(), go:'compliance', req:false}
+  ];
+}
+function approvalReady(){return reqItems().every(function(i){return !i.req||i.ok;});}
+function readyPct(){var r=reqItems().filter(function(i){return i.req;});var m=r.filter(function(i){return i.ok;}).length;return Math.round(m/r.length*100);}
+
+/* ============ RIBBON ============ */
+function renderRibbon(){
+  $('ribbon').innerHTML=SECTIONS.map(function(s){
+    var st=status(s.key);
+    return '<button class="rbtn'+(cur===s.key?' active':'')+'" onclick="show(\''+s.key+'\')">'+
+      '<span class="num">'+s.n+'</span>'+
+      '<span class="dot '+st+'"></span>'+
+      '<span class="ic">'+s.ic+'</span>'+
+      '<span class="lab">'+esc(s.lab)+'</span></button>';
+  }).join('');
+  var a=$('ribbon').querySelector('.rbtn.active');
+  if(a)a.scrollIntoView({inline:'center',block:'nearest'});
+}
+
+/* ============ SECTION RENDERERS ============ */
+function head(s){return '<div class="sechead"><div class="bignum">'+s.n+'</div><div><div class="st">'+esc(s.lab)+'</div><div class="ss">'+esc(SUB[s.key])+'</div></div></div>';}
+
+function renderMain(){
+  var s=SECTIONS.filter(function(x){return x.key===cur;})[0];
+  var html=head(s)+'<div class="sec">';
+  html+=({identity:secIdentity,billing:secBilling,contacts:secContacts,sites:secSites,services:secServices,compliance:secCompliance,notes:secNotes,approval:secApproval}[cur])();
+  html+='</div>';
+  $('main').innerHTML=html;
+  var idx=SECTIONS.indexOf(s);
+  $('backBtn').disabled=idx===0;
+  if(cur==='approval'){
+    $('nextBtn').className='navbtn submit';$('nextBtn').innerHTML='Submit for approval';
+    $('nextBtn').disabled=!approvalReady();$('nextBtn').onclick=submitApproval;
+  }else{
+    $('nextBtn').className='navbtn next';$('nextBtn').innerHTML='Next &#8250;';
+    $('nextBtn').disabled=false;$('nextBtn').onclick=function(){go(1);};
+  }
+}
+
+function secIdentity(){
+  var i=S.identity;
+  return '<div class="card">'+
+   '<div class="two"><div class="field"><label>Customer code</label><input class="ro" value="CUST-000148" readonly></div>'+
+   '<div class="field"><label>Status</label><input class="ro" value="Draft — complete checklist" readonly></div></div>'+
+   '<div class="field"><label>Customer type <span class="req">*</span></label><select onchange="set(\'identity.ctype\',this.value)">'+CUSTOMER_TYPES.map(function(t){return '<option value="'+t.id+'" '+(i.ctype===t.id?'selected':'')+'>'+esc(t.label)+'</option>';}).join('')+'</select></div>'+
+   '<div class="field"><label>Legal name <span class="req">*</span></label><input value="'+esc(i.legalName)+'" oninput="setL(\'identity.legalName\',this.value)" placeholder="e.g. Maquiladora Acme S.A. de C.V.">'+
+   (i.legalName?'':'<div class="hint">Required.</div>')+'</div>'+
+   '<div class="field"><label>Commercial / DBA name</label><input value="'+esc(i.dbaName)+'" oninput="setL(\'identity.dbaName\',this.value)" placeholder="e.g. Acme Tijuana"></div>'+
+   '<div class="field"><label>RFC (Tax ID)</label><input maxlength="13" class="'+(i.rfc?(validRfc(i.rfc)?'good':'bad'):'')+'" value="'+esc(i.rfc)+'" oninput="setL(\'identity.rfc\',this.value.toUpperCase())" placeholder="ABC010101AB1">'+
+   '<div class="'+(i.rfc&&!validRfc(i.rfc)?'err':'hint')+'">'+(i.rfc&&!validRfc(i.rfc)?'Check RFC format (12–13 chars).':'12–13 characters, format checked, duplicates blocked.')+'</div></div>'+
+   '<div class="two"><div class="field"><label>Website</label><input value="'+esc(i.website)+'" oninput="setL(\'identity.website\',this.value)" placeholder="acme.mx"></div>'+
+   '<div class="field"><label>Parent / corporate entity</label><input value="'+esc(i.parent)+'" oninput="setL(\'identity.parent\',this.value)" placeholder="Optional"></div></div>'+
+   '<div class="two"><div class="field"><label>Primary operation</label><select onchange="set(\'identity.primaryOp\',this.value)">'+PRIMARY_OPS.map(function(o){return '<option '+(i.primaryOp===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+   '<div class="field"><label>Tags</label><input value="'+esc(i.tags)+'" oninput="setL(\'identity.tags\',this.value)" placeholder="comma, separated"></div></div>'+
+   '</div>';
+}
+
+function secBilling(){
+  var b=S.billing;
+  return '<div class="card">'+
+   '<div class="two"><div class="field"><label>Payment terms</label><select onchange="set(\'billing.terms\',this.value)">'+TERMS.map(function(o){return '<option '+(b.terms===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+   '<div class="field"><label>Currency</label><select onchange="set(\'billing.currency\',this.value)"><option '+(b.currency==='MXN'?'selected':'')+'>MXN</option><option '+(b.currency==='USD'?'selected':'')+'>USD</option></select></div></div>'+
+   '<div class="field"><label>Payment method</label><select onchange="set(\'billing.method\',this.value)">'+METHODS.map(function(o){return '<option value="'+esc(o)+'" '+(b.method===o?'selected':'')+'>'+(o||'-- select --')+'</option>';}).join('')+'</select></div>'+
+   '<div class="two"><div class="field"><label>Credit limit requested</label><input inputmode="numeric" value="'+esc(b.creditLimit)+'" oninput="setL(\'billing.creditLimit\',this.value)" placeholder="e.g. 250,000"></div>'+
+   '<div class="field"><label>Credit decision</label><select onchange="set(\'billing.creditDecision\',this.value)">'+['Pending review','Approved','Declined','More information needed'].map(function(o){return '<option '+(b.creditDecision===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div></div>'+
+   '<div class="two"><div class="field"><label>Entity type</label><select onchange="set(\'billing.entityType\',this.value)">'+ENTITY_TYPES.map(function(o){return '<option '+(b.entityType===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+   '<div class="field"><label>Uso de CFDI</label><input value="'+esc(b.usoCfdi)+'" oninput="setL(\'billing.usoCfdi\',this.value)" placeholder="e.g. G03 — Gastos en general"></div></div>'+
+   '<div class="two"><div class="field"><label>Billing email</label><input inputmode="email" value="'+esc(b.billEmail)+'" oninput="setL(\'billing.billEmail\',this.value)" placeholder="billing@example.com"></div>'+
+   '<div class="field"><label>Billing phone</label><input inputmode="tel" value="'+esc(b.billPhone)+'" oninput="setL(\'billing.billPhone\',this.value)"></div></div>'+
+   '<div class="field"><label>Billing address</label><input value="'+esc(b.billAddress)+'" oninput="setL(\'billing.billAddress\',this.value)" placeholder="Street, city, state, postal code"></div>'+
+   '</div>';
+}
+
+function secContacts(){
+  return '<div class="card">'+(S.contacts.length?S.contacts.map(contactCard).join(''):'<div class="empty">No contacts yet — at least one is required for approval.</div>')+
+    '<button class="addbtn" onclick="addContact()">+ Add contact</button></div>';
+}
+function contactCard(c){return '<div class="subcard"><div class="subhead"><span class="t">👤 '+(c.name?esc(c.name):'Contact')+'</span><button class="rm" onclick="rmContact('+c.id+')">✕ Remove</button></div>'+
+  '<div class="field"><label>Name <span class="req">*</span></label><input value="'+esc(c.name)+'" oninput="setContact('+c.id+',\'name\',this.value)"></div>'+
+  '<div class="two"><div class="field"><label>Role / title</label><input value="'+esc(c.role)+'" oninput="setContact('+c.id+',\'role\',this.value)" placeholder="e.g. Facilities manager"></div>'+
+  '<div class="field"><label>Phone</label><input inputmode="tel" value="'+esc(c.phone)+'" oninput="setContact('+c.id+',\'phone\',this.value)"></div></div>'+
+  '<div class="two"><div class="field"><label>Mobile / WhatsApp</label><input inputmode="tel" value="'+esc(c.mobile)+'" oninput="setContact('+c.id+',\'mobile\',this.value)"></div>'+
+  '<div class="field"><label>Email</label><input inputmode="email" value="'+esc(c.email)+'" oninput="setContact('+c.id+',\'email\',this.value)"></div></div>'+
+  '<label class="chkline"><input type="checkbox" '+(c.primary?'checked':'')+' onchange="setContact('+c.id+',\'primary\',this.checked)"> Primary contact</label></div>';}
+
+function secSites(){
+  return '<div class="card">'+(S.sites.length?S.sites.map(siteCard).join(''):'<div class="empty">No service sites yet — at least one is required for approval.</div>')+
+    '<button class="addbtn" onclick="addSite()">+ Add service site</button></div>';
+}
+function siteCard(s){return '<div class="subcard"><div class="subhead"><span class="t">📍 '+(s.label?esc(s.label):'Service site')+'</span><button class="rm" onclick="rmSite('+s.id+')">✕ Remove</button></div>'+
+  '<div class="two"><div class="field"><label>Site label <span class="req">*</span></label><input value="'+esc(s.label)+'" oninput="setSite('+s.id+',\'label\',this.value)" placeholder="e.g. Plant 1"></div>'+
+  '<div class="field"><label>Site type</label><select onchange="setSite('+s.id+',\'stype\',this.value)">'+SITE_TYPES.map(function(o){return '<option '+(s.stype===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div></div>'+
+  '<div class="field"><label>Address</label><input value="'+esc(s.address)+'" oninput="setSite('+s.id+',\'address\',this.value)" placeholder="Street, city, state, postal code"></div>'+
+  '<div class="two"><div class="field"><label>Service zone / route</label><input value="'+esc(s.zone)+'" oninput="setSite('+s.id+',\'zone\',this.value)" placeholder="Route zone or territory"></div>'+
+  '<div class="field"><label>Access hours</label><input value="'+esc(s.hours)+'" oninput="setSite('+s.id+',\'hours\',this.value)" placeholder="e.g. Mon–Fri 8–5, dock B"></div></div>'+
+  '<div class="two"><div class="field"><label>On-site contact</label><input value="'+esc(s.contact)+'" oninput="setSite('+s.id+',\'contact\',this.value)"></div>'+
+  '<div class="field"><label>On-site phone</label><input inputmode="tel" value="'+esc(s.phone)+'" oninput="setSite('+s.id+',\'phone\',this.value)"></div></div></div>';}
+
+function secServices(){
+  return '<div class="card">'+(S.services.length?S.services.map(serviceCard).join(''):'<div class="empty">No services yet — add at least one for approval.</div>')+
+    '<button class="addbtn" onclick="addService()">+ Add service</button></div>';
+}
+function serviceCard(s){return '<div class="subcard"><div class="subhead"><span class="t">🗂️ '+esc(s.type||'Service')+'</span><button class="rm" onclick="rmService('+s.id+')">✕ Remove</button></div>'+
+  '<div class="field"><label>Service</label><select onchange="setService('+s.id+',\'type\',this.value)">'+SERVICES.map(function(o){return '<option '+(s.type===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+  '<div class="two"><div class="field"><label>Frequency</label><select onchange="setService('+s.id+',\'freq\',this.value)">'+FREQ.map(function(o){return '<option '+(s.freq===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+  '<div class="field"><label>Containers / qty</label><input value="'+esc(s.containers)+'" oninput="setService('+s.id+',\'containers\',this.value)" placeholder="e.g. 6× 96-gal bins"></div></div>'+
+  '<div class="field"><label>Applies to site(s)</label><input value="'+esc(s.site)+'" oninput="setService('+s.id+',\'site\',this.value)" placeholder="e.g. All sites, or Plant 1"></div></div>';}
+
+function secCompliance(){
+  var c=S.compliance,d=c.docs;
+  var h='<div class="banner '+(agreementOk()?'ok':'warn')+'">'+(agreementOk()?'✓ Signed service agreement is on file.':'⚠ A signed service agreement is required for approval.')+'</div>';
+  h+='<div class="card"><div class="grouphd" style="margin-top:0"><span class="gt">🛡️ Regulatory drivers</span></div>'+
+    '<div class="hint" style="margin-bottom:4px">Which rules make DMS a compliance necessity for this account.</div>'+
+    '<label class="chkline"><input type="checkbox" '+(c.drivers.lfpdppp?'checked':'')+' onchange="set(\'compliance.drivers.lfpdppp\',this.checked)"> LFPDPPP — personal-data protection</label>'+
+    '<label class="chkline"><input type="checkbox" '+(c.drivers.nom024?'checked':'')+' onchange="set(\'compliance.drivers.nom024\',this.checked)"> NOM-024-SSA3 — health records</label>'+
+    '<label class="chkline"><input type="checkbox" '+(c.drivers.cnbv?'checked':'')+' onchange="set(\'compliance.drivers.cnbv\',this.checked)"> CNBV — financial sector</label>'+
+    '<label class="chkline"><input type="checkbox" '+(c.drivers.sat?'checked':'')+' onchange="set(\'compliance.drivers.sat\',this.checked)"> SAT — tax record retention</label>'+
+    '<label class="chkline"><input type="checkbox" '+(c.codRequired?'checked':'')+' onchange="set(\'compliance.codRequired\',this.checked)"> Certificate of Destruction required each service</label></div>';
+
+  h+='<div class="card">'+
+    '<div class="field"><label>Signed service agreement / MSA <span class="req">*</span></label>'+
+    '<div class="upload"><span class="uic">📎</span><span class="ut">Upload agreement (PDF)<small>Required for approval</small></span>'+
+    '<label class="file">Choose<input type="file" accept="application/pdf,image/*" onchange="setAgreement(this)"></label></div>'+
+    (c.agreementFile?'<div class="filepill">✓ '+esc(c.agreementFile)+'</div>':'')+'</div>'+
+    '<div class="field"><label>NDA / confidentiality on file</label>'+
+    '<div class="upload"><span class="uic">📎</span><span class="ut">Upload NDA (optional)<small>Recommended for regulated accounts</small></span>'+
+    '<label class="file">Choose<input type="file" accept="application/pdf,image/*" onchange="setNda(this)"></label></div>'+
+    (c.ndaFile?'<div class="filepill">✓ '+esc(c.ndaFile)+'</div>':'')+'</div></div>';
+
+  h+='<div class="grouphd"><span class="gt">📄 Other documents</span><button class="addbtn sm" onclick="addDoc()">+ Add</button></div>';
+  h+=d.length?d.map(docCard).join(''):'<div class="empty">RFC / Constancia, insurance, site authorizations, etc.</div>';
+  return h;
+}
+function docStatus(d){if(!d.file)return '<span class="stat s-miss">Missing</span>';if(d.exp&&d.exp<today())return '<span class="stat s-exp">Expired</span>';return '<span class="stat s-on">On file</span>';}
+function docCard(d){return '<div class="subcard"><div class="subhead"><span class="t">📄 '+esc(d.type)+'</span><button class="rm" onclick="rmDoc('+d.id+')">✕ Remove</button></div>'+
+  '<div class="field"><label>Document type</label><select onchange="setDoc('+d.id+',\'type\',this.value)">'+DOC_TYPES.map(function(o){return '<option '+(d.type===o?'selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'+
+  '<div class="field"><label>File</label><div class="upload"><span class="uic">📎</span><span class="ut">Upload document<small>'+docStatus(d)+'</small></span>'+
+  '<label class="file">Choose<input type="file" accept="application/pdf,image/*" onchange="setDocFile('+d.id+',this)"></label></div>'+
+  (d.file?'<div class="filepill">✓ '+esc(d.file)+'</div>':'')+'</div>'+
+  '<div class="two"><div class="field"><label>Issue date</label><input type="date" value="'+esc(d.iss)+'" oninput="setDoc('+d.id+',\'iss\',this.value)"></div>'+
+  '<div class="field"><label>Expiry date</label><input type="date" value="'+esc(d.exp)+'" oninput="setDoc('+d.id+',\'exp\',this.value)"></div></div></div>';}
+
+function secNotes(){
+  var n=S.notes;
+  return '<div class="card">'+
+   '<div class="field"><label>Special instructions</label><textarea oninput="setL(\'notes.special\',this.value)" placeholder="Access windows, gate codes, badging, PO requirements...">'+esc(n.special)+'</textarea></div>'+
+   '<div class="field"><label>Internal notes (staff only)</label><textarea oninput="setL(\'notes.internal\',this.value)" placeholder="Not shown to the customer.">'+esc(n.internal)+'</textarea></div></div>';
+}
+
+function secApproval(){
+  var items=reqItems();
+  var h='<div class="banner '+(approvalReady()?'ok':'warn')+'">'+
+    (approvalReady()?'✓ All required items complete — ready to submit.':'⚠ '+items.filter(function(i){return i.req&&!i.ok;}).length+' required item(s) still needed.')+'</div>';
+  h+='<div class="card"><div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin-bottom:6px">Approval checklist</div>';
+  h+=items.map(function(i){
+    return '<div class="check'+(!i.req?' opt':'')+'"><span class="mark '+(i.ok?'m-ok':'m-no')+'">'+(i.ok?'✓':'✕')+'</span>'+
+      '<span>'+esc(i.t)+(i.req?'':' <small style="color:var(--steel);font-weight:700">(optional)</small>')+'</span>'+
+      (i.ok?'':'<button class="go" onclick="show(\''+i.go+'\')">Fix</button>')+'</div>';
+  }).join('');
+  h+='</div>';
+  h+='<div class="card"><div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin-bottom:4px">Account summary</div>'+
+    '<div class="reqdoc"><span>Customer type</span><span class="stat s-on">'+esc(typeLabel(S.identity.ctype))+'</span></div>'+
+    '<div class="reqdoc"><span>Service sites</span><span class="stat '+(siteOk()?'s-on':'s-miss')+'">'+S.sites.length+'</span></div>'+
+    '<div class="reqdoc"><span>Services</span><span class="stat '+(serviceOk()?'s-on':'s-miss')+'">'+S.services.length+'</span></div>'+
+    '<div class="reqdoc"><span>Signed service agreement</span>'+(agreementOk()?'<span class="stat s-on">On file</span>':'<span class="stat s-miss">Missing</span>')+'</div></div>';
+  h+='<div class="demoTip">A Draft customer can be saved anytime, but the account cannot go active until approved.</div>';
+  return h;
+}
+
+/* ============ MUTATIONS ============ */
+function addContact(){S.contacts.push({id:++ids.c,name:'',role:'',phone:'',mobile:'',email:'',primary:S.contacts.length===0});refresh();}
+function setContact(id,k,v){find(S.contacts,id)[k]=v;refresh(true);}
+function rmContact(id){S.contacts=S.contacts.filter(function(x){return x.id!==id;});refresh();}
+
+function addSite(){S.sites.push({id:++ids.st,label:'',stype:'Plant',address:'',zone:'',hours:'',contact:'',phone:''});refresh();}
+function setSite(id,k,v){find(S.sites,id)[k]=v;refresh(true);}
+function rmSite(id){S.sites=S.sites.filter(function(x){return x.id!==id;});refresh();}
+
+function addService(){S.services.push({id:++ids.sv,type:'Shredding — recurring route',freq:'Weekly',containers:'',site:''});refresh();}
+function setService(id,k,v){find(S.services,id)[k]=v;refresh(true);}
+function rmService(id){S.services=S.services.filter(function(x){return x.id!==id;});refresh();}
+
+function addDoc(){S.compliance.docs.push({id:++ids.doc,type:'RFC / Constancia de Situación Fiscal',file:'',iss:'',exp:''});refresh();}
+function setDoc(id,k,v){find(S.compliance.docs,id)[k]=v;refresh(true);}
+function setDocFile(id,el){find(S.compliance.docs,id).file=el.files&&el.files[0]?el.files[0].name:'';refresh();}
+function rmDoc(id){S.compliance.docs=S.compliance.docs.filter(function(x){return x.id!==id;});refresh();}
+function setAgreement(el){S.compliance.agreementFile=el.files&&el.files[0]?el.files[0].name:'';refresh();}
+function setNda(el){S.compliance.ndaFile=el.files&&el.files[0]?el.files[0].name:'';refresh();}
+
+function find(arr,id){return arr.filter(function(x){return x.id===id;})[0];}
+
+/* ============ NAV / REFRESH ============ */
+function show(key){cur=key;window.scrollTo({top:0,behavior:'smooth'});renderMain();renderRibbon();}
+function go(dir){var idx=SECTIONS.map(function(s){return s.key;}).indexOf(cur)+dir;if(idx<0||idx>=SECTIONS.length)return;show(SECTIONS[idx].key);}
+
+/* refresh(): default full re-render of the current section (add/remove/toggle/select).
+   refresh(true): light — update ribbon + progress + save only, no section re-render (preserves text caret). */
+function refresh(light){
+  if(!light) renderMain();
+  updateProgress();renderRibbon();save();
+  if(light && cur==='approval') renderMain();
+}
+function updateProgress(){
+  var pct=readyPct();
+  $('progFill').style.width=pct+'%';
+  $('progPct').textContent=pct+'% ready';
+  var ready=approvalReady();
+  $('statusChip').className='chip '+(ready?'ready':'draft');
+  $('statusChip').textContent=ready?'Ready':'Draft';
+}
+
+/* ============ ACTIONS ============ */
+function saveDraft(){save();toast('Draft saved on this device.');}
+function submitApproval(){if(!approvalReady()){show('approval');return;}toast('✓ Submitted for approval.');}
+function emailForm(){toast('Customer self-service form link copied (demo).');}
+function toast(m){var t=document.createElement('div');t.className='toast';t.textContent=m;$('toastWrap').appendChild(t);setTimeout(function(){t.remove();},2400);}
+
+/* ============ PERSISTENCE ============ */
+function save(){try{localStorage.setItem('dmssbx-customer_ribbon',JSON.stringify(S));}catch(e){}}
+function load(){try{var r=localStorage.getItem('dmssbx-customer_ribbon');if(!r)return null;return JSON.parse(r);}catch(e){return null;}}
+function today(){var d=new Date();return d.toISOString().slice(0,10);}
+
+/* seed id counters from any loaded data */
+(function seed(){
+  ids.c=Math.max(0,...S.contacts.map(function(x){return x.id;}),0);
+  ids.st=Math.max(0,...S.sites.map(function(x){return x.id;}),0);
+  ids.sv=Math.max(0,...S.services.map(function(x){return x.id;}),0);
+  ids.doc=Math.max(0,...S.compliance.docs.map(function(x){return x.id;}),0);
+})();
+
+/* ============ INIT ============ */
+renderRibbon();renderMain();updateProgress();
+</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

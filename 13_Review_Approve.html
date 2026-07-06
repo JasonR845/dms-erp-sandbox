@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS ERP — Review & Approve</title>
+<style>
+:root{--navy:#14253D;--navy2:#1B3050;--navy3:#27425F;--gold:#B68A3A;--golddk:#9A7430;--ink:#2E3338;--steel:#8C97A4;--pale:#F4F6F8;--line:#DDE3EA;--danger:#B3261E;--dangerbg:#F6E3E1;--amberbg:#EAD9B4;--white:#fff;--ok:#1F6B3B;--okbg:#D7DCE1;--radius:12px;--shadow:0 1px 3px rgba(20,37,61,.10),0 1px 2px rgba(20,37,61,.06);}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:var(--pale);font-size:14px;line-height:1.45}
+button{font-family:'Inter',Arial,Helvetica,sans-serif;cursor:pointer}.hide{display:none!important}
+.topbar{display:flex;align-items:center;gap:14px;background:var(--navy);color:#fff;padding:9px 18px;position:sticky;top:0;z-index:30;flex-wrap:wrap}
+.brand{font-size:20px;font-weight:800}.brand .erp{color:var(--gold)}
+.topbar .crumb{font-size:12px;color:#aebacb}.topbar .acts{margin-left:auto;display:flex;gap:8px;align-items:center}
+.topbar label{font-size:11px;color:#aebacb;font-weight:700}
+.sel{background:var(--navy2);color:#fff;border:1px solid var(--navy3);border-radius:9px;padding:7px 10px;font-weight:700;font-size:12.5px}
+.wrap{display:grid;grid-template-columns:1fr 340px;gap:22px;max-width:1140px;margin:0 auto;padding:22px}
+@media(max-width:920px){.wrap{grid-template-columns:1fr}}
+h1{font-size:21px;color:var(--navy);margin:0}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.fsec{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--navy);font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fsec .hint{text-transform:none;letter-spacing:0;font-size:11px;color:var(--steel);font-weight:600}
+.badgeS{display:inline-block;border-radius:999px;padding:2px 10px;font-size:10.5px;font-weight:800;text-transform:uppercase}
+.b-pend{background:var(--amberbg);color:var(--golddk)}.b-appr{background:var(--okbg);color:var(--ok)}.b-rej{background:var(--dangerbg);color:var(--danger)}.b-ret{background:#e3e9f2;color:var(--navy)}
+.b-type{background:var(--navy);color:#fff}
+.reqhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.meta{font-size:12px;color:var(--steel);margin-top:6px}
+.bigask{background:#eef2f7;border-left:4px solid var(--navy);border-radius:8px;padding:12px 14px;margin:14px 0;font-size:13.5px;font-weight:700;color:var(--navy)}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:6px 14px;font-size:13px}
+.kv .k{color:var(--steel);font-weight:700}.kv .v{font-weight:600;color:var(--ink)}
+@media(max-width:520px){.kv{grid-template-columns:1fr}.kv .k{margin-top:6px}}
+.snapCard{position:relative;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.snapCard:hover{border-color:var(--gold);box-shadow:0 0 0 3px rgba(182,138,58,.12),var(--shadow)}
+.snapCard:hover .openTag{opacity:1}
+.openTag{opacity:0;transition:opacity .15s;font-size:11px;font-weight:800;color:var(--golddk);background:var(--amberbg);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.flag{display:flex;gap:9px;align-items:flex-start;background:var(--amberbg);border-left:4px solid var(--gold);border-radius:8px;padding:8px 11px;margin-bottom:6px;font-size:12.5px;color:var(--golddk)}
+.check{display:flex;align-items:center;gap:9px;font-size:13px;padding:5px 0;font-weight:600}
+.check .mark{width:20px;height:20px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}
+.m-ok{background:var(--ok)}.m-no{background:var(--danger)}
+.side{position:sticky;top:74px;align-self:start}
+.sideTitle{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);font-weight:800;margin-bottom:10px}
+.auth{border-radius:8px;padding:9px 11px;font-size:12.5px;font-weight:700;margin-bottom:12px}
+.auth.ok{background:var(--okbg);color:var(--ok)}.auth.no{background:var(--dangerbg);color:var(--danger)}
+.field label{display:block;font-size:11.5px;font-weight:800;color:var(--navy);margin:6px 0 5px}
+textarea{width:100%;border:2px solid var(--line);border-radius:10px;padding:9px 11px;font-size:13px;font-family:'Inter',Arial,Helvetica,sans-serif}
+textarea:focus{outline:none;border-color:var(--navy)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+.btn{display:block;width:100%;border:none;border-radius:10px;padding:11px 14px;font-weight:800;font-size:13px;margin-top:8px}
+.btn.approve{background:var(--navy);color:#fff}.btn.approve:hover:not(:disabled){background:var(--navy2)}.btn.approve:disabled{opacity:.45;cursor:not-allowed}
+.btn.changes{background:#fff;border:2px solid var(--gold);color:var(--golddk)}
+.btn.reject{background:#fff;border:2px solid var(--danger);color:var(--danger)}
+.audit{font-size:12px}
+.aud{display:flex;gap:9px;padding:8px 0;border-top:1px solid var(--line)}
+.aud:first-child{border-top:none}
+.aud .dot{width:9px;height:9px;border-radius:50%;flex:none;margin-top:4px}
+.d-sub{background:var(--steel)}.d-appr{background:var(--ok)}.d-rej{background:var(--danger)}.d-ret{background:var(--gold)}
+.aud .who{font-weight:800;color:var(--navy)}.aud .when{color:var(--steel);font-size:11px}
+.demoTip{background:#fff;border:1px dashed var(--gold);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--golddk);margin-bottom:16px}
+.demoTip b{color:var(--navy)}
+pre.out{background:var(--navy);color:#e7ecf3;border-radius:10px;padding:14px;font-size:11.5px;overflow:auto;max-height:280px;font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;line-height:1.5}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:var(--shadow);z-index:60}
+.overlay{position:fixed;inset:0;background:rgba(20,37,61,.55);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:70;overflow:auto}
+.modal{background:#fff;border-radius:var(--radius);box-shadow:0 10px 40px rgba(20,37,61,.35);max-width:640px;width:100%;padding:0;animation:pop .12s ease-out}
+@keyframes pop{from{transform:translateY(6px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modalHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.modalHead .tt{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--steel);font-weight:800}
+.modalHead h2{margin:2px 0 0;font-size:19px;color:var(--navy)}
+.xbtn{border:none;background:var(--pale);color:var(--steel);width:30px;height:30px;border-radius:8px;font-size:15px;font-weight:800;flex:none}
+.xbtn:hover{background:var(--line);color:var(--ink)}
+.modalBody{padding:18px 20px;max-height:70vh;overflow:auto}
+.modalBody .fsec{margin-top:16px}.modalBody .fsec:first-child{margin-top:0}
+.lineTbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:2px}
+.lineTbl th{text-align:left;color:var(--steel);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:6px 8px;border-bottom:1px solid var(--line)}
+.lineTbl td{padding:7px 8px;border-bottom:1px solid var(--line)}
+.lineTbl tr:last-child td{border-bottom:none;font-weight:800;color:var(--navy)}
+.modalFoot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+.btnGhost{background:#fff;border:2px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 16px;font-weight:800;font-size:12.5px}
+.btnGhost:hover{border-color:var(--navy)}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAG+klEQVR42u1ZXYxUZxl+3vf7zpkzsMMuA1iolIIFCg0haUVLtxcWtZCWQm2hXsiF9sKf1l7UYEz0ojHxkqSpJibGpgmYmJgSa6ItaPSS/kFbKKWtLSzrsmwX9m/2zOzOOXPOd97Xi7MsP1KdWWaNGN7kJJMz33zf+z7f8/4OcENuyA1pvxDlz5WfrwuF27m2CTEz1PhTlTBe0fPnlpcF82/eNqd865O2WJrPbKtQmVRxclWDMHODqLWl+i9v2QusF5QWe0FntwnmPer5c7aS9Tryb3X6CHXpRJrUX8ni6ktpHL6WxrVzksau2XPaYMCUwrZgbNCxyCt23e0FpUdMYe42Nn4ZBEAEqgKoJFAIGAyBgMAg9okYYAYUkCwZyxqTf0rj2h/SaPxNF08Mi2tks3YDxfm33ON3LPym9edsZ+stARGgCpUMgCQQCJgsQAyAr7KFACoQdWAwwD6xwYV9xKWDLqn/MZkY2RdV+l9vqwFEjPKKjZ8YP1gimQOQNaPwf5IrDDI+G4ssiQfHet+4WVWa2sQ2ZyaTQCokyYJcYfZnpPIVbASIcxByLxFJRCAVEBNUtI0GAExUBNgHmoRmRgaxZaJiK57ZHI4KqEj630gpKpK2EISaNUAUkArl0MzWDUi+v1SapU/TBqgKVLLBi7F9VrCfwiob1BZYys0GKknTj/OsOVs+oAKi/JwWIjw3qT+yNDoOIkBmiUICAVF+TgsZqulgmKX1E7NbDxKYueVzuElqwjUmeiECMNt2Ks5EsNYgU7XVsIo0nuhtxdW4WedyjXpN0qQHRLYdkcgYhjGMqNHA0MiYFAoFe/+XNvRapLVWgkWTFCKoOHVJ7UUiBiDuWtBWVYyHNYyHNaxcvgzP/PB77tUDv8FT33rkxTiOlLn5NN90JoYCyWRlv19a9OO8DmoNbQCoRw3U6xEWzO/Eww98Gbt2Poj7N3XDs0astXju2T37AYCZIdLOWkjz60wmx06oS2Mw+82gzYaRphnGw5wVa1d/Dju2fRWPPbwFt69cPr02TVO/0WjEBw8eeA9A08o3b8B0JIrSJKq+UOgoP6GSJnlt9G/QjiKUuzqx/YFN2LVzKzZv6kYxKOCCkqqASJZYa+2hQ4f2njx5MmkF/dYMmKrbk9rQLwqlBd+/pNmaRtu5i2ivWZWj/fWvXY52lmUgorw1hkKgICLeu2/fc63SZ0YdGbGlruUbPrC2sDr3NeIoijFZj1Ce34n77t2Ab+zcii2bulEsBhfRFgFxXu0Qmylm5ln93EBvz9p1d90ehqESEVR1digEyqNRUj2/m8vLXqmOhzHAwZrVK/DoQznaa1atmF7uXAqiPHWwvXiUZA614ZMY6j2SpMPHgp/v/fPuMAzVMCGT1mqtGY0DjBeYxavuObfxi3eWd+14EFu+ci/PmUI7cw4KhbXeZb+Ja0OoDBzHSO9hjJ09htpIn2hWF5dR9TvP/v2m0ZpzgEJbrBVt6wnIIEvj7PHH7nvqZz995nfOudhaEzjnYK2FmUI6cw1Uz3+E0b63MNJ3BNVzH6ExOQpVhbEFKNuk3LUo+O1f+58cqaYuR39WxypTDjvlZEuXLjUnTrw/UCp1LCAiJiKuh5+gcvZdjPS+ibGzx1Ef70eWxiC2MF4ANt4UhUSMgdRjN/rtPUc/O1ZNskui9ewOtlQVxhiEYai+Z965e93ix08d2d849erz9uSh59H/3ssIBz9EltbBtgDrz4Exfo6VCqAKJ9Lomuv5+/7Sv/3wB5XThgkywzZjRj6QTwcJvgH9avf61xd1yBccrHheYMnY6SboAqSqeWWjChDBdQTMfUPR4e/uOdadpJnqDNFvqZy+SmJGnKr++uWBHaWuhcxe0YEYKhkkyyCiyCRX3LNARwGYVwSYxA3VmH/50j92xkmmIJqx8tcwG82NYCacOV+vLV0UZGtvLW2ejFzChoxngaKXP6LAUBU4doZw8F0kvz9aKOz729BPek6fOdBqzG8bhS6bywIoz/PNCz+6q3dhp1kyESmPToBPDxM+HCR8fA4YqBCqEUSUhCkdqJ99+zZIkmkb2utrnnMzEUQVG9d95rb16+849VZPEg+GJqhGQKaAZwDfAIYkZusH4cD7K6PqUE+rQ9y2U+jSdoeIcHZosvLO2SCc1K6HNHNx4JMNPMAyAJUY1g+i8cEfTI72HZwaDrSnFW1fawiwsdS57POvsQ02qmYOIAuoIzI2S+M3Kn1vd6tk2s7RTBv/+8lR9YrzOjtvuXMMkiUgslB1YOOH/UfLaVQN20Wdawqjn0omIqRRNZwc7ukm6weiUiXrB5PDPd1pVA3bSZ3ZnI8AAEpL1jx90x2btbRkzdOXhazrRYgtlRavfYLYXmea/3/JDfBvyP+8/BOoWmUyUtUH8QAAAABJRU5ErkJggg==">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">DMS <span class="erp">ERP</span></div>
+  <div class="crumb">Approvals &rsaquo; <b style="color:#fff">Review &amp; Approve</b></div>
+  <div class="acts">
+    <label>Pending item</label><select id="reqSel" class="sel" onchange="loadReq(+this.value)"></select>
+    <label>Acting as</label><select id="roleSel" class="sel" onchange="setRole(this.value)"></select>
+  </div>
+</div>
+<div class="wrap">
+  <div>
+    <div class="demoTip"><b>Working example.</b> This is the single screen a reviewer opens for one pending item (from an email link or the command center). Switch <b>Pending item</b> to see each approval type, and <b>Acting as</b> to watch the authority gate enable/disable Approve. A reason is required to Reject or Request changes. <b>Double-click the Record snapshot card</b> to pull up the full source record.</div>
+    <div id="reqBody"></div>
+    <div id="output"></div>
+  </div>
+  <div class="side">
+    <div class="card"><div class="sideTitle">Decision</div><div id="decision"></div></div>
+    <div class="card"><div class="sideTitle">Audit trail</div><div id="audit" class="audit"></div></div>
+  </div>
+</div>
+<div id="modalWrap"></div>
+<div id="toastWrap"></div>
+<script>
+var ROLE_LABEL={owner:"Owner",accounting:"Accounting",gm:"General Manager",compliance:"Compliance",sales:"Sales rep"};
+var ROLES=["owner","accounting","gm","compliance","sales"];
+var acting="owner";
+var now=function(){return new Date().toLocaleString();};
+
+var REQUESTS=[
+ {type:"Vendor approval",who:"Border City Auto Parts",by:"R. Diaz (Ops)",date:"Jun 28, 2026 9:12 AM",status:"Pending",
+  ask:"Approve Border City Auto Parts for use on purchase orders (Draft → Active).",
+  snapshot:[["Vendor","Border City Auto Parts"],["Category","Parts"],["RFC","BCA900101AB2"],["Payment terms","Net 30"],["Banking","First National Bank ••••4821"]],
+  checklist:[["W-9 / tax certificate on file",true],["Insurance certificate (COI) on file",true],["Banking details entered",true],["At least one contact",true]],
+  authRoles:["owner","accounting"],authLabel:"Accounting / Owner",
+  audit:[{kind:"sub",who:"R. Diaz (Ops)",when:"Jun 28, 2026 9:12 AM",text:"Submitted for approval — all checklist items complete"}],
+  record:{recordType:"Vendor",recordId:"VEN-0142",linkHint:"/admin/vendors/VEN-0142",
+   fields:[["Legal name","Border City Auto Parts, S.A. de C.V."],["Vendor ID","VEN-0142"],["Category","Parts"],["Status","Draft (pending this approval)"],["RFC","BCA900101AB2"],["Tax regime","General de Ley Personas Morales"],["Address","Blvd. Industrial 4410, Tijuana, BC 22500"],["Primary contact","Marisol Cano — marisol.cano@bordercityauto.mx — +52 664 555 0142"],["Payment terms","Net 30"],["Banking","First National Bank ••••4821 (account holder: Border City Auto Parts)"],["W-9 / tax certificate","On file — uploaded Jun 20, 2026"],["Insurance certificate (COI)","On file — expires Mar 15, 2027"],["Created","Jun 18, 2026 by R. Diaz (Ops)"]]}},
+ {type:"Customer credit limit",who:"Riverside Medical Center",by:"D. Pena (Sales)",date:"Jun 28, 2026 8:40 AM",status:"Pending",
+  ask:"Approve a credit limit of $50,000 (Net 30) for Riverside Medical Center.",
+  snapshot:[["Customer","Riverside Medical Center"],["Requested limit","$50,000"],["Payment terms","Net 30"],["Current AR balance","$0"],["Years in business","12"]],
+  flags:["Requested limit exceeds the $25,000 auto-approve threshold — manager sign-off required."],
+  authRoles:["owner","accounting"],authLabel:"Accounting / Owner",
+  audit:[{kind:"sub",who:"D. Pena (Sales)",when:"Jun 28, 2026 8:40 AM",text:"Requested credit limit $50,000"}],
+  record:{recordType:"Customer",recordId:"CUS-0087",linkHint:"/admin/customers/CUS-0087",
+   fields:[["Customer","Riverside Medical Center"],["Customer ID","CUS-0087"],["Industry","Healthcare / Hospital system"],["Address","1220 Riverside Ave, Tijuana, BC 22010"],["Primary contact","Dr. Efren Salcido — esalcido@riversidemed.mx"],["Current credit limit","$10,000"],["Requested credit limit","$50,000"],["Current AR balance","$0"],["Payment terms","Net 30"],["Years in business","12"],["Sales rep","D. Pena"],["Recent invoices","#0981 $8,200 (paid on time) · #1005 $6,450 (paid on time) · #1029 $9,900 (paid on time)"]]}},
+ {type:"Self-service submission",who:"Acme Hospital (customer intake)",by:"System (email intake)",date:"Jun 28, 2026 7:05 AM",status:"Pending",
+  ask:"Accept the customer-submitted intake form for Acme Hospital and create the account.",
+  snapshot:[["Source","Email self-service form"],["Contacts imported","2"],["Service locations","1"],["Documents","1 of 4 required"]],
+  flags:["RFC is missing its check digit — verify before invoicing.","Insurance certificate (COI) not attached."],
+  checklist:[["Identity imported",true],["Billing imported",true],["Required documents complete",false]],
+  authRoles:["owner","gm","accounting"],authLabel:"Manager / Accounting / Owner",
+  audit:[{kind:"sub",who:"Acme Hospital",when:"Jun 28, 2026 7:05 AM",text:"Submitted intake form via secure link"}],
+  record:{recordType:"Intake form",recordId:"INT-2231",linkHint:"/admin/intake/INT-2231",
+   fields:[["Prospective customer","Acme Hospital"],["Submitted","Jun 28, 2026 7:05 AM via secure link"],["RFC entered","ACM110203XX — missing check digit"],["Service location","Av. Constitución 900, Tijuana, BC 22000"],["Contact 1","Lucia Vera — lvera@acmehospital.mx — Billing"],["Contact 2","Ramon Ibarra — ribarra@acmehospital.mx — Facilities"],["Documents received","Business license (1 of 4)"],["Documents missing","W-9 / tax certificate, Insurance certificate (COI), Signed MSA"],["Requested services","Mobile shredding — weekly route"]]}},
+ {type:"Certificate of destruction",who:"Certificate #338 — Mercy General Hospital",by:"M. Soto (Dispatch)",date:"Jun 27, 2026 4:22 PM",status:"Pending",
+  ask:"Issue & sign Certificate of Destruction #338 for Mercy General Hospital.",
+  snapshot:[["Service","Hard-drive destruction"],["Serials","42 of 42 reconciled"],["Two-person verification","Complete"],["Particle spec","Met"]],
+  checklist:[["Serial count reconciled (42/42)",true],["Two-person verification",true]],
+  authRoles:["owner","gm","compliance"],authLabel:"Compliance / GM / Owner",
+  audit:[{kind:"sub",who:"M. Soto (Dispatch)",when:"Jun 27, 2026 4:22 PM",text:"Destruction complete — submitted COD for approval"}],
+  record:{recordType:"Service job",recordId:"JOB-5567",linkHint:"/admin/jobs/JOB-5567",
+   fields:[["Customer","Mercy General Hospital"],["Job ID","JOB-5567"],["Service type","Hard-drive / digital media destruction"],["Service date","Jun 27, 2026"],["Technicians (two-person verification)","M. Soto, J. Alvarez"],["Vehicle","FL-01 — Freightliner M2 106"],["Serials reconciled","42 of 42"],["Particle size spec","Met (DIN 66399 H-4 · NIST 800-88 Destroy)"],["GPS / route log","Confirmed on file"],["Chain of custody","Complete — no gaps"],["Certificate number","338 (pending signature)"]]}},
+ {type:"Invoice",who:"Invoice #1042 — Mercy General Hospital",by:"L. Mora (Accounting)",date:"Jun 28, 2026 10:01 AM",status:"Pending",
+  ask:"Approve and release Invoice #1042 ($28,960) to Mercy General Hospital.",
+  snapshot:[["Customer","Mercy General Hospital"],["Amount","$28,960"],["Payment terms","Net 30"],["CFDI fields","Valid"]],
+  authRoles:["owner","accounting"],authLabel:"Accounting / Owner",
+  audit:[{kind:"sub",who:"L. Mora (Accounting)",when:"Jun 28, 2026 10:01 AM",text:"Drafted invoice — submitted for approval"}],
+  record:{recordType:"Invoice",recordId:"INV-1042",linkHint:"/admin/invoices/INV-1042",
+   fields:[["Customer","Mercy General Hospital"],["Invoice #","1042"],["Invoice date","Jun 28, 2026"],["Due date","Jul 28, 2026 (Net 30)"],["PO reference","MGH-PO-3391"],["CFDI status","Valid — fields verified"],["Prepared by","L. Mora (Accounting)"]],
+   lines:{headers:["Line item","Qty","Rate","Amount"],rows:[["Hard-drive destruction — on-site","42 units","$220.00","$9,240"],["Mobile shredding — scheduled route (June)","4 pickups","$850.00","$3,400"],["Scanning & digitization — medical records batch","1 project","$16,360.00","$16,360"],["Total","","","$28,960"]]}}},
+ {type:"Discount over 10%",who:"Quote Q-2087 — First National Bank",by:"D. Pena (Sales)",date:"Jun 28, 2026 11:18 AM",status:"Pending",
+  ask:"Approve a 14% discount on Quote Q-2087 for First National Bank.",
+  snapshot:[["Customer","First National Bank"],["Discount","14%"],["Quote total","$18,400"],["Margin after discount","22%"]],
+  flags:["Discount exceeds the 10% limit — requires Owner approval."],
+  authRoles:["owner"],authLabel:"Owner only",
+  audit:[{kind:"sub",who:"D. Pena (Sales)",when:"Jun 28, 2026 11:18 AM",text:"Requested 14% discount"}],
+  record:{recordType:"Quote",recordId:"Q-2087",linkHint:"/admin/quotes/Q-2087",
+   fields:[["Customer","First National Bank"],["Quote #","Q-2087"],["Sales rep","D. Pena"],["Expires","Jul 12, 2026"],["List price total","$21,395"],["Discount requested","14%"],["Margin after discount","22%"],["Terms","Net 30, 12-month service agreement"]],
+   lines:{headers:["Line item","Qty","Rate","Amount"],rows:[["Bin shredding service — 8 branches","Monthly","$1,450.00","$17,400"],["Hard-drive destruction — quarterly","Quarterly","$995.00","$3,995"],["List price total","","","$21,395"],["After 14% discount","","","$18,400"]]}}},
+];
+var cur=0;
+
+function init(){
+ document.getElementById('reqSel').innerHTML=REQUESTS.map(function(r,i){return '<option value="'+i+'">'+esc(r.type)+'</option>';}).join('');
+ document.getElementById('roleSel').innerHTML=ROLES.map(function(r){return '<option value="'+r+'" '+(r===acting?'selected':'')+'>'+ROLE_LABEL[r]+'</option>';}).join('');
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeRecord();});
+ render();
+}
+function loadReq(i){cur=i;document.getElementById('output').innerHTML='';closeRecord();render();}
+function setRole(v){acting=v;render();}
+function canAct(){return REQUESTS[cur].authRoles.indexOf(acting)>=0;}
+function statusBadge(s){var m={"Pending":["b-pend","Pending approval"],"Approved":["b-appr","Approved"],"Rejected":["b-rej","Rejected"],"Returned for changes":["b-ret","Returned for changes"]}[s];return '<span class="badgeS '+m[0]+'">'+m[1]+'</span>';}
+
+function render(){
+ var r=REQUESTS[cur];
+ var snap=r.snapshot.map(function(kv){return '<div class="k">'+esc(kv[0])+'</div><div class="v">'+esc(kv[1])+'</div>';}).join('');
+ var flags=(r.flags&&r.flags.length)?'<div class="card"><div class="fsec">Items to review</div>'+r.flags.map(function(f){return '<div class="flag"><span>&#9888;</span><span>'+esc(f)+'</span></div>';}).join('')+'</div>':'';
+ var chk=(r.checklist&&r.checklist.length)?'<div class="card"><div class="fsec">Checklist</div>'+r.checklist.map(function(c){return '<div class="check"><span class="mark '+(c[1]?'m-ok':'m-no')+'">'+(c[1]?'✓':'✕')+'</span>'+esc(c[0])+'</div>';}).join('')+'</div>':'';
+ document.getElementById('reqBody').innerHTML=
+  '<div class="card"><div class="reqhead"><div><span class="badgeS b-type">'+esc(r.type)+'</span> '+statusBadge(r.status)+'<h1 style="margin-top:8px">'+esc(r.who)+'</h1><div class="meta">Requested by '+esc(r.by)+' · '+esc(r.date)+'</div></div></div>'
+  +'<div class="bigask">'+esc(r.ask)+'</div></div>'
+  +'<div class="card snapCard" ondblclick="openRecord()" title="Double-click to open the full record"><div class="fsec">Record snapshot <span class="openTag">⤢ Double-click to open full record</span></div><div class="kv">'+snap+'</div></div>'
+  +flags+chk;
+
+ var authed=canAct();
+ var decided=r.status!=="Pending";
+ var dec='<div class="auth '+(authed?'ok':'no')+'">'+(authed?'✓ You can approve this. ':'✕ Not authorized as '+ROLE_LABEL[acting]+'. ')+'Requires: '+esc(r.authLabel)+'</div>';
+ if(decided){
+   dec+='<div class="bigask" style="font-weight:700">This item is '+r.status.toLowerCase()+'.</div>';
+ } else {
+   dec+='<div class="field"><label>Decision note '+(authed?'':' (disabled)')+'</label><textarea id="note" rows="3" placeholder="Reason (required to reject or request changes)" '+(authed?'':'disabled')+'></textarea></div>'
+     +'<button class="btn approve" onclick="decide(\'approve\')" '+(authed?'':'disabled')+'>Approve</button>'
+     +'<button class="btn changes" onclick="decide(\'changes\')" '+(authed?'':'disabled')+'>Request changes</button>'
+     +'<button class="btn reject" onclick="decide(\'reject\')" '+(authed?'':'disabled')+'>Reject</button>';
+ }
+ document.getElementById('decision').innerHTML=dec;
+
+ document.getElementById('audit').innerHTML=r.audit.map(function(a){var d={sub:'d-sub',appr:'d-appr',rej:'d-rej',ret:'d-ret'}[a.kind];return '<div class="aud"><span class="dot '+d+'"></span><span><span class="who">'+esc(a.who)+'</span> — '+esc(a.text)+'<br><span class="when">'+esc(a.when)+'</span></span></div>';}).join('');
+}
+
+function openRecord(){
+ var r=REQUESTS[cur];
+ var rec=r.record;
+ if(!rec){return;}
+ var fields=rec.fields.map(function(kv){return '<div class="k">'+esc(kv[0])+'</div><div class="v">'+esc(kv[1])+'</div>';}).join('');
+ var lines='';
+ if(rec.lines){
+   lines='<div class="fsec">Line items</div><table class="lineTbl"><thead><tr>'+rec.lines.headers.map(function(h){return '<th>'+esc(h)+'</th>';}).join('')+'</tr></thead><tbody>'
+    +rec.lines.rows.map(function(row){return '<tr>'+row.map(function(c){return '<td>'+esc(c)+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';
+ }
+ var html='<div class="overlay" id="ovl" onclick="if(event.target.id===\'ovl\')closeRecord()">'
+  +'<div class="modal">'
+  +'<div class="modalHead"><div><div class="tt">'+esc(rec.recordType)+' &middot; '+esc(rec.recordId)+'</div><h2>'+esc(r.who)+'</h2></div><button class="xbtn" onclick="closeRecord()">&#10005;</button></div>'
+  +'<div class="modalBody"><div class="fsec">Full record</div><div class="kv">'+fields+'</div>'+lines+'</div>'
+  +'<div class="modalFoot"><span class="meta" style="margin-right:auto;align-self:center">In production this opens '+esc(rec.linkHint)+'</span><button class="btnGhost" onclick="closeRecord()">Close</button></div>'
+  +'</div></div>';
+ document.getElementById('modalWrap').innerHTML=html;
+}
+function closeRecord(){document.getElementById('modalWrap').innerHTML='';}
+
+function decide(action){
+ var r=REQUESTS[cur];
+ if(r.status!=="Pending"){toast("This item has already been decided.");return;}
+ if(!canAct()){toast("You are not authorized to act on this item.");return;}
+ var note=(document.getElementById('note')||{}).value||"";
+ if((action==="reject"||action==="changes")&&!note.trim()){toast("A reason is required to "+(action==="reject"?"reject":"request changes")+".");return;}
+ var map={approve:["Approved","appr","Approved"],reject:["Rejected","rej","Rejected"],changes:["Returned for changes","ret","Requested changes"]};
+ var m=map[action];
+ r.status=m[0];
+ r.audit.push({kind:m[1],who:ROLE_LABEL[acting],when:now(),text:m[2]+(note.trim()?(" — “"+note.trim()+"”"):"")});
+ var rec={requestType:r.type,subject:r.who,decision:m[0],decidedBy:ROLE_LABEL[acting],decidedAt:now(),note:note.trim(),requiredAuthority:r.authLabel};
+ document.getElementById('output').innerHTML='<div class="card"><div class="fsec">Decision recorded (payload the API would receive)</div><pre class="out">'+esc(JSON.stringify(rec,null,2))+'</pre></div>';
+ render();
+ toast(action==="approve"?("Approved — "+r.who):action==="reject"?("Rejected — submitter notified"):("Returned for changes — submitter notified"));
+ document.getElementById('output').scrollIntoView({behavior:'smooth'});
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function toast(m){var w=document.getElementById('toastWrap');w.innerHTML='<div class="toast">'+esc(m)+'</div>';clearTimeout(window._t);window._t=setTimeout(function(){w.innerHTML='';},2600);}
+init();
+</script>
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

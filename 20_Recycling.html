@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS ERP — Recycling</title>
+<style>
+:root{--navy:#14253D;--navy2:#1B3050;--navy3:#27425F;--gold:#B68A3A;--golddk:#9A7430;--ink:#2E3338;--steel:#8C97A4;--pale:#F4F6F8;--line:#DDE3EA;--white:#fff;--radius:12px;--shadow:0 1px 3px rgba(20,37,61,.10),0 1px 2px rgba(20,37,61,.06);}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter',Arial,Helvetica,sans-serif;color:var(--ink);background:var(--pale);font-size:14px;line-height:1.45}
+button{font-family:'Inter',Arial,Helvetica,sans-serif;cursor:pointer}
+.topbar{display:flex;align-items:center;gap:14px;background:var(--navy);color:#fff;padding:9px 18px;position:sticky;top:0;z-index:30}
+.brand{font-size:20px;font-weight:800}.brand .erp{color:var(--gold)}
+.topbar .crumb{font-size:12px;color:#aebacb}
+.wrap{max-width:1020px;margin:0 auto;padding:34px 22px}
+h1{font-size:22px;color:var(--navy);margin:0}
+.purpose{font-size:12.5px;color:var(--steel);margin:6px 0 24px}
+.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:860px){.choice-grid{grid-template-columns:1fr}}
+.choice{display:flex;flex-direction:column;gap:12px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 20px;text-align:left;font:inherit;color:var(--ink);border-bottom:3px solid transparent;transition:border-color .12s,box-shadow .12s,transform .12s}
+.choice:hover{border-color:var(--navy);border-bottom-color:var(--gold);box-shadow:0 4px 16px rgba(20,37,61,.14);transform:translateY(-2px)}
+.choice .icon{width:46px;height:46px;border-radius:11px;background:var(--pale);border:1px solid var(--line);display:grid;place-items:center;font-size:21px}
+.choice:hover .icon{background:var(--navy)}
+.choice .t{font-size:15.5px;font-weight:800;color:var(--navy)}
+.choice .d{font-size:12.5px;color:var(--steel);line-height:1.55;flex:1}
+.choice .go{font-size:12.5px;font-weight:800;color:var(--navy)}
+.choice:hover .go{color:var(--golddk)}
+.note{margin-top:26px;background:#fff;border:1px dashed var(--gold);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--golddk)}
+.note b{color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">DMS <span class="erp">ERP</span></div>
+  <div class="crumb">Recycling</div>
+</div>
+<div class="wrap">
+  <h1>Recycling</h1>
+  <div class="purpose">The recycling side of DMS in one place. Choose a screen below — every form is unchanged; they now share this one door.</div>
+  <div class="choice-grid">
+    <button class="choice" type="button" onclick="go('07_Material_Master.html','Material Master')">
+      <span class="t">Material Master</span>
+      <span class="d">The ISRI-graded catalog of every commodity and grade DMS buys, processes and sells. Feeds pricing, sampling and inventory.</span>
+      <span class="go">Open Material Master →</span>
+    </button>
+    <button class="choice" type="button" onclick="go('08_Mechanical_Sampling.html','Mechanical Sampling')">
+      <span class="t">Mechanical Sampling</span>
+      <span class="d">Record sample fractions and lab breakdowns that set the true grade and value of an incoming load.</span>
+      <span class="go">Open Mechanical Sampling →</span>
+    </button>
+    <button class="choice" type="button" onclick="go('14_Scale_Terminal.html','Scale Terminal')">
+      <span class="t">Scale Terminal</span>
+      <span class="d">Weigh inbound and outbound loads, capture tickets, and post net weights that drive settlement and inventory.</span>
+      <span class="go">Open Scale Terminal →</span>
+    </button>
+    <button class="choice" type="button" onclick="go('17_Commodity_Pricing.html','Commodity Pricing')">
+      <span class="t">Commodity Pricing</span>
+      <span class="d">Track and update per-grade market prices used to value loads, guide buy prices and set sale quotes.</span>
+      <span class="go">Open Commodity Pricing →</span>
+    </button>
+    <button class="choice" type="button" onclick="go('18_Inventory.html','Inventory')">
+      <span class="t">Inventory</span>
+      <span class="d">Live position of graded material on hand by commodity — what has been received, processed and shipped.</span>
+      <span class="go">Open Inventory →</span>
+    </button>
+  </div>
+  <div class="note"><b>Tip:</b> a load flows left to right — graded in <b>Material Master</b>, checked by <b>Mechanical Sampling</b>, weighed at the <b>Scale Terminal</b>, valued by <b>Commodity Pricing</b>, and tracked in <b>Inventory</b>.</div>
+</div>
+<script>
+function go(src,name){
+  var inShell=false;
+  try{inShell = window.parent && window.parent!==window;}catch(e){}
+  if(inShell){
+    try{parent.postMessage({dms:'open',src:src,name:name},'*');return;}catch(e){}
+  }
+  location.href=src;
+}
+</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

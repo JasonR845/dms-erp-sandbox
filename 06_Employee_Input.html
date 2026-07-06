@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMS ERP — Employee Input</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.1.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* ===== ERP v2 design tokens (Master Blueprint / Interactive Blueprint v1.0) ===== */
+:root{
+  --navy:#14253D; --navy-2:#1B3050; --ink:#2E3338; --gray:#5A6470; --hair:#E2E6EA;
+  --panel:#F4F6F8; --white:#FFFFFF; --blue:#27425F; --green:#1B3050; --greenbg:#D7DCE1;
+  --amber:#9A7430; --amberbg:#FCF3E3; --red:#B3261E; --redbg:#FBEBEA; --bluebg:#EAF0F7;
+  --graybg:#EEF1F4; --line:#D5DBE2; --radius:10px;
+  --shadow:0 1px 3px rgba(20,37,61,.08),0 1px 2px rgba(20,37,61,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',Arial,Helvetica,sans-serif;background:var(--panel);color:var(--ink);font-size:14px}
+button{font-family:'Inter',Arial,Helvetica,sans-serif;cursor:pointer}
+
+/* ===== ribbon ===== */
+.ribbon{background:var(--navy);color:#fff;display:flex;align-items:center;gap:14px;padding:0 18px;height:54px;position:sticky;top:0;z-index:50}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:.5px}
+.logo .mark{background:#fff;color:var(--navy);border-radius:6px;width:30px;height:30px;display:grid;place-items:center;font-size:13px;font-weight:900}
+.logo small{display:block;font-size:8.5px;font-weight:600;letter-spacing:1.6px;color:#B9C4D4}
+.navgrp{display:flex;gap:2px;margin-left:8px}
+.navgrp button{background:transparent;border:0;color:#C7D0DC;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600}
+.navgrp button:hover{background:rgba(255,255,255,.09);color:#fff}
+.navgrp button.on{background:rgba(255,255,255,.14);color:#fff}
+.search{flex:1;max-width:420px;margin-left:auto;position:relative}
+.search input{width:100%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:8px 12px 8px 34px;font-size:13px;outline:none}
+.search input::placeholder{color:#9FB0C4}
+.search svg{position:absolute;left:10px;top:9px}
+.icobtn{background:rgba(255,255,255,.10);border:0;color:#fff;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;position:relative;font-size:16px}
+.icobtn .dot{position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:#B68A3A}
+.qadd{background:#fff;color:var(--navy);border:0;border-radius:8px;padding:8px 14px;font-weight:700;font-size:13px}
+.uav{width:34px;height:34px;border-radius:50%;background:#27425F;display:grid;place-items:center;font-weight:700;font-size:12px}
+
+/* ===== layout ===== */
+.wrap{max-width:1140px;margin:0 auto;padding:20px 22px 60px}
+.demo-note{background:var(--bluebg);border:1px solid #D7DCE1;color:#1B3050;border-radius:var(--radius);padding:10px 14px;font-size:12.5px;margin-bottom:14px}
+.note{font-size:11.5px;color:var(--gray)}
+.hint{font-size:11.5px;color:var(--gray);margin-top:8px;display:flex;align-items:center;gap:6px}
+
+/* ===== record header ===== */
+.rechead{background:#fff;border:1px solid var(--hair);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.rechead .rico{width:40px;height:40px;border-radius:10px;background:var(--graybg);color:var(--navy);display:grid;place-items:center;font-size:20px;flex:none}
+.rechead .idblock h1{font-size:18px;color:var(--navy);font-weight:800}
+.rechead .idblock .mono{font-size:11.5px;color:var(--gray);font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;margin-top:2px}
+.rechead .acts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10.5px;font-weight:700;border-radius:20px;padding:2px 8px}
+.b-gray{background:var(--graybg);color:var(--gray)}.b-blue{background:var(--bluebg);color:#14253D}
+.b-green{background:var(--greenbg);color:var(--green)}.b-amber{background:var(--amberbg);color:var(--amber)}
+.b-red{background:var(--redbg);color:var(--red)}
+.btn{border-radius:8px;padding:8px 14px;font-weight:700;font-size:12.5px;border:1px solid transparent}
+.btn-p{background:var(--navy);color:#fff}
+.btn-s{background:#fff;color:var(--navy);border-color:var(--hair)}
+.btn-s:hover{border-color:var(--navy)}
+
+/* ===== onboarding gate strip ===== */
+.gate{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;font-size:12.5px;font-weight:600}
+.gate.blocked{background:var(--redbg);border:1px solid #F0C9C6;color:var(--red)}
+.gate.clear{background:var(--greenbg);border:1px solid #B9C1CA;color:var(--green)}
+.gate .gi{font-size:18px}
+.pill{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:3px 9px}
+.pill.ok{background:var(--greenbg);color:var(--green);border:1px solid #B9C1CA}
+.pill.no{background:var(--redbg);color:var(--red);border:1px solid #F0C9C6}
+.pill.na{background:var(--graybg);color:var(--gray);border:1px solid var(--hair)}
+
+/* ===== section cards ===== */
+.sec{background:#fff;border:1px solid var(--hair);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin-bottom:14px}
+.sechead{display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--hair);padding-bottom:12px;margin-bottom:16px}
+.idx{flex:none;width:27px;height:27px;border-radius:8px;background:var(--graybg);color:var(--navy);font-weight:800;font-size:13px;display:grid;place-items:center}
+.idx.lock{background:var(--amberbg);color:var(--amber)}
+.sectitle{font-size:14.5px;font-weight:800;color:var(--navy);line-height:1.25;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.secsub{font-size:12px;color:var(--gray);margin-top:2px}
+
+/* ===== forms ===== */
+.lab{display:block;font-size:11px;color:var(--gray);font-weight:600;margin-bottom:5px}
+.req{color:var(--red)}
+.g{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:inherit;font-size:13px;background:#fff;color:var(--ink);width:100%;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+textarea{resize:vertical;min-height:44px}
+input[readonly]{background:var(--panel)}
+.block{margin-top:16px}
+.blocktitle{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--navy);padding-bottom:7px;border-bottom:1px solid var(--hair);margin-bottom:12px}
+.blocktitle .h{font-weight:400;color:var(--gray);font-size:11.5px}
+.mask{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:13px;color:var(--navy);font-weight:700;display:block}
+.tag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;border-radius:20px;padding:2px 8px}
+.ck{display:flex;align-items:center;gap:7px;font-size:12.5px}.ck input{width:auto}
+.ckrow{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair)}
+
+/* ===== repeatable items ===== */
+.item{background:#FAFBFC;border:1px solid var(--hair);border-radius:9px;padding:14px;margin-bottom:11px}
+.itemhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.itemhd .lbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--gray)}
+.del{background:none;border:none;color:var(--red);font-size:13px;padding:2px 4px}
+.add{margin-top:4px;background:#fff;border:1px solid var(--hair);color:var(--navy);border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700}
+.add:hover{border-color:var(--navy);background:var(--graybg)}
+.dz{border:1.5px dashed #C9D2DC;border-radius:9px;padding:13px;text-align:center;color:var(--gray);font-size:12px;background:#fff;cursor:pointer;font-weight:600}
+.dz:hover{border-color:var(--blue);color:var(--blue)}
+.erow{display:grid;grid-template-columns:1fr 1.4fr 1fr .9fr auto;gap:10px;align-items:end}
+
+/* ===== info banners ===== */
+.banner{display:flex;align-items:center;gap:9px;background:var(--bluebg);border:1px solid #D7DCE1;border-radius:9px;padding:10px 12px;font-size:12px;color:#1B3050;margin-bottom:14px}
+.banner.lock{background:var(--amberbg);border-color:#EAD9B4;color:var(--amber)}
+
+/* ===== status badges (JS-rendered) ===== */
+.status-badge{font-size:11px;font-weight:800;border-radius:6px;padding:3px 8px;display:inline-block}
+.sb-valid{background:var(--greenbg);color:var(--green)}
+.sb-exp{background:var(--amberbg);color:var(--amber)}
+.sb-old{background:var(--redbg);color:var(--red)}
+.sb-na{background:var(--graybg);color:var(--gray)}
+
+/* ===== identity photo + QR ===== */
+.avatar{width:74px;height:74px;border-radius:12px;background:var(--graybg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:26px;background-size:cover;background-position:center;cursor:pointer;flex:none}
+.qrpanel{flex:none;width:152px;border:1px solid var(--hair);border-radius:var(--radius);padding:11px;background:#fff;text-align:center}
+.qrcap{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--gray);margin-bottom:7px}
+.qrimg{display:flex;justify-content:center}.qrimg img,.qrimg canvas{border:1px solid var(--hair)}
+.qrlink{font-family:'IBM Plex Mono',Consolas,ui-monospace,monospace;font-size:9.5px;color:var(--gray);margin-top:7px;word-break:break-all}
+.qrbtns{display:flex;gap:5px;justify-content:center;margin-top:9px}
+.qb{flex:1;font-size:10px;font-weight:700;border:1px solid var(--navy);background:#fff;color:var(--navy);border-radius:7px;padding:5px 0}
+.qb.pri{background:var(--navy);color:#fff}
+
+/* ===== permissions matrix ===== */
+.permhd,.permrow{display:grid;grid-template-columns:2.3fr 1fr 58px 58px;gap:10px;align-items:center}
+.permhd{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--gray);padding:0 4px 7px;border-bottom:1px solid var(--line)}
+.permrow{padding:7px 4px;border-bottom:1px solid var(--hair)}
+.permrow .mn{font-size:12.5px;font-weight:600;color:var(--ink)}
+.permrow input[type=checkbox]{width:auto}
+.permrow .na{color:var(--gray);font-size:11px;text-align:center}
+.permgrp{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);background:var(--panel);padding:6px 9px;border-radius:6px;margin:12px 0 3px}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<!-- ===== ribbon (static in this preview) ===== -->
+<nav class="ribbon">
+  <div class="logo"><div class="mark">D</div><div>DMS ERP<small>OPERATIONS PLATFORM</small></div></div>
+  <div class="navgrp">
+    <button>Dashboard</button>
+    <button>Dispatch</button>
+    <button>Receiving</button>
+    <button>Equipment</button>
+    <button class="on">HR / Employees</button>
+  </div>
+  <div class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9FB0C4" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input placeholder="Search employees, roles, certifications…  ( / )"></div>
+  <button class="qadd">+ Quick Add</button>
+  <button class="icobtn">🔔<span class="dot"></span></button>
+  <div class="uav">JR</div>
+</nav>
+
+<div class="wrap">
+<div class="demo-note"><b>Standalone v2 preview — sample data only.</b> Employee Master input screen in the ERP v2 design language. Government IDs, compensation and bank fields are encrypted &amp; role-restricted in the real build. Not wired to production.</div>
+
+<!-- ===== record header ===== -->
+<div class="rechead">
+  <div class="rico"><i class="ti ti-user-plus"></i></div>
+  <div class="idblock"><h1>New Employee</h1><div class="mono">EMP-—— · HR / Employees</div></div>
+  <span class="badge b-gray">Draft</span>
+  <div class="acts"><button class="btn btn-s">Save draft</button><button class="btn btn-p">Submit for approval</button></div>
+</div>
+
+<!-- ===== live onboarding gate (driven by Section F) ===== -->
+<div id="gate" class="gate blocked"><i class="ti ti-shield-lock gi"></i><b id="gatemsg">Access gate: 0 of 4 clear — system &amp; facility access BLOCKED until all four pass.</b>
+  <span style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+  <span id="g_bg" class="pill no">Background</span><span id="g_safe" class="pill no">Safety orient.</span><span id="g_ctr" class="pill no">Contract</span><span id="g_nda" class="pill no">Confidentiality</span></span></div>
+
+<!-- A · IDENTITY -->
+<div class="sec"><div class="sechead"><span class="idx">A</span><div><div class="sectitle">Employee identity</div><div class="secsub">Legal name (Mexican convention), personal contact, and home address.</div></div></div>
+  <div style="display:flex;gap:16px;align-items:flex-start">
+    <div><div class="avatar" onclick="document.getElementById('photoin').click()"><i class="ti ti-camera"></i></div><div class="note" style="text-align:center;margin-top:5px">Photo</div></div>
+    <div style="flex:1">
+      <div class="g g4"><div><label class="lab">First name <span class="req">*</span></label><input value="María"></div>
+        <div><label class="lab">Apellido paterno <span class="req">*</span></label><input value="Soto"></div>
+        <div><label class="lab">Apellido materno</label><input value="Reyes"></div>
+        <div><label class="lab">Preferred / display name</label><input placeholder="optional"></div></div>
+      <div class="g g4" style="margin-top:14px"><div><label class="lab">Employee number</label><input placeholder="auto / manual (unique)"></div>
+        <div><label class="lab">Date of birth</label><input type="date"></div>
+        <div><label class="lab">Personal email</label><input placeholder="name@email.com"></div>
+        <div><label class="lab">Personal cell <span class="req">*</span></label><input value="+52 664 ..."></div></div>
+    </div>
+    <div class="qrpanel"><div class="qrcap">Employee QR / badge</div><div class="qrimg" id="empqr"></div><div class="qrlink">dms.app/m/emp/e7a1b2c3</div><div class="qrbtns"><button class="qb" onclick="window.print()">Print</button><button class="qb pri">Scan</button></div></div>
+  </div>
+  <div class="block"><div class="blocktitle"><i class="ti ti-home"></i> Home address</div>
+    <div><label class="lab">Street</label><input placeholder="Calle y número"></div>
+    <div class="g g3" style="margin-top:14px"><div><label class="lab">City</label><input value="Tijuana"></div><div><label class="lab">State</label><input value="BC"></div><div><label class="lab">ZIP</label><input></div></div>
+  </div>
+  <input type="file" id="photoin" accept="image/*" style="display:none" onchange="var u=this.files[0]&&URL.createObjectURL(this.files[0]);if(u){var a=document.querySelector('.avatar');a.style.backgroundImage='url('+u+')';a.innerHTML='';}">
+</div>
+
+<!-- B · GOVERNMENT IDs (RESTRICTED) -->
+<div class="sec"><div class="sechead"><span class="idx lock">B</span><div><div class="sectitle">Government &amp; tax IDs <span class="badge b-amber">Restricted</span></div><div class="secsub">CURP · RFC · IMSS (NSS) · INFONAVIT — Mexican statutory identifiers.</div></div></div>
+  <div class="banner lock"><i class="ti ti-lock"></i><span>Visible to <b>HR / Owner</b> only. Stored <b>encrypted at rest</b> (pgcrypto); displayed masked. Personal data under <b>LFPDPPP</b> — collected only for payroll, IMSS/INFONAVIT, and statutory filing.</span></div>
+  <div class="g g4">
+    <div><label class="lab">CURP</label><input placeholder="18 characters" maxlength="18" style="text-transform:uppercase"></div>
+    <div><label class="lab">RFC (persona física)</label><input placeholder="13 characters" maxlength="13" style="text-transform:uppercase"></div>
+    <div><label class="lab">NSS (IMSS)</label><span class="mask">••• •• •••• ••3</span></div>
+    <div><label class="lab">INFONAVIT #</label><span class="mask">•••• •••• 7</span></div>
+  </div>
+  <div class="hint"><i class="ti ti-info-circle"></i> On save, CURP/RFC/NSS are written through an encryption RPC (HR/Owner only). Only the last digits are kept in clear for matching. Full values are never shown again after entry.</div>
+  <div class="block"><div class="blocktitle"><i class="ti ti-photo-scan"></i> ID document / picture <span class="h">— CURP, RFC, IMSS card, INE · restricted</span></div>
+    <div class="dz"><i class="ti ti-file-upload"></i> Import document or picture (PDF or image)</div></div>
+</div>
+
+<!-- C · EMERGENCY CONTACTS -->
+<div class="sec"><div class="sechead"><span class="idx">C</span><div><div class="sectitle">Emergency contacts</div><div class="secsub">Who to call if there's an incident on a route or the floor.</div></div></div>
+  <div id="emerg"></div><button class="add" onclick="addEmerg()"><i class="ti ti-plus"></i> Add emergency contact</button>
+  <div class="block"><div class="g g3"><div><label class="lab">Blood type <span class="note">(injury response)</span></label><select><option value="">—</option><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+    <div style="grid-column:span 2"><label class="lab">Relevant medical notes <span class="note">(optional · restricted)</span></label><input placeholder="allergies, conditions relevant to first-aid only"></div></div></div>
+</div>
+
+<!-- D · EMPLOYMENT & ROLE -->
+<div class="sec"><div class="sechead"><span class="idx">D</span><div><div class="sectitle">Employment &amp; role</div><div class="secsub">Position from the DMS role library — department, REPSE status, and two-person eligibility set automatically.</div></div></div>
+  <div class="g g3">
+    <div><label class="lab">Role / position <span class="req">*</span></label><select id="role" onchange="roleChange()"></select></div>
+    <div><label class="lab">Department</label><input id="dept" readonly></div>
+    <div><label class="lab">Reports to (supervisor)</label><select id="sup"><option>— select —</option><option>García, Juan — Logistics Manager</option><option>Soto, María — Warehouse Manager</option><option>Rivas, Ana — HR / Training</option></select></div>
+  </div>
+  <div class="g g4" style="margin-top:14px">
+    <div><label class="lab">Hire date <span class="req">*</span></label><input type="date"></div>
+    <div><label class="lab">Employment type</label><select><option>Permanent (planta)</option><option>Temporary (temporal)</option><option>Apprentice / trainee</option><option>Contract</option></select></div>
+    <div><label class="lab">Probation end</label><input type="date"></div>
+    <div><label class="lab">Work location / site</label><select><option>Tijuana — Facility</option><option>Route (mobile)</option><option>Client site</option></select></div>
+  </div>
+  <div class="g g3" style="margin-top:14px">
+    <div><label class="lab">Shift</label><select><option>Day</option><option>Swing</option><option>Night</option><option>Rotating</option></select></div>
+    <div><label class="lab">Weekly schedule</label><input placeholder="e.g. Mon–Fri 8:00–17:00, Sat 9:00–13:00"></div>
+    <div><label class="lab">Manager / people leader?</label><select><option>No</option><option>Yes</option></select></div>
+  </div>
+  <div class="ckrow">
+    <label class="ck"><input id="repse" type="checkbox" disabled> <b>REPSE core role</b> — may not be outsourced (drivers, destruction operators, prep techs)</label>
+    <label class="ck"><input id="twop" type="checkbox" disabled> Two-person-rule role (HDD / media cage)</label>
+  </div>
+  <div class="block"><label class="lab">Notes <span class="note">(role / employment)</span></label><textarea placeholder="Role-specific notes, assignment context, restrictions…"></textarea></div>
+</div>
+
+<!-- E · COMPENSATION (RESTRICTED) -->
+<div class="sec"><div class="sechead"><span class="idx lock">E</span><div><div class="sectitle">Compensation &amp; payroll <span class="badge b-amber">Restricted</span></div><div class="secsub">Pay basis, rate, and the payroll deposit account.</div></div></div>
+  <div class="banner lock"><i class="ti ti-lock"></i><span>Visible to <b>HR / Accounting / Owner</b> only. Kept in a separate restricted table; bank details encrypted and masked. <b>Pay on Time is sacred</b> — payroll inputs feed IMSS/INFONAVIT/SAR every cycle.</span></div>
+  <div class="g g4">
+    <div><label class="lab">Pay basis</label><select><option>Hourly</option><option>Salary</option><option>Per route / stop</option><option>Piece</option></select></div>
+    <div><label class="lab">Base rate</label><span class="mask">•••••</span></div>
+    <div><label class="lab">Currency</label><select><option>MXN</option><option>USD</option></select></div>
+    <div><label class="lab">Pay frequency</label><select><option>Weekly</option><option>Bi-weekly (catorcenal)</option><option>Semi-monthly (quincenal)</option><option>Monthly</option></select></div>
+  </div>
+  <div class="block"><div class="blocktitle"><i class="ti ti-building-bank"></i> Payroll deposit account <span class="h">— encrypted, HR/Accounting/Owner only</span></div>
+    <div class="g g4"><div><label class="lab">Bank</label><input placeholder="BBVA, Banorte, …"></div><div><label class="lab">CLABE / account</label><span class="mask">•••• •••• •••• 6789</span></div><div><label class="lab">Account type</label><select><option>Nómina</option><option>Checking</option><option>Savings</option></select></div><div><label class="lab">Aguinaldo days</label><input type="number" value="15" style="text-align:right"></div></div>
+  </div>
+  <div class="block"><label class="lab">Notes <span class="note">(payment / payroll)</span></label><textarea placeholder="Deductions, garnishments, allowances, special payroll instructions…"></textarea></div>
+</div>
+
+<!-- F · NAID GATE + BACKGROUND -->
+<div class="sec"><div class="sechead"><span class="idx">F</span><div><div class="sectitle">NAID AAA onboarding gate &amp; background screening</div><div class="secsub">Dual gate — no system or facility access until <b>all four</b> pass. This section drives the banner at the top.</div></div></div>
+  <div class="block" style="margin-top:0"><div class="blocktitle"><i class="ti ti-user-search"></i> 1 · Background check <span class="h">(NAID AAA requirement)</span></div>
+    <div class="g g4"><div><label class="lab">Status</label><select id="f_bg" onchange="gate()"><option value="pending">Pending</option><option value="clear">Clear</option><option value="flagged">Flagged — hold</option><option value="na">N/A</option></select></div>
+      <div><label class="lab">Provider</label><input placeholder="screening vendor"></div>
+      <div><label class="lab">Completed</label><input type="date"></div>
+      <div><label class="lab">Re-check due</label><input type="date"></div></div>
+    <div style="margin-top:12px"><div class="dz"><i class="ti ti-file-check"></i> Attach background-check result (restricted)</div></div>
+  </div>
+  <div class="g g3">
+    <div class="item"><div class="blocktitle" style="border:none;margin:0 0 8px"><i class="ti ti-shield-check"></i> 2 · Safety orientation (EHS)</div>
+      <label class="ck" style="margin-bottom:9px"><input id="f_safe" type="checkbox" onchange="gate()"> Completed</label>
+      <label class="lab">Date / by</label><input placeholder="date · EHS lead">
+      <label class="lab" style="margin-top:10px">Document</label><div class="dz" style="padding:9px 10px"><i class="ti ti-file-upload"></i> Attach orientation record</div></div>
+    <div class="item"><div class="blocktitle" style="border:none;margin:0 0 8px"><i class="ti ti-file-text"></i> 3 · Employment contract</div>
+      <label class="ck" style="margin-bottom:9px"><input id="f_ctr" type="checkbox" onchange="gate()"> Signed</label>
+      <label class="lab">Date</label><input type="date">
+      <label class="lab" style="margin-top:10px">Document</label><div class="dz" style="padding:9px 10px"><i class="ti ti-file-upload"></i> Attach signed contract</div></div>
+    <div class="item"><div class="blocktitle" style="border:none;margin:0 0 8px"><i class="ti ti-lock-check"></i> 4 · Confidentiality / IP assignment</div>
+      <label class="ck" style="margin-bottom:9px"><input id="f_nda" type="checkbox" onchange="gate()"> Signed</label>
+      <label class="lab">Date</label><input type="date">
+      <label class="lab" style="margin-top:10px">Document</label><div class="dz" style="padding:9px 10px"><i class="ti ti-file-upload"></i> Attach signed agreement</div></div>
+  </div>
+  <div class="g g3" style="margin-top:14px">
+    <div><label class="lab">Drug screening</label><select><option>N/A</option><option>Pending</option><option>Pass</option><option>Fail</option></select>
+      <label class="lab" style="margin-top:10px">Document</label><div class="dz" style="padding:9px 10px"><i class="ti ti-file-upload"></i> Attach screen result (restricted)</div></div>
+    <div style="display:flex;align-items:flex-end"><label class="ck"><input type="checkbox"> Stop-work authority acknowledged (universal grant)</label></div>
+    <div style="display:flex;align-items:flex-end"><label class="ck"><input type="checkbox"> Confidentiality/NDA reviewed with employee</label></div>
+  </div>
+</div>
+
+<!-- G · TRAINING & CERTIFICATIONS (unified) -->
+<div class="sec"><div class="sechead"><span class="idx">G</span><div><div class="sectitle">Training &amp; certifications</div><div class="secsub">One list for external certifications and internal courses. Pick from the Training Catalog; expiry auto-fills from the course and colors itself.</div></div></div>
+  <div id="certs"></div><button class="add" onclick="addCert()"><i class="ti ti-plus"></i> Add training / certification</button>
+  <div class="hint"><i class="ti ti-alarm"></i> The course list is the shared <b>Training Catalog</b>. A lapsed DC-3, LOTO, forklift, or hours-of-service item should block equipment assignment for that role; items expiring in 30 days surface on the HR dashboard.</div>
+</div>
+
+<!-- H · STANDARD OPERATING PROCEDURES -->
+<div class="sec"><div class="sechead"><span class="idx">H</span><div><div class="sectitle">Standard Operating Procedures (SOPs)</div><div class="secsub">Assign SOPs from the register and record acknowledgment. Re-acknowledgment is required when the SOP version changes.</div></div></div>
+  <div class="banner"><i class="ti ti-books"></i><span>SOPs are pulled from the shared <b>SOP Register</b> — each with a current version and the document on file. Assigning here records this employee's sign-off against the version they read.</span></div>
+  <div id="sops"></div><button class="add" onclick="addSop()"><i class="ti ti-plus"></i> Assign SOP</button>
+  <div class="hint"><i class="ti ti-alarm"></i> When a SOP is revised in the register, everyone assigned to it flips to <b>Needs re-ack</b> until they sign the new version — the audit trail NAID looks for.</div>
+</div>
+
+<!-- I · EQUIPMENT, UNIFORM & KEYS -->
+<div class="sec"><div class="sechead"><span class="idx">I</span><div><div class="sectitle">Assigned equipment, uniform &amp; keys</div><div class="secsub">Links to the Equipment (EAM) registry where applicable — issue, condition, and return tracked.</div></div></div>
+  <div id="equip"></div><button class="add" onclick="addEquip()"><i class="ti ti-plus"></i> Add assignment</button>
+</div>
+
+<!-- J · SYSTEM ACCESS & PERMISSIONS -->
+<div class="sec"><div class="sechead"><span class="idx">J</span><div><div class="sectitle">System access &amp; permissions</div><div class="secsub">Link an ERP login only if needed — then grant access to specific parts, on web, mobile, or both.</div></div></div>
+  <div class="g g4">
+    <div><label class="lab">Needs an ERP login?</label><select id="haslogin" onchange="loginBox()"><option value="no">No — field/floor only</option><option value="yes">Yes — link account</option></select></div>
+    <div id="lb1" style="display:none"><label class="lab">Linked user account</label><select><option>— create / select —</option><option>msoto@dms.mx</option></select></div>
+    <div id="lb2" style="display:none"><label class="lab">MFA</label><select><option>Required</option><option>Enabled</option><option>Not set</option></select></div>
+    <div id="lb3" style="display:none"><label class="lab">Mobile role</label><select><option>None</option><option>Field / Driver</option><option>Warehouse</option><option>Dispatch</option><option>Supervisor</option></select></div>
+  </div>
+  <div id="permwrap" style="display:none">
+    <div class="block"><div class="blocktitle"><i class="ti ti-shield-cog"></i> Permissions <span class="h">— start from a preset, then fine-tune each module. Modules show only the surfaces they support.</span></div>
+      <div class="g g2" style="margin-bottom:12px"><div><label class="lab">Role preset</label><select id="preset" onchange="applyPreset()"></select></div>
+        <div style="display:flex;align-items:flex-end"><span class="note"><i class="ti ti-info-circle"></i> Preset sets sensible defaults; your per-module overrides win. <span class="tag b-blue">WEB</span> office app &nbsp; <span class="tag b-green">MOBILE</span> field app</span></div></div>
+      <div class="permhd"><div>Module</div><div>Access</div><div style="text-align:center">Web</div><div style="text-align:center">Mobile</div></div>
+      <div id="perms"></div>
+    </div>
+  </div>
+  <div class="banner" style="margin:14px 0 0"><i class="ti ti-shield-lock"></i><span>System access stays blocked until the Section F gate is clear. On termination, access is revoked <b>same day</b> for safety-critical roles.</span></div>
+  <div class="block"><div class="blocktitle"><i class="ti ti-id"></i> Driver's license <span class="h">— drivers only · restricted</span></div>
+    <div class="g g4"><div><label class="lab">License #</label><span class="mask">•••• ••4</span></div><div><label class="lab">Class</label><input placeholder="e.g. B / federal"></div><div><label class="lab">Expiry</label><input type="date"></div><div><label class="lab">Scan</label><div class="dz"><i class="ti ti-file-upload"></i> Upload (restricted)</div></div></div>
+  </div>
+</div>
+
+<!-- K · DOCUMENTS -->
+<div class="sec"><div class="sechead"><span class="idx">K</span><div><div class="sectitle">Documents &amp; photos</div><div class="secsub">Add any document — pick a type or name your own. Restricted types stay HR/Owner only.</div></div></div>
+  <div id="docs"></div><button class="add" onclick="addDoc()"><i class="ti ti-plus"></i> Add document</button>
+</div>
+
+<!-- L · DISCIPLINARY -->
+<div class="sec"><div class="sechead"><span class="idx lock">L</span><div><div class="sectitle">Disciplinary records <span class="badge b-amber">Restricted</span></div><div class="secsub">DMS 4-tier taxonomy — documented, acknowledged, and attached (acta). Restricted to HR / Owner.</div></div></div>
+  <div class="banner lock"><i class="ti ti-gavel"></i><span>Sensitive HR data. <b>Tier 4 = termination for cause</b> (LFT Art. 47); mitigation never applies to Tier 4. Enforce consistently and document every action.</span></div>
+  <div id="disc"></div><button class="add" onclick="addDisc()"><i class="ti ti-plus"></i> Add disciplinary record</button>
+</div>
+
+<!-- M · OFFBOARDING (conditional) -->
+<div class="sec"><div class="sechead"><span class="idx">M</span><div><div class="sectitle">Offboarding</div><div class="secsub">Appears when status = Terminated / Inactive. Enforces the LFT + NAID exit checklist.</div></div></div>
+  <div class="g g4"><div><label class="lab">Termination date</label><input type="date"></div>
+    <div><label class="lab">Reason</label><select><option>Voluntary resignation</option><option>Rescisión LFT Art. 47 (for cause)</option><option>Mutual (convenio)</option><option>End of contract</option><option>Layoff</option></select></div>
+    <div><label class="lab">LFT article ref</label><input placeholder="e.g. Art. 47"></div>
+    <div><label class="lab">Counsel involved?</label><select><option>No</option><option>Yes (≥3-yr tenure / sensitive)</option></select></div></div>
+  <div class="ckrow">
+    <label class="ck"><input type="checkbox"> Access revoked (same day)</label>
+    <label class="ck"><input type="checkbox"> Equipment returned</label>
+    <label class="ck"><input type="checkbox"> Keys / badge / PIN deactivated</label>
+    <label class="ck"><input type="checkbox"> Finiquito processed</label>
+    <label class="ck"><input type="checkbox"> Exit interview done</label>
+  </div>
+  <div class="block"><div class="blocktitle"><i class="ti ti-file-upload"></i> Offboarding documents</div>
+    <div class="g g4">
+      <div><label class="lab">Finiquito / convenio</label><div class="dz"><i class="ti ti-file-dollar"></i> Upload</div></div>
+      <div><label class="lab">Aviso de rescisión</label><div class="dz"><i class="ti ti-file-text"></i> Upload</div></div>
+      <div><label class="lab">Exit interview</label><div class="dz"><i class="ti ti-clipboard-check"></i> Upload</div></div>
+      <div><label class="lab">Other</label><div class="dz"><i class="ti ti-files"></i> Upload</div></div>
+    </div>
+  </div>
+</div>
+
+<p class="note" style="text-align:center;margin:14px 0">ERP v2 design language · standalone preview · government IDs / comp / bank encrypted &amp; HR-access-controlled · not wired to production</p>
+</div><!-- /wrap -->
+
+<script>
+function opt(a,s){return a.map(function(x){return '<option'+(x===s?' selected':'')+'>'+x+'</option>';}).join('');}
+
+// --- DMS role library (20 roles) with department + REPSE core-role + two-person flags ---
+var ROLES=[
+ ["CEO / Owner","Executive",0,0],["General Manager","Executive",0,0],["Operations Manager","Operations",0,0],
+ ["Sales Manager","Sales",0,0],["Sales Representative","Sales",0,0],["CSR / Admin Support","Administration",0,0],
+ ["Administration Manager","Administration",0,0],["Logistics Manager","Logistics",0,0],["Dispatch Coordinator","Logistics",0,0],
+ ["Mobile Shredding Driver","Operations",1,0],["Warehouse Manager","Warehouse",0,0],["Scanning Technician","Scanning",1,0],
+ ["HDD Destruction Technician","Warehouse",1,1],["Maintenance Manager","Maintenance",0,0],["EHS / Safety Manager","EHS",0,0],
+ ["Compliance / Legal Coordinator","Compliance",0,0],["Accounting / Billing","Accounting",0,0],["Marketing Manager","Marketing",0,0],
+ ["HR / Training","HR",0,0],["IT / Systems Admin","IT",0,0]];
+document.getElementById('role').innerHTML='<option value="-1">— select role —</option>'+ROLES.map(function(r,i){return '<option value="'+i+'">'+r[0]+'</option>';}).join('');
+function roleChange(){var i=+document.getElementById('role').value;var r=ROLES[i];document.getElementById('dept').value=r?r[1]:'';document.getElementById('repse').checked=!!(r&&r[2]);document.getElementById('twop').checked=!!(r&&r[3]);}
+
+// --- Onboarding gate (drives the top banner) ---
+function gate(){
+ var bg=document.getElementById('f_bg').value==='clear';
+ var safe=document.getElementById('f_safe').checked, ctr=document.getElementById('f_ctr').checked, nda=document.getElementById('f_nda').checked;
+ function set(id,ok){var e=document.getElementById(id);e.className='pill '+(ok?'ok':'no');}
+ set('g_bg',bg);set('g_safe',safe);set('g_ctr',ctr);set('g_nda',nda);
+ var n=[bg,safe,ctr,nda].filter(Boolean).length, all=n===4;
+ var g=document.getElementById('gate');g.className='gate '+(all?'clear':'blocked');
+ g.querySelector('.gi').className='ti gi '+(all?'ti-shield-check':'ti-shield-lock');
+ document.getElementById('gatemsg').innerHTML=all
+   ?'Access gate: 4 of 4 clear — this employee is eligible for system &amp; facility access.'
+   :'Access gate: '+n+' of 4 clear — system &amp; facility access BLOCKED until all four pass.';
+}
+
+// --- Emergency contacts ---
+var em=[{n:"",rel:"",ph:"",ph2:"",addr:""}];
+function addEmerg(){em.push({n:"",rel:"",ph:"",ph2:"",addr:""});rEm();}
+function rEm(){document.getElementById('emerg').innerHTML=em.map(function(v,i){return '<div class="item"><div class="itemhd"><span class="lbl">Contact '+(i+1)+'</span><button class="del" onclick="em.splice('+i+',1);rEm()">✕</button></div><div class="g g4"><div><label class="lab">Name</label><input value="'+v.n+'"></div><div><label class="lab">Relationship</label><input value="'+v.rel+'"></div><div><label class="lab">Phone</label><input value="'+v.ph+'"></div><div><label class="lab">Alt phone</label><input value="'+v.ph2+'"></div></div><div style="margin-top:12px"><label class="lab">Address</label><input value="'+v.addr+'" placeholder="Street, city, state, ZIP" oninput="em['+i+'].addr=this.value"></div></div>';}).join('');}
+
+// --- Training & certifications (unified) ---
+var TTYPES=["External certification","Internal course","On-the-job","Safety refresher","Orientation"];
+// Course names come from the shared Training Catalog
+var CTYPES=["DC-3 (STPS Constancia)","LOTO (SOP-MAINT-025)","Forklift NOM-006/020-STPS","Hydraulic safety","Hours of service NOM-087-SCT-2","First aid / CPR","Chain-of-custody","NAID media handling","Defensive driving","PPE matrix","Blade-gap calibration","Fire / evacuation","NOM-035 psychosocial","New-hire orientation","Other"];
+function certStatus(exp){if(!exp)return ['sb-na','No expiry'];var d=(new Date(exp)-new Date())/86400000;if(d<0)return['sb-old','Expired'];if(d<30)return['sb-exp','Expiring'];return['sb-valid','Valid'];}
+var certs=[{ty:"External certification",t:"DC-3 (STPS Constancia)",body:"",no:"",iss:"",exp:"",res:"Pass"}];
+function addCert(){certs.push({ty:"Internal course",t:"Chain-of-custody",body:"",no:"",iss:"",exp:"",res:""});rCert();}
+function rCert(){document.getElementById('certs').innerHTML=certs.map(function(c,i){var st=certStatus(c.exp);return '<div class="item"><div class="itemhd"><span class="lbl">Item '+(i+1)+'</span><span><span class="status-badge '+st[0]+'">'+st[1]+'</span> <button class="del" onclick="certs.splice('+i+',1);rCert()">✕</button></span></div>'
++'<div class="g g3"><div><label class="lab">Type</label><select onchange="certs['+i+'].ty=this.value">'+opt(TTYPES,c.ty)+'</select></div>'
++'<div><label class="lab">Course / credential <span class="note">(catalog)</span></label><select onchange="certs['+i+'].t=this.value">'+opt(CTYPES,c.t)+'</select></div>'
++'<div><label class="lab">Issuing body / trainer</label><input value="'+c.body+'" oninput="certs['+i+'].body=this.value"></div></div>'
++'<div class="g g4" style="margin-top:12px"><div><label class="lab">Certificate #</label><input value="'+c.no+'"></div>'
++'<div><label class="lab">Completed / issued</label><input type="date" value="'+c.iss+'" onchange="certs['+i+'].iss=this.value"></div>'
++'<div><label class="lab">Expiry / next due</label><input type="date" value="'+c.exp+'" onchange="certs['+i+'].exp=this.value;rCert()"></div>'
++'<div><label class="lab">Result</label><select onchange="certs['+i+'].res=this.value">'+opt(["","Pass","Fail","Score"],c.res)+'</select></div></div>'
++'<div style="margin-top:12px"><div class="dz" style="padding:9px 12px"><i class="ti ti-file-upload"></i> Certificate / completion doc</div></div></div>';}).join('');}
+
+// --- SOP acknowledgments (from the shared SOP Register) ---
+var SOPREG=[["SOP-ADM-001","Custody log handling",3],["SOP-ADM-014","Client identity verification (LFPDPPP)",2],["SOP-MAINT-025","Lockout / Tagout (LOTO)",4],["SOP-13","Shredder jam response",1],["SOP-26","Dock return dual-scan",2]];
+function sopStatus(regIdx,ackv){var cur=SOPREG[regIdx][2];if(!ackv)return['sb-na','Assigned'];if(ackv<cur)return['sb-exp','Needs re-ack'];return['sb-valid','Acknowledged v'+ackv];}
+var sops=[{idx:0,ackv:3,assigned:"",acked:""}];
+function addSop(){sops.push({idx:0,ackv:0,assigned:"",acked:""});rSop();}
+function rSop(){document.getElementById('sops').innerHTML=sops.map(function(s,i){var reg=SOPREG[s.idx];var st=sopStatus(s.idx,s.ackv);return '<div class="item"><div class="itemhd"><span class="lbl">SOP '+(i+1)+'</span><span><span class="status-badge '+st[0]+'">'+st[1]+'</span> <button class="del" onclick="sops.splice('+i+',1);rSop()">✕</button></span></div>'
++'<div class="g g4"><div style="grid-column:span 2"><label class="lab">SOP (from register)</label><select onchange="sops['+i+'].idx=+this.value;rSop()">'+SOPREG.map(function(r,j){return '<option value="'+j+'"'+(j===s.idx?' selected':'')+'>'+r[0]+' — '+r[1]+' (v'+r[2]+')</option>';}).join('')+'</select></div>'
++'<div><label class="lab">Current version</label><input readonly value="v'+reg[2]+'"></div>'
++'<div><label class="lab">Version acknowledged</label><input type="number" min="0" value="'+(s.ackv||'')+'" oninput="sops['+i+'].ackv=+this.value;rSop()"></div></div>'
++'<div class="g g4" style="margin-top:12px"><div><label class="lab">Assigned</label><input type="date" value="'+s.assigned+'"></div>'
++'<div><label class="lab">Acknowledged / signed</label><input type="date" value="'+s.acked+'"></div>'
++'<div><label class="lab">Signed acknowledgment</label><div class="dz" style="padding:9px 10px"><i class="ti ti-file-upload"></i> Attach signed doc</div></div>'
++'<div style="display:flex;align-items:flex-end"><div class="dz" style="padding:9px 10px;width:100%"><i class="ti ti-file-text"></i> View current SOP</div></div></div></div>';}).join('');}
+
+// --- Equipment / uniform / keys ---
+var EKIND=["Vehicle (truck)","Trailer","Forklift","Scanner","Shredder / granulator","Tool","Radio / phone","Uniform","PPE","Key","Badge","PIN / access code","Other"];
+var equip=[{k:"Vehicle (truck)",id:"",iss:"",cond:"Good"}];
+function addEquip(){equip.push({k:"Uniform",id:"",iss:"",cond:"New"});rEquip();}
+function rEquip(){document.getElementById('equip').innerHTML=equip.map(function(e,i){return '<div class="item"><div class="itemhd"><span class="lbl">Assignment '+(i+1)+'</span><button class="del" onclick="equip.splice('+i+',1);rEquip()">✕</button></div>'
++'<div class="erow"><div><label class="lab">Kind</label><select onchange="equip['+i+'].k=this.value">'+opt(EKIND,e.k)+'</select></div>'
++'<div><label class="lab">Asset / identifier</label><input placeholder="EAM asset, plate #, size, key code…" value="'+e.id+'"></div>'
++'<div><label class="lab">Issued</label><input type="date" value="'+e.iss+'"></div>'
++'<div><label class="lab">Condition</label><select>'+opt(["New","Good","Fair","Damaged"],e.cond)+'</select></div>'
++'<div><label class="lab">Returned</label><input type="date"></div></div></div>';}).join('');}
+
+function loginBox(){var on=document.getElementById('haslogin').value==='yes';['lb1','lb2','lb3'].forEach(function(id){document.getElementById(id).style.display=on?'block':'none';});document.getElementById('permwrap').style.display=on?'block':'none';}
+
+// --- Access & permissions (role preset + per-module overrides; modules tagged web/mobile) ---
+var PERMMODS=[
+ ["customers","Customers","Sales",1,0],["suppliers","Suppliers & vendors","Sales",1,0],["pricing","Pricing & commodities","Sales",1,0],
+ ["routes","Routes & dispatch","Operations",1,1],["custody","Chain-of-custody / CoD","Operations",1,1],["scale","Receiving & scale capture","Operations",1,1],
+ ["scanning","Scanning","Operations",1,1],["hdd","HDD destruction","Operations",1,1],["inventory","Inventory & lots","Operations",1,1],
+ ["inspections","Load inspections","Operations",0,1],["checklists","Checklists","Operations",0,1],
+ ["equipment","Equipment (EAM)","Maintenance",1,1],["maintenance","Maintenance / CMMS","Maintenance",1,1],
+ ["billing","Billing & CFDI","Finance",1,0],["ar","Accounts receivable","Finance",1,0],
+ ["reports","Reports & dashboards","Admin",1,1],["hr","HR & employees","Admin",1,0],["compliance","Compliance & audit","Admin",1,0],["admin","Admin & settings","Admin",1,0]];
+var PRESETS={custom:{},owner:{all:"edit"},
+ manager:{all:"view",routes:"edit",custody:"edit",scale:"edit",inventory:"edit",reports:"edit",equipment:"edit"},
+ dispatch:{routes:"edit",custody:"view",scale:"view",inventory:"view",reports:"view",checklists:"view"},
+ driver:{routes:"view",custody:"edit",scale:"edit",inspections:"edit",checklists:"edit"},
+ warehouse:{scale:"edit",scanning:"edit",hdd:"edit",inventory:"edit",custody:"edit",equipment:"view",inspections:"edit"},
+ accounting:{billing:"edit",ar:"edit",pricing:"view",reports:"view"},
+ hr:{hr:"edit",compliance:"view",reports:"view"},
+ sales:{customers:"edit",suppliers:"edit",pricing:"edit",reports:"view"},
+ viewer:{reports:"view"}};
+var PRESETLABELS=[["custom","— Custom —"],["owner","Owner / Admin"],["manager","Manager"],["dispatch","Dispatch"],["driver","Driver (field)"],["warehouse","Warehouse"],["accounting","Accounting"],["hr","HR"],["sales","Sales"],["viewer","Viewer"]];
+var permState={};PERMMODS.forEach(function(m){permState[m[0]]={lvl:"none",web:false,mob:false};});
+document.getElementById('preset').innerHTML=PRESETLABELS.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('');
+function applyPreset(){var k=document.getElementById('preset').value,g=PRESETS[k]||{};PERMMODS.forEach(function(m){var lvl=g.all||g[m[0]]||"none";permState[m[0]]={lvl:lvl,web:lvl!=="none"&&!!m[3],mob:lvl!=="none"&&!!m[4]};});rPerms();}
+function setLvl(k,v){permState[k].lvl=v;if(v==="none"){permState[k].web=false;permState[k].mob=false;}else{var m=PERMMODS.find(function(x){return x[0]===k;});if(!permState[k].web&&!permState[k].mob){permState[k].web=!!m[3];permState[k].mob=!!m[4];}}document.getElementById('preset').value="custom";rPerms();}
+function togS(k,s){permState[k][s]=!permState[k][s];document.getElementById('preset').value="custom";}
+function groupMobAll(gr){var mods=PERMMODS.filter(function(m){return m[2]===gr&&m[4];});return mods.length>0&&mods.every(function(m){return permState[m[0]].mob;});}
+function groupMob(gr,on){PERMMODS.forEach(function(m){if(m[2]===gr&&m[4]){permState[m[0]].mob=on;if(on&&permState[m[0]].lvl==='none')permState[m[0]].lvl='view';}});document.getElementById('preset').value='custom';rPerms();}
+function rPerms(){var groups=[];PERMMODS.forEach(function(m){if(groups.indexOf(m[2])<0)groups.push(m[2]);});
+ document.getElementById('perms').innerHTML=groups.map(function(gr){return '<div class="permgrp" style="display:flex;justify-content:space-between;align-items:center">'+gr+'<label style="font-size:10px;font-weight:600;text-transform:none;letter-spacing:0;display:flex;align-items:center;gap:5px;color:var(--gray)"><input type="checkbox" '+(groupMobAll(gr)?'checked':'')+' onchange="groupMob(\''+gr+'\',this.checked)"> Mobile access (dept.)</label></div>'+PERMMODS.filter(function(m){return m[2]===gr;}).map(function(m){var p=permState[m[0]];return '<div class="permrow"><div class="mn">'+m[1]+'</div>'
+ +'<div><select onchange="setLvl(\''+m[0]+'\',this.value)">'+opt(["none","view","edit"],p.lvl)+'</select></div>'
+ +'<div style="text-align:center">'+(m[3]?'<input type="checkbox" '+(p.web?'checked':'')+' onchange="togS(\''+m[0]+'\',\'web\')">':'<span class="na">—</span>')+'</div>'
+ +'<div style="text-align:center">'+(m[4]?'<input type="checkbox" '+(p.mob?'checked':'')+' onchange="togS(\''+m[0]+'\',\'mob\')">':'<span class="na">—</span>')+'</div></div>';}).join('');}).join('');}
+
+// --- Documents & photos (repeatable, add any type) ---
+var DOCTYPES=["Official ID (INE / passport)","Signed contract","Confidentiality / IP (NDA)","Proof of address","CURP document","RFC document","NSS / IMSS document","Academic / cert copy","Photo","Tax document","Other"];
+var docs=[{t:"Official ID (INE / passport)",restr:true},{t:"Signed contract",restr:false}];
+function addDoc(){docs.push({t:"Other",restr:false});rDoc();}
+function rDoc(){document.getElementById('docs').innerHTML=docs.map(function(d,i){return '<div class="item"><div class="itemhd"><span class="lbl">Document '+(i+1)+'</span><button class="del" onclick="docs.splice('+i+',1);rDoc()">✕</button></div>'
++'<div class="g g4" style="align-items:end"><div style="grid-column:span 2"><label class="lab">Type</label><select onchange="docs['+i+'].t=this.value">'+opt(DOCTYPES,d.t)+'</select></div>'
++'<div><label class="lab">File</label><div class="dz" style="padding:9px 10px"><i class="ti ti-file-upload"></i> Upload</div></div>'
++'<div><label class="ck" style="margin-bottom:9px"><input type="checkbox" '+(d.restr?'checked':'')+' onchange="docs['+i+'].restr=this.checked"> Restricted</label></div></div></div>';}).join('');}
+
+// --- Disciplinary records (DMS 4-tier taxonomy) ---
+var DTIERS=[["1","Tier 1 — Verbal / coaching"],["2","Tier 2 — Written warning"],["3","Tier 3 — Final warning / suspension"],["4","Tier 4 — Termination for cause (LFT Art. 47)"]];
+var DCAT=["Attendance / punctuality","Safety violation","Custody breach","Quality / QC","Policy / conduct","Insubordination","Falsification (zero-tolerance)","Other"];
+var disc=[];
+function addDisc(){disc.push({date:"",tier:"1",cat:"Policy / conduct",desc:"",action:"",by:"",ack:false});rDisc();}
+function tierClass(t){return t==="4"?'sb-old':t==="3"?'sb-exp':'sb-na';}
+function rDisc(){var el=document.getElementById('disc');if(!disc.length){el.innerHTML='<div class="note" style="padding:6px 2px">No records. Add one only when an action is issued.</div>';return;}
+ el.innerHTML=disc.map(function(d,i){return '<div class="item"><div class="itemhd"><span class="lbl">Record '+(i+1)+'</span><span style="display:flex;align-items:center;gap:8px"><span class="status-badge '+tierClass(d.tier)+'">Tier '+d.tier+'</span> <button class="qb" style="flex:none;padding:4px 11px" onclick="window.print()"><i class="ti ti-printer"></i> Print</button> <button class="del" onclick="disc.splice('+i+',1);rDisc()">✕</button></span></div>'
++'<div class="g g4"><div><label class="lab">Date</label><input type="date" value="'+d.date+'"></div>'
++'<div><label class="lab">Tier</label><select onchange="disc['+i+'].tier=this.value;rDisc()">'+DTIERS.map(function(t){return '<option value="'+t[0]+'"'+(t[0]===d.tier?' selected':'')+'>'+t[1]+'</option>';}).join('')+'</select></div>'
++'<div><label class="lab">Category</label><select>'+opt(DCAT,d.cat)+'</select></div>'
++'<div><label class="lab">Issued by</label><input value="'+d.by+'"></div></div>'
++'<div style="margin-top:11px"><label class="lab">Description</label><textarea placeholder="What happened, dates, witnesses">'+d.desc+'</textarea></div>'
++'<div style="margin-top:11px"><label class="lab">Action taken / CAPA</label><input value="'+d.action+'"></div>'
++'<div class="ckrow"><label class="ck"><input type="checkbox" '+(d.ack?'checked':'')+'> Employee acknowledged (acta signed)</label><div class="dz" style="padding:8px 12px;flex:1"><i class="ti ti-file-upload"></i> Attach acta / documentation</div></div></div>';}).join('');}
+
+function genEmpQR(){var el=document.getElementById('empqr');if(!el||typeof QRCode==='undefined')return;el.innerHTML='';new QRCode(el,{text:'https://dms.app/m/emp/e7a1b2c3',width:112,height:112,colorDark:'#14253D',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
+gate();rEm();rCert();rSop();rEquip();rDoc();rDisc();rPerms();loginBox();genEmpQR();
+</script>
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

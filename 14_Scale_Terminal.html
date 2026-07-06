@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS ERP — Scale Terminal</title>
+<style>
+  :root {
+    --navy: #14253D; --gold: #B68A3A; --ink: #2E3338; --steel: #5A6470;
+    --pale: #F4F6F8; --line: #DDE3EA; --danger: #B3261E; --dangerbg: #F6E3E1;
+    --amber: #B68A3A; --amberbg: #EAD9B4; --amberdk: #9A7430;
+  }
+  * { box-sizing: border-box; }
+  body { font-family:'Inter',Arial,Helvetica,sans-serif; background: #EEF1F4; color: var(--ink); margin: 0; padding: 24px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  .topbar { display: flex; align-items: center; gap: 10px; background: var(--navy); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; }
+  .topbar .ticket { font-weight: 700; font-size: 16px; color: #fff; margin: 0; }
+  .topbar .date { font-size: 12px; color: #C9D2DC; }
+  .pill { background: #EAD9B4; color: #2E3338; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; }
+  .topbar .by { margin-left: auto; font-size: 11px; color: #AAB4C0; }
+
+  .grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 12px; align-items: start; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .cardhead { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--steel); margin: 0 0 8px; letter-spacing: .02em; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--pale); text-align: left; text-transform: uppercase; font-size: 11px; color: var(--steel); }
+  th, td { padding: 12px; }
+  tbody tr { border-top: 1px solid #F4F6F8; }
+  tfoot tr { border-top: 2px solid var(--gold); background: var(--pale); font-weight: 700; color: var(--navy); }
+  .listhead { padding: 8px 14px; background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; text-transform: uppercase; border-radius: 10px 10px 0 0; margin: -12px -14px 0; }
+  .listcard { padding: 0; overflow: hidden; }
+  .listcard table { margin: 0; }
+  .listcard .listhead { border-radius: 10px 10px 0 0; }
+  .rowdel { background: none; border: none; color: var(--danger); font-size: 14px; font-weight: 700; cursor: pointer; border-radius: 5px; width: 22px; height: 22px; line-height: 1; }
+  .rowdel:hover { background: var(--dangerbg); }
+
+  .btn { border: none; border-radius: 8px; padding: 9px 18px; font-size: 12px; font-weight: 700; cursor: pointer; font-family:'Inter',Arial,Helvetica,sans-serif; }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-outline-danger { background: #fff; color: var(--danger); border: 2px solid var(--danger); }
+  .btn-outline-navy { background: #fff; color: var(--navy); border: 2px solid var(--navy); }
+  .actionsrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .hint { font-size: 10px; color: var(--steel); margin-left: 2px; }
+
+  select, input[type=text] { border: 2px solid var(--line); border-radius: 6px; font-size: 11px; padding: 6px; font-family:'Inter',Arial,Helvetica,sans-serif; }
+
+  .intakebar { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; margin-bottom: 12px; }
+  .intakebar .intakelbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--steel); letter-spacing: .02em; margin-right: 2px; }
+  .intakebar select { padding: 5px 6px; }
+  .intakebar select:first-of-type { flex: 1.3; min-width: 0; }
+  .intakebar select:nth-of-type(2) { flex: 1; min-width: 0; }
+  .intakebar .idbtn { display: flex; align-items: center; gap: 5px; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 5px 12px 5px 8px; font-size: 10px; font-weight: 700; color: var(--steel); cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .intakebar .idbtn:hover { background: var(--pale); border-color: var(--gold); }
+  .idicon { width: 15px; height: 11px; border-radius: 2px; border: 2px solid var(--steel); position: relative; flex-shrink: 0; }
+  .idicon::before { content: ""; position: absolute; top: 2px; left: 1.5px; width: 3px; height: 3px; border-radius: 50%; background: var(--steel); }
+  .idicon::after { content: ""; position: absolute; top: 2px; right: 1.5px; width: 5px; height: 5px; border-top: 1.5px solid var(--steel); }
+
+  .scalepanel { background: var(--pale); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .scalehead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .scaletitle { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--navy); }
+  .livebadge { background: #14253D; color: #fff; font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; }
+  .livereading { border: 2px solid var(--gold); background: #fff; border-radius: 8px; padding: 7px 10px; font-size: 11px; margin-bottom: 8px; cursor: pointer; }
+  .catrow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 8px; }
+  .catrow select { width: 100%; }
+  .boxes { display: flex; flex-direction: column; gap: 6px; }
+  .box { display: flex; justify-content: space-between; align-items: center; border: 2px solid var(--line); background: #fff; border-radius: 8px; padding: 9px 12px; cursor: pointer; }
+  .box.active { border-color: var(--gold); }
+  .box .lbl { font-size: 12px; font-weight: 700; color: #8C97A4; }
+  .box .val { font-size: 20px; font-weight: 800; color: var(--navy); }
+  .box-computed { background: var(--pale); cursor: default; }
+  .box-computed .val { color: var(--steel); }
+  .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .key { background: #fff; border-radius: 6px; padding: 10px 0; font-weight: 700; font-size: 13px; border: none; cursor: pointer; }
+  .key:hover { background: var(--pale); }
+  .key.del { background: #F4F6F8; }
+  .key.enter { background: var(--navy); color: #fff; grid-column: span 4; font-weight: 800; }
+
+  .photorow { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .camsmall { display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 6px 14px 6px 10px; font-size: 11px; font-weight: 700; color: var(--steel); cursor: pointer; }
+  .camsmall:hover { background: var(--pale); border-color: var(--gold); }
+  .camicon { width: 16px; height: 16px; border-radius: 3px; border: 2px solid var(--steel); position: relative; flex-shrink: 0; }
+  .camicon::before { content: ""; position: absolute; top: -4px; left: 3px; width: 6px; height: 3px; border: 2px solid var(--steel); border-bottom: none; border-radius: 2px 2px 0 0; }
+  .thumbstrip { display: flex; gap: 6px; }
+  .thumb { width: 34px; height: 34px; border-radius: 6px; background: var(--line); border: 1px solid #C5CCD6; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--steel); cursor: pointer; }
+  .thumb:hover { outline: 2px solid var(--gold); }
+  .thumb.add { background: #fff; border: 1px dashed var(--steel); color: var(--steel); font-size: 16px; font-weight: 700; }
+
+  .scaleflags { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .contambtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--amberbg); color: #2E3338; border: 2px solid var(--amber); border-radius: 8px; padding: 7px 0; font-size: 11px; font-weight: 700; cursor: pointer; font-family:'Inter',Arial,Helvetica,sans-serif; }
+  .contambtn:hover { background: #EAD9B4; }
+  .holdrow { display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; font-size: 11px; font-weight: 700; color: var(--ink); }
+  .holdrow input[type=checkbox] { width: 14px; height: 14px; accent-color: var(--danger); }
+
+  .modal-lg { width: 480px; }
+  .formrow { margin-bottom: 10px; }
+  .formrow label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--steel); margin-bottom: 4px; }
+  .formrow select, .formrow textarea, .formrow input[type=file] { width: 100%; }
+  .formrow textarea { border: 2px solid var(--line); border-radius: 6px; font-size: 12px; padding: 6px; font-family:'Inter',Arial,Helvetica,sans-serif; resize: vertical; min-height: 56px; }
+  .threecol { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .pctwrap { position: relative; width: 110px; }
+  .pctwrap input { width: 100%; border: 2px solid var(--line); border-radius: 6px; font-size: 12px; padding: 6px 22px 6px 6px; font-family:'Inter',Arial,Helvetica,sans-serif; }
+  .pctwrap span { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--steel); font-weight: 700; }
+  .holdcheck { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+  .holdcheck input { width: 15px; height: 15px; accent-color: var(--danger); }
+
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(11,35,64,0.55); align-items: center; justify-content: center; z-index: 50; }
+  .modal-backdrop.open { display: flex; }
+  .modal { background: #fff; border-radius: 12px; width: 420px; max-width: 92vw; padding: 18px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .modal-head h3 { margin: 0; font-size: 14px; color: var(--navy); text-transform: uppercase; letter-spacing: .02em; }
+  .modal-close { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--steel); line-height: 1; }
+  .modal-cam { height: 160px; border: 2px dashed var(--line); border-radius: 8px; background: var(--pale); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; color: #8C97A4; padding: 0 16px; margin-bottom: 10px; }
+  .modal-upload { display: block; width: 100%; text-align: center; border: 2px solid var(--navy); color: var(--navy); background: #fff; border-radius: 8px; padding: 9px 0; font-weight: 700; font-size: 12px; cursor: pointer; margin-bottom: 12px; }
+  .modal-thumbs-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--steel); margin: 0 0 8px; }
+  .modal-thumbgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 4px; }
+  .modal-thumbgrid .thumb { width: 100%; height: 44px; }
+  .modal-hint { font-size: 10px; color: #AAB2BC; margin-top: 10px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet"><link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style id="dms-unify">
+/* DMS Brand Standards v2.0 — unification layer (typography + focus states only) */
+h1,h2,h3,legend{font-family:'Archivo','Inter',Arial,Helvetica,sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid #B68A3A;outline-offset:1px;}
+::selection{background:#14253D;color:#FFFFFF;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="intakebar">
+    <span class="intakelbl">Intake</span>
+    <select><option>Supplier&hellip;</option><option selected>Pacific Metals Recycling</option></select>
+    <select><option>Driver&hellip;</option><option selected>Miguel Torres</option></select>
+    <button class="idbtn" onclick="document.getElementById('id-modal').classList.add('open')">
+      <span class="idicon"></span> ID photo
+    </button>
+  </div>
+
+  <div class="topbar">
+    <h1 class="ticket" id="ticketLbl">Ticket #BL-4821</h1>
+    <span class="date" id="ticketDate">Jul 1, 2026, 2:14 PM</span>
+    <span class="pill">Received</span>
+    <span class="by">By: Jason R.</span>
+  </div>
+
+  <div class="grid">
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="card">
+        <p class="cardhead" style="margin-bottom:6px;">Ticket details</p>
+        <p style="font-size:11px; color:var(--steel); margin:2px 0;">Supplier type: <span style="color:var(--ink);">Maquiladora</span> &middot; Driver phone: <span style="color:var(--ink);">(664) 555-0148</span></p>
+        <p style="font-size:11px; color:var(--steel); margin:2px 0;">Truck: <span style="color:var(--ink);">TX-4471</span> &nbsp;Plate: <span style="color:var(--ink);">88B-2231</span> &middot; Storage area: <span style="color:var(--ink);">Yard B</span></p>
+      </div>
+
+      <div class="card listcard">
+        <div class="listhead">Material packing list</div>
+        <table>
+          <thead><tr><th>Category</th><th>Family</th><th>Grade</th><th style="text-align:right;">Gross</th><th style="text-align:right;">Net</th><th style="text-align:right;">Amount</th><th></th></tr></thead>
+          <tbody id="plBody"></tbody>
+          <tfoot><tr><td colspan="3" style="font-weight:700;">Total · <span id="plCount">0</span> lines</td><td style="text-align:right;" id="plTotG">0</td><td style="text-align:right; font-weight:700;" id="plTotN">0</td><td style="text-align:right; font-weight:700;" id="plTotA">$0.00</td><td></td></tr></tfoot>
+        </table>
+      </div>
+
+      <div class="card actionsrow">
+        <button class="btn btn-navy" id="acceptBtn">Accept</button>
+        <button class="btn btn-outline-danger" id="rejectBtn">Reject</button>
+        <span class="hint" id="postHint">Posts to inventory_receipts on accept</span>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div class="scalepanel">
+        <div class="scalehead">
+          <span class="scaletitle">Scale 1</span>
+          <span class="livebadge">Live &middot; Cardinal 210</span>
+        </div>
+
+        <div class="livereading" id="livereading" title="Tap to fill Gross"><span style="font-weight:700; color:var(--navy);">Use live reading:</span> 2,140 lb <span style="color:#8C97A4;">&mdash; tap to fill Gross</span></div>
+
+        <div class="catrow">
+          <select id="scaleCat" aria-label="Category"><option>Copper</option></select>
+          <select id="scaleFam" aria-label="Family"><option>Copper #1</option></select>
+          <select id="scaleGrade" aria-label="Grade"><option>Bright</option></select>
+        </div>
+
+        <div class="boxes">
+          <div class="box active" id="boxGross"><span class="lbl">Gross</span><span class="val" id="valGross">2,140</span></div>
+          <div class="box" id="boxTare"><span class="lbl">Tare</span><span class="val" id="valTare">160</span></div>
+          <div class="box box-computed"><span class="lbl">Net</span><span class="val" id="valNet">1,980</span></div>
+        </div>
+
+        <div class="keypad">
+          <button class="key">7</button><button class="key">8</button><button class="key">9</button><button class="key del">Del</button>
+          <button class="key">4</button><button class="key">5</button><button class="key">6</button><button class="key">00</button>
+          <button class="key">1</button><button class="key">2</button><button class="key">3</button><button class="key">.</button>
+          <button class="key">0</button>
+          <button class="key enter" style="grid-column: span 3;">Enter</button>
+        </div>
+
+        <div class="scaleflags">
+          <button class="contambtn" onclick="document.getElementById('contam-modal').classList.add('open')">
+            <span>&#9888;</span> Report contamination
+          </button>
+          <label class="holdrow">
+            <input type="checkbox" />
+            Hold for revision
+          </label>
+        </div>
+
+        <div class="photorow">
+          <button class="camsmall" onclick="document.getElementById('photo-modal').classList.add('open')">
+            <span class="camicon"></span> Add photo
+          </button>
+          <div class="thumbstrip">
+            <div class="thumb">1</div>
+            <div class="thumb">2</div>
+            <div class="thumb">3</div>
+            <div class="thumb add" onclick="document.getElementById('photo-modal').classList.add('open')">+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="cardhead">AI material recognition</p>
+        <button class="btn btn-outline-navy" style="width:100%;" id="aiBtn">Suggest from photo</button>
+        <div style="margin-top:8px; background:var(--pale); border-radius:8px; padding:8px;">
+          <p style="font-weight:700; color:var(--navy); margin:0 0 2px; font-size:12px;">copper &middot; Copper #1 &middot; Bright</p>
+          <p style="font-size:11px; color:var(--steel); margin:0 0 2px;">Confidence: 87%</p>
+          <p style="font-size:9px; color:#AAB2BC; margin-top:4px;">Pick this in Scale 1. AI suggests; you decide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-backdrop" id="photo-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Add photo</h3>
+      <button class="modal-close" onclick="document.getElementById('photo-modal').classList.remove('open')">&times;</button>
+    </div>
+    <div class="modal-cam">Live camera needs a local bridge. Take a photo with your device, or upload one below.</div>
+    <button class="modal-upload" id="photoChoose">Choose file (max 10 MB)</button>
+    <input type="file" id="photoFile" accept="image/*" hidden>
+    <p class="modal-thumbs-label">Previous photos on this ticket</p>
+    <div class="modal-thumbgrid">
+      <div class="thumb">1</div>
+      <div class="thumb">2</div>
+    </div>
+</div>
+</div>
+
+
+<div class="modal-backdrop" id="id-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Seller ID capture</h3>
+      <button class="modal-close" onclick="document.getElementById('id-modal').classList.remove('open')">&times;</button>
+    </div>
+    <div class="formrow">
+      <label>ID type</label>
+      <select><option>Driver's license</option><option>INE / voter ID</option><option>Passport</option><option>Other government ID</option></select>
+    </div>
+    <div class="formrow">
+      <label>ID number</label>
+      <input type="text" style="width:100%;" placeholder="As shown on the ID">
+    </div>
+    <div class="modal-cam">Live ID camera needs a local bridge. Take a photo with your device, or attach it via &ldquo;Add photo&rdquo; on the ticket.</div>
+    <p class="modal-hint">Seller ID is kept with this ticket&rsquo;s record for scrap-purchase compliance.</p>
+  </div>
+</div>
+
+
+<div class="modal-backdrop" id="contam-modal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <h3>Contamination report</h3>
+      <button class="modal-close" onclick="document.getElementById('contam-modal').classList.remove('open')">&times;</button>
+    </div>
+    <div class="cm-grid">
+      <div class="cm-field"><label>Ticket</label><input id="cmTicket" value="BL-4821" readonly></div>
+      <div class="cm-field"><label>Date / time</label><input id="cmWhen" readonly></div>
+      <div class="cm-field"><label>Supplier</label><input id="cmSupplier" value="Pacific Metals Recycling"></div>
+      <div class="cm-field"><label>Reported by</label><input id="cmBy" value="Jason R."></div>
+      <div class="cm-field cm-span"><label>Material</label><input id="cmMaterial" placeholder="Category &rsaquo; Family &rsaquo; Grade"></div>
+      <div class="cm-field"><label>Contamination type</label>
+        <select id="cmType"><option>Moisture</option><option>Dirt / debris</option><option>Oil / fluids</option><option>Mixed material</option><option>Sealed / pressurized units</option><option>Radiation alarm</option><option>Other</option></select></div>
+      <div class="cm-field"><label>Severity</label>
+        <select id="cmSev"><option>Low</option><option>Moderate</option><option>High</option><option>Reject load</option></select></div>
+      <div class="cm-field"><label>Estimated contamination %</label><input id="cmPct" type="number" min="0" max="100" step="0.5" placeholder="0"></div>
+      <div class="cm-field"><label>Weight deduction (lb)</label><input id="cmDeduct" type="number" min="0" step="1" placeholder="0"></div>
+      <div class="cm-field cm-span"><label>Description</label><textarea id="cmNotes" rows="3" placeholder="What was found, where in the load, action taken&hellip;"></textarea></div>
+    </div>
+    <p class="cm-hint">Photos: use &ldquo;Add photo&rdquo; on the ticket &mdash; images attach to this ticket&rsquo;s record.</p>
+    <div class="cm-actions">
+      <span class="cm-saved" id="cmSaved"></span>
+      <button class="cm-btn cm-cancel" onclick="document.getElementById('contam-modal').classList.remove('open')">Cancel</button>
+      <button class="cm-btn cm-save" id="cmSaveBtn">Save report</button>
+    </div>
+  </div>
+</div>
+
+<script src="dms_materials.js"></script>
+<script src="dms_prices.js"></script>
+<script>
+/* Scale Terminal <- Master Material Structure.
+   Rule: grade items whose checkbox is checked (active) in Material Master
+   appear here under Grade, cascaded by Category and Family. */
+(function(){
+  var M = window.DMS_MATERIALS || {};
+  var selCat = document.getElementById('scaleCat'),
+      selFam = document.getElementById('scaleFam'),
+      selGr  = document.getElementById('scaleGrade');
+  if (!selCat || !selFam || !selGr) return;
+  var act = window.dmsLoadActiveSet();
+
+  function activeRows(c, f){
+    var rows = (M[c] || {})[f] || [];
+    return rows.filter(function(r){ return act.has(window.dmsMatKey(c, f, r)); });
+  }
+  function famsWithActive(c){
+    return Object.keys(M[c] || {}).filter(function(f){ return activeRows(c, f).length; });
+  }
+  function catsWithActive(){
+    return Object.keys(M).filter(function(c){ return famsWithActive(c).length; });
+  }
+  function fill(sel, items, placeholder){
+    sel.innerHTML = '';
+    if (!items.length){
+      var o = document.createElement('option');
+      o.textContent = placeholder; o.disabled = true; o.selected = true;
+      sel.appendChild(o); return;
+    }
+    items.forEach(function(it){
+      var o = document.createElement('option');
+      o.value = it.v !== undefined ? it.v : it;
+      o.textContent = it.t !== undefined ? it.t : it;
+      if (it.k) o.setAttribute('data-key', it.k);
+      sel.appendChild(o);
+    });
+  }
+  function onCat(){
+    fill(selFam, famsWithActive(selCat.value), 'No active families');
+    onFam();
+  }
+  function onFam(){
+    var rows = activeRows(selCat.value, selFam.value);
+    fill(selGr, rows.map(function(r){
+      return { v: r.g + (r.code ? ' (' + r.code + ')' : ''),
+               t: r.g + (r.code ? ' \u00b7 ' + r.code : ''), k: window.dmsMatKey(selCat.value, selFam.value, r) };
+    }), 'No active grades \u2014 enable in Material Master');
+  }
+  function render(keep){
+    var c = keep && selCat.value, f = keep && selFam.value;
+    var cats = catsWithActive();
+    if (!cats.length){
+      fill(selCat, [], 'No active materials');
+      fill(selFam, [], '\u2014');
+      fill(selGr,  [], 'Enable grades in Material Master');
+      return;
+    }
+    fill(selCat, cats);
+    if (c && cats.indexOf(c) > -1) selCat.value = c;
+    onCat();
+    if (f && famsWithActive(selCat.value).indexOf(f) > -1){ selFam.value = f; onFam(); }
+  }
+  selCat.onchange = onCat;
+  selFam.onchange = onFam;
+  render(false);
+  window.addEventListener('storage', function(e){
+    if (e.key === window.DMS_MAT_ACTIVE_KEY){ act = window.dmsLoadActiveSet(); render(true); }
+  });
+})();
+</script>
+
+<style id="scale-interactive-css">
+#boxGross, #boxTare { cursor: pointer; }
+#livereading, .livereading { cursor: pointer; }
+.box.entering { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(20,37,61,.10); }
+.cm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.cm-span { grid-column: span 2; }
+.cm-field label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--steel); margin-bottom: 4px; }
+.cm-field input, .cm-field select, .cm-field textarea { width: 100%; box-sizing: border-box; border: 2px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 12.5px; color: var(--ink); background: #fff; }
+.cm-field input[readonly] { background: var(--pale); color: var(--steel); }
+.cm-field input:focus, .cm-field select:focus, .cm-field textarea:focus { border-color: var(--navy); outline: none; }
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+.cm-hint { font-size: 10px; color: var(--steel); margin: 10px 0 12px; }
+.cm-actions { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.cm-saved { margin-right: auto; font-size: 11px; font-weight: 700; color: var(--navy); }
+.cm-btn { border-radius: 8px; padding: 9px 16px; font: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.cm-cancel { background: #fff; border: 2px solid var(--line); color: var(--ink); }
+.cm-save { background: var(--navy); border: 2px solid var(--navy); color: #fff; }
+.cm-save:hover { background: #1B3050; }
+</style>
+<script>
+/* Pin pad, live-reading tap, and contamination report */
+(function(){
+  var fmt = function(n){ return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
+  var parse = function(s){ return parseFloat(String(s).replace(/,/g, '')) || 0; };
+  var vals = { gross: document.getElementById('valGross'), tare: document.getElementById('valTare'), net: document.getElementById('valNet') };
+  var boxes = { gross: document.getElementById('boxGross'), tare: document.getElementById('boxTare') };
+  if (!vals.gross) return;
+  var active = 'gross', buffer = null;
+
+  function recompute(){
+    vals.net.textContent = fmt(parse(vals.gross.textContent) - parse(vals.tare.textContent));
+  }
+  function setActive(which){
+    active = which; buffer = null;
+    boxes.gross.classList.toggle('active', which === 'gross');
+    boxes.tare.classList.toggle('active', which === 'tare');
+    boxes.gross.classList.remove('entering'); boxes.tare.classList.remove('entering');
+  }
+  boxes.gross.addEventListener('click', function(){ setActive('gross'); });
+  boxes.tare.addEventListener('click', function(){ setActive('tare'); });
+
+  function keyPress(k){
+    var el = vals[active];
+    if (buffer === null) buffer = '';
+    if (k === 'Del'){ buffer = buffer.slice(0, -1); }
+    else if (k === '.'){ if (buffer.indexOf('.') === -1) buffer += (buffer ? '.' : '0.'); }
+    else if (k === '00'){ if (buffer && buffer !== '0') buffer += '00'; }
+    else { buffer = (buffer === '0') ? k : buffer + k; }
+    el.textContent = buffer === '' ? '0' : buffer;
+    boxes[active].classList.add('entering');
+  }
+  function commit(){
+    var el = vals[active];
+    el.textContent = fmt(parse(el.textContent));
+    boxes[active].classList.remove('entering');
+    buffer = null;
+    recompute();
+    if (active === 'gross'){ setActive('tare'); return; }
+    if (window.__plPost && window.__plPost(parse(vals.gross.textContent), parse(vals.tare.textContent))){
+      vals.gross.textContent = '0'; vals.tare.textContent = '0'; vals.net.textContent = '0';
+      setActive('gross');
+    }
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.keypad .key'), function(b){
+    var k = b.textContent.trim();
+    b.addEventListener('click', function(){ k === 'Enter' ? commit() : keyPress(k); });
+  });
+
+  var live = document.getElementById('livereading');
+  if (live) live.addEventListener('click', function(){
+    var m = (live.textContent.match(/([\d,]+(?:\.\d+)?)\s*lb/) || [])[1];
+    if (!m) return;
+    vals.gross.textContent = fmt(parse(m));
+    setActive('gross'); recompute();
+    boxes.gross.classList.add('entering');
+    setTimeout(function(){ boxes.gross.classList.remove('entering'); }, 400);
+  });
+
+  /* ---- contamination report ---- */
+  var pad2 = function(n){ return (n < 10 ? '0' : '') + n; };
+  var modal = document.getElementById('contam-modal');
+  var openers = document.querySelectorAll('.contambtn');
+  Array.prototype.forEach.call(openers, function(b){
+    b.addEventListener('click', function(){
+      if (window.__ticketLabel) document.getElementById('cmTicket').value = window.__ticketLabel();
+      var d = new Date();
+      document.getElementById('cmWhen').value = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+      var c = document.getElementById('scaleCat'), f = document.getElementById('scaleFam'), g = document.getElementById('scaleGrade');
+      var path = [c, f, g].map(function(s){ return s && s.value && s.selectedOptions.length && !s.selectedOptions[0].disabled ? s.value : ''; }).filter(Boolean);
+      document.getElementById('cmMaterial').value = path.join(' \u203a ');
+      document.getElementById('cmSaved').textContent = '';
+    });
+  });
+  document.getElementById('cmSaveBtn').addEventListener('click', function(){
+    var no = 'CT-' + String(Date.now()).slice(-6);
+    var rec = { no: no, ticket: document.getElementById('cmTicket').value,
+      when: document.getElementById('cmWhen').value, supplier: document.getElementById('cmSupplier').value,
+      by: document.getElementById('cmBy').value, material: document.getElementById('cmMaterial').value,
+      type: document.getElementById('cmType').value, severity: document.getElementById('cmSev').value,
+      pct: document.getElementById('cmPct').value, deductLb: document.getElementById('cmDeduct').value,
+      notes: document.getElementById('cmNotes').value, savedAt: new Date().toISOString() };
+    try {
+      var all = JSON.parse(localStorage.getItem('dmssbx-contamination-reports') || '[]');
+      all.push(rec);
+      localStorage.setItem('dmssbx-contamination-reports', JSON.stringify(all));
+    } catch(e) {}
+    document.getElementById('cmSaved').textContent = 'Saved as ' + no;
+    setTimeout(function(){ modal.classList.remove('open'); }, 900);
+  });
+})();
+</script>
+
+
+<script>
+/* Packing list -> inventory flow + priced amounts + photo download */
+(function(){
+  var PKEY = 'dmssbx-commodity-prices-v1', PLKEY = 'dmssbx-scale-packing-v1', INVKEY = 'dmssbx-inventory-v1';
+  var hint = document.getElementById('postHint');
+  var state;
+  try { state = JSON.parse(localStorage.getItem(PLKEY) || 'null') || { no: 4821, lines: [] }; }
+  catch(e){ state = { no: 4821, lines: [] }; }
+  if (!state.opened) state.opened = new Date().toISOString();
+  function save(){
+    try {
+      var s = document.querySelector('.intakebar select');
+      if (s && s.value) state.sup = s.value;
+      localStorage.setItem(PLKEY, JSON.stringify(state));
+    } catch(e){}
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function money(n){ return '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fmt(n){ return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:1}); }
+  window.__ticketLabel = function(){ return 'BL-' + state.no; };
+  function refreshTicket(){
+    document.getElementById('ticketLbl').textContent = 'Ticket #BL-' + state.no;
+    var d = new Date();
+    document.getElementById('ticketDate').textContent =
+      d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ', ' +
+      d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+  function priceFor(key){
+    var entries = null;
+    try { entries = (JSON.parse(localStorage.getItem(PKEY) || '{}'))[key]; } catch(e){}
+    if (!entries || !entries.length) entries = (window.DMS_PRICES_SEED || {})[key] || [];
+    var lb = entries.filter(function(e){ return (e.u || '/lb') === '/lb'; });
+    if (!lb.length) return null;
+    var best = lb[0]; lb.forEach(function(e){ if (e.p > best.p) best = e; });
+    return best;
+  }
+  function msg(txt, ok){
+    if (!hint) return;
+    hint.textContent = txt;
+    hint.style.color = ok ? '#1B3050' : '#B3261E';
+    hint.style.fontWeight = '700';
+  }
+  window.__plPost = function(gross, tare){
+    var net = gross - tare;
+    if (!(gross > 0)){ msg('Enter a gross weight before posting.', false); return false; }
+    if (!(net > 0)){ msg('Net must be positive — check tare.', false); return false; }
+    var sc = document.getElementById('scaleCat'), sf = document.getElementById('scaleFam'), sg = document.getElementById('scaleGrade');
+    var opt = sg && sg.selectedOptions[0];
+    if (!opt || opt.disabled || !opt.getAttribute('data-key')){
+      msg('Select a material first — grades come from Material Master.', false); return false;
+    }
+    var key = opt.getAttribute('data-key');
+    var best = priceFor(key);
+    state.lines.push({ key: key, cat: sc.value, fam: sf.value, grade: opt.value,
+      gross: gross, tare: tare, net: net,
+      rate: best ? best.p : null, vendor: best ? best.v : null,
+      amount: best ? Math.round(net * best.p * 100) / 100 : null });
+    save(); renderPL();
+    msg('Line posted to packing list \u2713', true);
+    return true;
+  };
+  function renderPL(){
+    document.getElementById('plBody').innerHTML = state.lines.map(function(l, i){
+      return '<tr>' +
+        '<td style="font-weight:700; color:var(--navy);">' + esc(l.cat) + '</td><td>' + esc(l.fam) + '</td><td>' + esc(l.grade) + '</td>' +
+        '<td style="text-align:right;">' + fmt(l.gross) + '</td>' +
+        '<td style="text-align:right; font-weight:700;">' + fmt(l.net) + '</td>' +
+        '<td style="text-align:right; font-weight:700;"' + (l.rate ? ' title="@ ' + money(l.rate) + '/lb \u00b7 ' + esc(l.vendor) + '"' : '') + '>' +
+          (l.amount != null ? money(l.amount) : '<span style="color:#8C97A4">no price</span>') + '</td>' +
+        '<td style="text-align:right;"><button class="rowdel" data-i="' + i + '">&times;</button></td></tr>';
+    }).join('');
+    var g = 0, n = 0, a = 0;
+    state.lines.forEach(function(l){ g += l.gross; n += l.net; a += l.amount || 0; });
+    document.getElementById('plCount').textContent = state.lines.length;
+    document.getElementById('plTotG').textContent = fmt(g);
+    document.getElementById('plTotN').textContent = fmt(n);
+    document.getElementById('plTotA').textContent = money(a);
+  }
+  document.getElementById('plBody').addEventListener('click', function(e){
+    var b = e.target.closest('button.rowdel'); if (!b) return;
+    state.lines.splice(+b.getAttribute('data-i'), 1); save(); renderPL();
+  });
+  document.getElementById('acceptBtn').addEventListener('click', function(){
+    if (!state.lines.length){ msg('Nothing to post — packing list is empty.', false); return; }
+    var inv; try { inv = JSON.parse(localStorage.getItem(INVKEY) || '{"receipts":[]}'); } catch(e){ inv = { receipts: [] }; }
+    var g = 0, n = 0, a = 0;
+    state.lines.forEach(function(l){ g += l.gross; n += l.net; a += l.amount || 0; });
+    var sup = document.querySelector('.intakebar select');
+    inv.receipts.push({ no: 'BL-' + state.no, when: new Date().toISOString(),
+      supplier: sup ? sup.value : '', lines: state.lines, gross: g, net: n, amount: Math.round(a * 100) / 100 });
+    try { localStorage.setItem(INVKEY, JSON.stringify(inv)); } catch(e){}
+    var done = state.no;
+    state = { no: state.no + 1, lines: [], opened: new Date().toISOString() }; save(); renderPL(); refreshTicket();
+    msg('Ticket BL-' + done + ' posted to inventory \u2713 \u2014 now on BL-' + state.no, true);
+  });
+  document.getElementById('rejectBtn').addEventListener('click', function(){
+    if (!state.lines.length){ msg('Packing list is already empty.', false); return; }
+    if (confirm('Reject this ticket and clear all ' + state.lines.length + ' lines? Nothing will post to inventory.')){
+      state.lines = []; save(); renderPL(); msg('Ticket cleared — nothing posted.', true);
+    }
+  });
+  /* ---- photos: upload + download via AI button ---- */
+  var PHOTOS = [];
+  var chooser = document.getElementById('photoChoose'), fileIn = document.getElementById('photoFile');
+  if (chooser && fileIn){
+    chooser.addEventListener('click', function(){ fileIn.click(); });
+    fileIn.addEventListener('change', function(e){
+      Array.prototype.forEach.call(e.target.files, function(f){
+        var fr = new FileReader();
+        fr.onload = function(ev){
+          PHOTOS.push({ name: f.name, data: ev.target.result });
+          var g = document.querySelector('#photo-modal .modal-thumbgrid');
+          if (g){ var d = document.createElement('div'); d.className = 'thumb';
+            d.style.backgroundImage = 'url(' + ev.target.result + ')';
+            d.style.backgroundSize = 'cover'; g.appendChild(d); }
+        };
+        fr.readAsDataURL(f);
+      });
+      e.target.value = '';
+    });
+  }
+  function samplePNG(cb){
+    var c = document.createElement('canvas'); c.width = 880; c.height = 620;
+    var x = c.getContext('2d');
+    x.fillStyle = '#F4F6F8'; x.fillRect(0, 0, 880, 620);
+    x.fillStyle = '#14253D'; x.fillRect(0, 0, 880, 64);
+    x.fillStyle = '#FFFFFF'; x.font = '700 22px Arial'; x.fillText('DMS \u00b7 Material photo', 20, 40);
+    x.fillStyle = '#B68A3A'; x.fillRect(0, 64, 880, 3);
+    x.fillStyle = '#2E3338'; x.font = '600 18px Arial';
+    x.fillText('Ticket BL-' + state.no + ' \u00b7 ' + new Date().toLocaleString('en-US'), 20, 100);
+    var sg = document.getElementById('scaleGrade'); var opt = sg && sg.selectedOptions[0];
+    x.fillText('Material: ' + (opt && !opt.disabled ? opt.value : '\u2014'), 20, 128);
+    x.strokeStyle = '#8C97A4'; x.setLineDash([8, 6]); x.strokeRect(20, 150, 840, 430);
+    x.setLineDash([]); x.fillStyle = '#8C97A4'; x.font = '600 16px Arial'; x.textAlign = 'center';
+    x.fillText('Sample capture \u2014 scale camera bridge pending', 440, 370);
+    x.textAlign = 'left';
+    cb(c.toDataURL('image/png'));
+  }
+  var ai = document.getElementById('aiBtn');
+  if (ai) ai.addEventListener('click', function(){
+    function dl(data, name){
+      var a = document.createElement('a'); a.href = data; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      msg('Photo downloaded \u00b7 recognition model pending', true);
+    }
+    if (PHOTOS.length){
+      var ph = PHOTOS[PHOTOS.length - 1];
+      dl(ph.data, 'DMS_BL-' + state.no + '_material_' + ph.name.replace(/[^A-Za-z0-9._-]/g, ''));
+    } else samplePNG(function(data){ dl(data, 'DMS_BL-' + state.no + '_material.png'); });
+  });
+  refreshTicket(); renderPL();
+})();
+</script>
+<script id="sbx-strip">(function(){if(window.top!==window)return;var b=document.createElement('div');b.style.cssText='position:sticky;top:0;z-index:99999;background:#FCF3E3;border-bottom:1px solid #EAD9B4;color:#B45309;font:600 12px/1.5 Inter,Arial,sans-serif;padding:6px 14px;text-align:center';b.innerHTML='<b>SANDBOX</b> \u2014 safe copy \u00B7 changes stay here \u00B7 <a href="19_Claude_Workbench.html" style="color:#14253D">Claude Workbench \u2192</a>';document.body.insertBefore(b,document.body.firstChild);})();</script>
+<script src="sbx_annotate.js"></script>
+</body>
+</html>

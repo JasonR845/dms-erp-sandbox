@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMS ERP — Claude Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* DMS Brand Standards v2.0 — clean-white module page (matches suite pages) */
+:root{--navy:#14253D;--navy2:#1B3050;--ink:#2E3338;--gold:#B68A3A;--steel:#8C97A4;
+--pale:#F4F6F8;--hair:#DDE3EA;--blue:#2563EB;--bluebg:#EAF0FB;--green:#1F6B3B;--greenbg:#EAF6EE;
+--amber:#B45309;--amberbg:#FCF3E3;--red:#B3261E;--redbg:#FBEBEA;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--pale);color:var(--ink);font-family:'Inter',Arial,Helvetica,sans-serif;font-size:13.5px}
+.page{max-width:1160px;margin:0 auto;padding:26px 24px 60px}
+h1{font-family:'Archivo','Inter',Arial,sans-serif;color:var(--navy);font-size:21px;font-weight:800;margin:0 0 4px}
+.gold-rule{width:64px;height:3px;background:var(--gold);border-radius:2px;margin:0 0 10px}
+.sub{color:#5A6470;font-size:12.5px;margin:0 0 18px;line-height:1.6;max-width:760px}
+.card{background:#fff;border:1px solid var(--hair);border-radius:12px;box-shadow:0 1px 2px rgba(20,37,61,.05);padding:15px 17px;margin-bottom:14px}
+.card h2{font-family:'Archivo','Inter',Arial,sans-serif;font-size:13.5px;color:var(--navy);font-weight:700;margin:0 0 10px}
+.btn{border-radius:8px;padding:8px 14px;font:inherit;font-weight:600;font-size:12.5px;border:1px solid transparent;cursor:pointer}
+.btn-p{background:var(--navy);color:#fff}
+.btn-s{background:#fff;color:var(--navy);border-color:var(--hair)}
+.btn-s:hover{border-color:var(--navy)}
+.btn-sm{padding:4px 9px;font-size:11px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--steel);display:inline-block;flex:none}
+.dot.on{background:var(--green)} .dot.err{background:var(--red)}
+.hint{font-size:11px;color:#5A6470;margin-top:8px;line-height:1.55}
+.frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-bottom:10px}
+label{display:block;font-size:10.5px;font-weight:700;color:#5A6470;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+select,textarea,input{width:100%;border:1px solid var(--hair);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;background:#fff;outline:none}
+select:focus,textarea:focus{border-color:var(--navy)}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #B68A3A;outline-offset:1px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.chip{border:1px solid var(--hair);background:#fff;border-radius:20px;padding:5px 12px;font-size:11.5px;font-weight:700;color:#5A6470;cursor:pointer;font-family:inherit}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:1000px){.board{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.board{grid-template-columns:1fr}.page{padding:14px 12px 60px}
+  select,textarea,input{font-size:16px}.btn{padding:10px 14px}}
+.col{background:var(--pale);border:1px solid var(--hair);border-radius:12px;padding:10px;min-height:110px}
+.col h4{font-size:11px;color:#5A6470;text-transform:uppercase;letter-spacing:.5px;margin:0 0 8px;display:flex;justify-content:space-between}
+.note{background:#fff;border:1px solid var(--hair);border-left:4px solid var(--blue);border-radius:8px;padding:9px 11px;margin-bottom:8px;box-shadow:0 1px 2px rgba(20,37,61,.05)}
+.note.pri-now{border-left-color:var(--red)}
+.note.pri-next{border-left-color:var(--amber)}
+.note.pri-later{border-left-color:var(--steel)}
+.note .txt{font-size:12.5px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.note .meta{font-size:10.5px;color:#5A6470;margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.badge{display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;white-space:nowrap}
+.b-navy{background:#E5EAF2;color:var(--navy)} .b-red{background:var(--redbg);color:var(--red)}
+.b-amber{background:var(--amberbg);color:var(--amber)} .b-gray{background:#EEF1F4;color:#5A6470}
+.b-blue{background:var(--bluebg);color:#1D4ED8} .b-green{background:var(--greenbg);color:var(--green)}
+.acts{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap}
+.reply{background:var(--greenbg);border:1px solid #CBE6D3;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;line-height:1.5;white-space:pre-wrap}
+.reply .from{font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.cmsg{background:var(--bluebg);border:1px solid #C8D8F5;border-radius:12px;padding:12px 15px;font-size:12.5px;line-height:1.6;margin-bottom:14px;white-space:pre-wrap}
+.cmsg .from{font-size:10px;font-weight:800;color:#1D4ED8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.plan-item{border:1px solid var(--hair);border-radius:10px;padding:11px 13px;margin-bottom:9px;background:#fff}
+.plan-item h5{font-family:'Archivo','Inter',Arial,sans-serif;font-size:12.5px;color:var(--navy);margin:0 0 4px}
+.plan-item p{font-size:12px;color:var(--ink);line-height:1.55;margin:0;white-space:pre-wrap}
+.empty{padding:20px;text-align:center;color:#5A6470;font-size:12.5px}
+#toasts{position:fixed;bottom:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;font-size:12.5px;max-width:340px;box-shadow:0 4px 14px rgba(20,37,61,.25)}
+.toast.err{background:var(--red)}
+.overlay{position:fixed;inset:0;background:rgba(20,37,61,.45);display:none;place-items:center;z-index:100;padding:20px}
+.overlay.on{display:grid}
+.modal{background:#fff;border-radius:14px;max-width:640px;width:100%;max-height:85vh;overflow:auto;padding:18px 20px}
+.modal h3{font-size:15px;color:var(--navy);margin:0 0 12px}
+.modal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.howto{font-size:12.5px;line-height:1.8}
+.mc{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.mc .grp label{display:block;font-size:10.5px;font-weight:700;color:#5A6470;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.seg{display:inline-flex;border:1px solid var(--hair);border-radius:9px;overflow:hidden;background:#fff}
+.seg button{border:0;background:#fff;padding:8px 13px;font:inherit;font-size:12px;font-weight:600;color:#5A6470;cursor:pointer;border-right:1px solid var(--hair)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--navy);color:#fff}
+.steps{font-size:13px;line-height:2;margin:4px 0 10px}
+.steps b{color:var(--navy)}
+@media(max-width:620px){.mc{gap:10px}.seg button{padding:10px 12px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>🧭 Claude Workbench</h1>
+  <div class="gold-rule"></div>
+  <p class="sub">Your notes → our game plan → adjustments to this sandbox. Jot ideas as you use the modules; connect the folder once and everything flows to Claude automatically. Nothing here touches the live app.</p>
+
+  <div id="cmsg"></div>
+
+  <div class="card">
+    <h2>Mission control — send this sandbox's work to Claude</h2>
+    <div class="mc">
+      <div class="grp"><label>Model</label><div class="seg" id="segModel">
+        <button data-v="fable">Fable</button><button data-v="opus">Opus</button><button data-v="sonnet">Sonnet</button>
+      </div></div>
+      <div class="grp"><label>Effort level</label><div class="seg" id="segEffort">
+        <button data-v="low">Low</button><button data-v="medium">Medium</button><button data-v="high">High</button>
+      </div></div>
+      <div style="flex:1"></div>
+      <button class="btn btn-p" id="btnGo" style="font-size:13px;padding:11px 18px">🚀 Make changes now</button>
+    </div>
+    <div class="hint">One click: saves your notes + markups, copies a ready-to-send kickoff message (your model and effort choice ride along), and opens Claude. Paste it into a new chat in your ERP project and Claude gets to work on this sandbox. Heads-up: the Claude app's model picker is set by you — match it to your choice here.</div>
+  </div>
+
+  <div class="card">
+    <h2>Connection to Claude — folder sync</h2>
+    <div class="row">
+      <span class="dot" id="dot"></span><span id="dottxt" style="font-size:12px;color:#5A6470">Not connected</span>
+      <button class="btn btn-p btn-sm" id="btnConnect">Connect sandbox folder</button>
+      <button class="btn btn-s btn-sm" id="btnSync">Sync now</button>
+      <button class="btn btn-s btn-sm" id="btnExport">Download notes file</button>
+      <label class="btn btn-s btn-sm" style="display:inline-flex;align-items:center;width:auto">Import notes file<input type="file" id="fileImp" accept="application/json,.json" style="display:none"></label>
+      <button class="btn btn-s btn-sm" id="btnBrief">Copy brief for Claude</button>
+    </div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <div class="card">
+    <h2>New note</h2>
+    <div class="frow">
+      <div><label>Module / screen</label><select id="nModule"></select></div>
+      <div><label>Priority</label><select id="nPri"><option value="now">Now</option><option value="next" selected>Next</option><option value="later">Later</option></select></div>
+    </div>
+    <label>Note — idea · adjustment · bug · question</label>
+    <textarea id="nText" rows="3" placeholder="Say WHAT to change, WHERE on the page, and WHY — e.g. In section 2 Banking, add a Currency column to the payment-cards table so MXN cards are obvious."></textarea>
+    <div class="hint" style="margin-top:6px">Write it like an instruction to a builder — Claude reads these word-for-word. One change per note works best; add as many notes per page as you like.</div>
+    <div style="margin-top:9px"><button class="btn btn-p" id="btnAdd">Add note</button></div>
+    <div id="pageNotes" style="margin-top:12px"></div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div id="viewByPage"></div>
+  <div id="viewBoard" style="display:none"><div class="board" id="board"></div></div>
+
+  <div id="viewPlan" style="display:none">
+    <div class="card"><h2>Game plan — written by Claude, approved by you</h2><div id="plan"></div></div>
+  </div>
+
+  <div id="viewHelp" style="display:none">
+    <div class="card"><h2>How the loop works</h2>
+      <div class="howto">
+        <b>1 · Note it.</b> Add a note here any time — idea, adjustment, bug, question. Tag the module it belongs to.<br>
+        <b>2 · It reaches Claude.</b> Click <i>Connect sandbox folder</i> once (pick the DMS_ERP_v2_Sandbox folder). Every note then auto-saves to <span style="font-family:Consolas,monospace">claude_notes.json</span> in the folder.<br>
+        <b>Notes live by page.</b> The default view groups every open note under its page (01–19). Pick a page in New note and you instantly see everything already queued for it.<br>
+        <b>Done = cleared.</b> When a note is finished — by you or by Claude — it disappears from the board automatically. That is your signal it has been updated through Claude. Nothing is lost: the Cleared ✓ chip shows the history.<br>
+        <b>3 · Game plan.</b> In your next Claude session say <b>“check my sandbox notes.”</b> Claude replies to each note and writes a proposed game plan into the same file — it all appears here.<br>
+        <b>4 · You approve, Claude builds.</b> Press <i>Approve</i> on plan items; Claude makes those adjustments to the sandbox files next session. The live app is never touched.<br><br>
+        <b>Embedded note:</b> if the folder picker won't open while this page is inside the ERP shell, use “Open full page ↗” in the top bar and connect from there.<br>
+        <b>Mission control:</b> pick your model (Fable / Opus / Sonnet) and effort level, then 🚀 Make changes now — it saves everything, copies the kickoff message, and opens Claude; paste into a new chat in your ERP project. Your picks are saved into claude_notes.json so Claude sees them too.<br>
+        <b>On the pages:</b> the 🧭 WORKBENCH side panel now has an Erase tool (click a markup to remove it) and a Toggle switch example widget, alongside checkbox, dropdown, text, shapes, and pictures.<br>
+        <b>On your phone:</b> folder sync needs desktop Edge/Chrome. Use <i>Copy brief for Claude</i> and paste into the Claude app — or Download / Import the notes file.<br>
+        <b>Data safety:</b> the sandbox stores everything under its own keys (dmssbx-…), fully separate from the live app. Workbench notes also live in claude_notes.json on disk — double protection.
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toasts"></div>
+<div class="overlay" id="ov"><div class="modal"><h3 id="mTitle"></h3><div id="mBody"></div><div class="foot" id="mFoot"></div></div></div>
+<script>
+/* ============ tiny UI helpers ============ */
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function toast(msg,isErr){var h=document.getElementById("toasts");var t=document.createElement("div");t.className="toast"+(isErr?" err":"");t.textContent=msg;h.appendChild(t);setTimeout(function(){t.remove();},3800);}
+function modal(title,bodyHtml,buttons){var ov=document.getElementById("ov");document.getElementById("mTitle").textContent=title;document.getElementById("mBody").innerHTML=bodyHtml;var f=document.getElementById("mFoot");f.innerHTML="";(buttons||[{label:"Close"}]).forEach(function(b){var btn=document.createElement("button");btn.className="btn "+(b.primary?"btn-p":"btn-s");btn.textContent=b.label;btn.onclick=function(){if(b.onClick&&b.onClick(ov)===false)return;ov.classList.remove("on");};f.appendChild(btn);});ov.classList.add("on");ov.onclick=function(e){if(e.target===ov)ov.classList.remove("on");};}
+function badge(t,tone){return '<span class="badge b-'+(tone||"gray")+'">'+esc(t)+"</span>";}
+
+/* ============ store (own key — separate from ERP data) ============ */
+var WB={KEY:"dmssbx-claude-notes",state:null,
+ blank:function(){return{app:"DMS ERP v2 Sandbox — Claude Workbench",format:1,updated:new Date().toISOString(),claudeMessage:null,preferences:{model:"fable",effort:"medium",updatedAt:""},notes:[],gamePlan:[]};},
+ load:function(){if(this.state)return this.state;try{var v=localStorage.getItem(this.KEY);this.state=v?JSON.parse(v):this.blank();}catch(e){this.state=this.blank();}return this.state;},
+ save:function(){this.state.updated=new Date().toISOString();try{localStorage.setItem(this.KEY,JSON.stringify(this.state));}catch(e){}scheduleWrite();}};
+function nid(){return "N-"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function nowIso(){return new Date().toISOString();}
+function fmtTs(iso){return iso?String(iso).slice(0,10):"";}
+
+/* ============ merge (per-item newest-wins by updatedAt) ============ */
+function mergeItems(a,b){var map={};(a||[]).forEach(function(n){map[n.id]=n;});(b||[]).forEach(function(n){var cur=map[n.id];if(!cur){map[n.id]=n;return;}
+ var tN=n.updatedAt||n.ts||"",tC=cur.updatedAt||cur.ts||"";var base=tN>tC?n:cur,other=tN>tC?cur:n;
+ if(other.reply&&(!base.reply||(other.reply.ts||"")>(base.reply.ts||"")))base=Object.assign({},base,{reply:other.reply});
+ map[n.id]=base;});
+ return Object.keys(map).map(function(k){return map[k];}).sort(function(x,y){return (y.ts||"")<(x.ts||"")?-1:1;});}
+function mergeStates(local,file){if(!file||typeof file!=="object")return local;
+ local.notes=mergeItems(local.notes,file.notes);local.gamePlan=mergeItems(local.gamePlan,file.gamePlan);
+ var lm=local.claudeMessage,fm=file.claudeMessage;local.claudeMessage=(fm&&(!lm||(fm.ts||"")>(lm.ts||"")))?fm:lm;
+ var lp=local.preferences,fp=file.preferences;local.preferences=(fp&&(!lp||(fp.updatedAt||"")>(lp.updatedAt||"")))?fp:lp;return local;}
+
+/* ============ folder bridge (File System Access + IndexedDB handle) ============ */
+var FS={dir:null,ok:false,lastStamp:null},FILE="claude_notes.json";
+function idb(){return new Promise(function(res,rej){var rq=indexedDB.open("dmssbx_fs",1);rq.onupgradeneeded=function(){rq.result.createObjectStore("h");};rq.onsuccess=function(){res(rq.result);};rq.onerror=function(){rej(rq.error);};});}
+function idbPut(k,v){return idb().then(function(db){return new Promise(function(res,rej){var tx=db.transaction("h","readwrite");tx.objectStore("h").put(v,k);tx.oncomplete=res;tx.onerror=function(){rej(tx.error);};});});}
+function idbGet(k){return idb().then(function(db){return new Promise(function(res,rej){var tx=db.transaction("h","readonly");var rq=tx.objectStore("h").get(k);rq.onsuccess=function(){res(rq.result);};rq.onerror=function(){rej(rq.error);};});});}
+function setDot(cls,txt){var d=document.getElementById("dot");d.className="dot"+(cls?" "+cls:"");document.getElementById("dottxt").textContent=txt;}
+function fsOK(){return !!window.showDirectoryPicker;}
+async function readFileState(){try{var fh=await FS.dir.getFileHandle(FILE);var f=await fh.getFile();var t=await f.text();return t.trim()?JSON.parse(t):null;}catch(e){return null;}}
+async function writeFileState(){if(!FS.ok)return false;try{var fh=await FS.dir.getFileHandle(FILE,{create:true});var w=await fh.createWritable();await w.write(JSON.stringify(WB.state,null,2));await w.close();return true;}catch(e){setDot("err","Write failed — click Sync now");return false;}}
+var wt=null;function scheduleWrite(){if(!FS.ok)return;clearTimeout(wt);wt=setTimeout(writeFileState,800);}
+async function fullSync(interactive){if(!FS.dir)return false;
+ try{var perm=await FS.dir.queryPermission({mode:"readwrite"});
+  if(perm!=="granted"){if(!interactive){setDot("","Folder remembered — click Sync now to re-authorize");return false;}
+   perm=await FS.dir.requestPermission({mode:"readwrite"});if(perm!=="granted"){setDot("err","Permission declined");return false;}}
+  FS.ok=true;var fileState=await readFileState();var hadMsg=WB.state.claudeMessage?(WB.state.claudeMessage.ts||""):"";
+  WB.state=mergeStates(WB.load(),fileState);try{localStorage.setItem(WB.KEY,JSON.stringify(WB.state));}catch(e){}
+  await writeFileState();FS.lastStamp=fileState&&fileState.updated?fileState.updated:null;
+  setDot("on","Connected — notes flow to Claude via "+FILE);
+  if(WB.state.claudeMessage&&(WB.state.claudeMessage.ts||"")>hadMsg)toast("New message from Claude");
+  renderAll();return true;
+ }catch(e){setDot("err","Sync problem — try Connect again");return false;}}
+async function connectFolder(){
+ if(!fsOK()){toast("Folder sync needs desktop Edge/Chrome. Use Download / Copy brief instead.",true);return;}
+ try{var dir=await window.showDirectoryPicker({mode:"readwrite"});FS.dir=dir;await idbPut("dir",dir);await fullSync(true);toast("Folder connected — notes will reach Claude");}
+ catch(e){if(window.top!==window)toast("Blocked while embedded? Use “Open full page ↗” above, then Connect.",true);}}
+setInterval(async function(){if(!FS.ok||!FS.dir)return;try{var f=await readFileState();
+ if(f&&f.updated&&f.updated!==FS.lastStamp&&f.updated>(WB.state.updated||"")){FS.lastStamp=f.updated;
+  WB.state=mergeStates(WB.load(),f);try{localStorage.setItem(WB.KEY,JSON.stringify(WB.state));}catch(e){}
+  renderAll();toast("Updated from Claude");}}catch(e){}},45000);
+
+/* ============ UI ============ */
+var MODULES=[["general","General — whole app"],
+ ["01","01 Vendor Input"],["02","02 Create Job → Dispatch"],["03","03 Customer Intake"],["04","04 Directory"],
+ ["05","05 Critical Maintenance"],["06","06 Employee Input"],["07","07 Material Master"],["08","08 Mechanical Sampling"],
+ ["09","09 Equipment / Part Detail"],["10","10 Preventive Maintenance"],["11","11 Pricing Formula"],["12","12 Purchasing"],
+ ["13","13 Review & Approve"],["14","14 Scale Terminal"],["15","15 Spare Parts Inventory"],["16","16 Supplier Input"],
+ ["17","17 Commodity Pricing"],["18","18 Inventory"],["19","19 Claude Workbench"]];
+var STATUSES=[["inbox","📥 Inbox"],["planned","🗺️ Planned"],["inprogress","🔧 In progress"]];
+var PRI={now:"Now",next:"Next",later:"Later"};
+function moduleLabel(v){var m=MODULES.filter(function(x){return x[0]===v;})[0];return m?m[1]:(v||"General");}
+document.getElementById("nModule").innerHTML=MODULES.map(function(m){return '<option value="'+esc(m[0])+'">'+esc(m[1])+"</option>";}).join("");
+
+var curView="bypage";
+function chipDefs(){var s=WB.load();
+ var open=s.notes.filter(function(n){return n.status!=="done"&&n.status!=="archived";}).length;
+ var plan=s.gamePlan.filter(function(g){return g.status!=="done"&&g.status!=="archived";}).length;
+ var cleared=s.notes.filter(function(n){return n.status==="archived";}).length;
+ var out=[{key:"bypage",label:"Notes by page · "+open},{key:"board",label:"By status"},{key:"plan",label:"Game plan · "+plan},{key:"help",label:"How it works"}];
+ if(cleared)out.push({key:"cleared",label:"Cleared ✓ "+cleared});
+ return out;}
+function renderChips(){var host=document.getElementById("chips");host.innerHTML=chipDefs().map(function(d){return '<button class="chip'+(d.key===curView?" on":"")+'" data-k="'+d.key+'">'+esc(d.label)+"</button>";}).join("");
+ host.querySelectorAll(".chip").forEach(function(b){b.onclick=function(){curView=b.dataset.k;renderChips();showView();};});}
+function showView(){document.getElementById("viewByPage").style.display=curView==="bypage"?"":"none";
+ document.getElementById("viewBoard").style.display=curView==="board"?"":"none";
+ document.getElementById("viewPlan").style.display=curView==="plan"?"":"none";
+ document.getElementById("viewHelp").style.display=curView==="help"?"":"none";
+ if(curView==="cleared")showCleared();}
+
+function noteCard(n){var acts=[];
+ if(n.status==="inbox")acts.push(["planned","Plan it"]);
+ if(n.status==="planned"){acts.push(["inprogress","Start"]);acts.push(["inbox","◀ Inbox"]);}
+ if(n.status==="inprogress"){acts.push(["archived","Done ✓ clear"]);acts.push(["planned","◀ Back"]);}
+ if(n.status==="inbox"||n.status==="planned")acts.push(["archived","Done ✓"]);
+ var btns=acts.map(function(a){return '<button class="btn btn-s btn-sm" data-mv="'+a[0]+'" data-id="'+n.id+'">'+a[1]+"</button>";}).join("");
+ btns+='<button class="btn btn-s btn-sm" data-ed="'+n.id+'">Edit</button>';
+ var reply=n.reply?'<div class="reply"><div class="from">Claude · '+fmtTs(n.reply.ts)+'</div>'+esc(n.reply.text)+"</div>":"";
+ return '<div class="note pri-'+(n.priority||"next")+'"><div class="txt">'+esc(n.text)+"</div>"+
+  '<div class="meta">'+badge(moduleLabel(n.module),"navy")+badge(PRI[n.priority]||"Next",n.priority==="now"?"red":n.priority==="later"?"gray":"amber")+
+  "<span>"+fmtTs(n.ts)+"</span><span>"+esc(n.id)+"</span></div>"+reply+'<div class="acts">'+btns+"</div></div>";}
+function renderBoard(){var s=WB.load(),host=document.getElementById("board");
+ host.innerHTML=STATUSES.map(function(st){var items=s.notes.filter(function(n){return n.status===st[0];});
+  return '<div class="col"><h4>'+st[1]+"<span>"+items.length+"</span></h4>"+(items.length?items.map(noteCard).join(""):'<div class="empty">—</div>')+"</div>";}).join("");
+ bindNoteActions(host);}
+function renderPlan(){var s=WB.load(),host=document.getElementById("plan");
+ var items=s.gamePlan.filter(function(g){return g.status!=="archived";});
+ if(!items.length){host.innerHTML='<div class="empty">No game plan yet. Add notes, sync, then ask Claude to “check my sandbox notes and propose a game plan.”</div>';return;}
+ var tone={proposed:"blue",agreed:"amber",building:"amber",done:"green"};
+ host.innerHTML=items.map(function(g){var acts=[];
+  if(g.status==="proposed")acts.push(["agreed","Approve ✓"]);
+  if(g.status==="agreed"||g.status==="building")acts.push(["proposed","◀ Un-approve"]);
+  if(g.status!=="done")acts.push(["done","Mark done"]);
+  var btns=acts.map(function(a){return '<button class="btn btn-s btn-sm" data-gp="'+g.id+'" data-st="'+a[0]+'">'+a[1]+"</button>";}).join("");
+  return '<div class="plan-item"><h5>'+esc(g.title)+" "+badge(g.status,tone[g.status]||"gray")+"</h5><p>"+esc(g.detail||"")+"</p>"+
+   (g.notes&&g.notes.length?'<div style="font-size:10.5px;color:#5A6470;margin-top:4px">notes: '+g.notes.map(esc).join(", ")+"</div>":"")+
+   '<div class="acts" style="margin-top:7px">'+btns+"</div></div>";}).join("");
+ host.querySelectorAll("[data-gp]").forEach(function(b){b.onclick=function(){var g=WB.state.gamePlan.filter(function(x){return x.id===b.dataset.gp;})[0];
+  if(!g)return;g.status=b.dataset.st;g.updatedAt=nowIso();WB.save();renderAll();
+  toast(g.status==="agreed"?"Approved — Claude will build this next session":"Game plan updated");};});}
+function renderMsg(){var m=WB.load().claudeMessage,host=document.getElementById("cmsg");
+ host.innerHTML=m&&m.text?'<div class="cmsg"><div class="from">Message from Claude · '+fmtTs(m.ts)+"</div>"+esc(m.text)+"</div>":"";}
+function renderAll(){sweepDone();renderMsg();renderByPage();renderBoard();renderPlan();renderChips();renderPrefs();renderPageNotes();showView();}
+
+/* ============ actions ============ */
+document.getElementById("btnAdd").onclick=function(){var t=document.getElementById("nText").value.trim();
+ if(!t){toast("Write the note first",true);return;}
+ WB.load().notes.unshift({id:nid(),ts:nowIso(),updatedAt:nowIso(),from:"jason",
+  module:document.getElementById("nModule").value,priority:document.getElementById("nPri").value,text:t,status:"inbox",reply:null});
+ document.getElementById("nText").value="";WB.save();renderAll();toast("Note added"+(FS.ok?" — synced to Claude":""));};
+document.getElementById("btnConnect").onclick=connectFolder;
+document.getElementById("btnSync").onclick=function(){if(!FS.dir){connectFolder();return;}fullSync(true).then(function(ok){if(ok)toast("Synced");});};
+document.getElementById("btnExport").onclick=function(){var blob=new Blob([JSON.stringify(WB.load(),null,2)],{type:"application/json"});
+ var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=FILE;a.click();
+ toast("Downloaded — drop it in the sandbox folder or import it on another device");};
+document.getElementById("fileImp").onchange=function(e){var f=e.target.files[0];if(!f)return;
+ f.text().then(function(txt){try{WB.state=mergeStates(WB.load(),JSON.parse(txt));
+  try{localStorage.setItem(WB.KEY,JSON.stringify(WB.state));}catch(er){}
+  WB.save();renderAll();toast("Notes imported & merged");}catch(er){toast("That file isn't valid notes JSON",true);}});};
+document.getElementById("btnBrief").onclick=function(){var s=WB.load();
+ var open=s.notes.filter(function(n){return n.status!=="archived";});
+ var lines=["# DMS ERP v2 Sandbox — notes for Claude","Exported "+nowIso()+" from the Claude Workbench (module 19).",
+  "Notes file: Dashbords/DMS_ERP_v2_Sandbox/"+FILE,""];
+ groupByModule(open).forEach(function(g){
+  lines.push("## "+g.label);
+  g.items.forEach(function(n){lines.push("- ["+n.id+"] ("+(PRI[n.priority]||"Next")+" · "+n.status+" · "+fmtTs(n.ts)+") "+n.text.replace(/\s+/g," "));});
+  lines.push("");});
+ var txt=lines.join("\n");
+ (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(
+  function(){toast("Brief copied — paste it to Claude");},
+  function(){modal("Copy this brief",'<textarea rows="12" style="width:100%">'+esc(txt)+"</textarea>",[{label:"Close"}]);});};
+
+
+
+/* ============ by-page organization ============ */
+function openNotes(){return WB.load().notes.filter(function(n){return n.status!=="archived"&&n.status!=="done";});}
+function groupByModule(list){var g={};list.forEach(function(n){var k=n.module||"general";(g[k]=g[k]||[]).push(n);});
+ return MODULES.map(function(m){return {key:m[0],label:m[1],items:g[m[0]]||[]};}).filter(function(x){return x.items.length;});}
+function renderByPage(){var host=document.getElementById("viewByPage");var groups=groupByModule(openNotes());
+ if(!groups.length){host.innerHTML='<div class="card"><div class="empty">No open notes. Add one above — pick the page it belongs to, and it shows up here grouped by page.</div></div>';return;}
+ host.innerHTML=groups.map(function(g){
+  return '<div class="card"><h2>'+esc(g.label)+' <span style="font-weight:400;color:#5A6470">· '+g.items.length+' note'+(g.items.length===1?"":"s")+'</span></h2>'+g.items.map(noteCard).join("")+"</div>";}).join("");
+ bindNoteActions(host);}
+function bindNoteActions(host){
+ host.querySelectorAll("[data-mv]").forEach(function(b){b.onclick=function(){var n=WB.state.notes.filter(function(x){return x.id===b.dataset.id;})[0];
+  if(!n)return;n.status=b.dataset.mv;n.updatedAt=nowIso();if(b.dataset.mv==="archived"){n.archivedAt=nowIso();toast("✓ Done — cleared from the board");}WB.save();renderAll();};});
+ host.querySelectorAll("[data-ed]").forEach(function(b){b.onclick=function(){var n=WB.state.notes.filter(function(x){return x.id===b.dataset.ed;})[0];
+  if(!n)return;modal("Edit note "+n.id,'<textarea id="edT" rows="4" style="width:100%">'+esc(n.text)+"</textarea>",[
+   {label:"Cancel"},
+   {label:"Clear note",onClick:function(){n.status="archived";n.archivedAt=nowIso();n.updatedAt=nowIso();WB.save();renderAll();}},
+   {label:"Save",primary:true,onClick:function(ov){n.text=ov.querySelector("#edT").value.trim()||n.text;n.updatedAt=nowIso();WB.save();renderAll();}}]);};});}
+function renderPageNotes(){var host=document.getElementById("pageNotes");if(!host)return;
+ var mod=document.getElementById("nModule").value;
+ var items=openNotes().filter(function(n){return (n.module||"general")===mod;});
+ if(!items.length){host.innerHTML='<div class="hint">No open notes for '+esc(moduleLabel(mod))+' yet.</div>';return;}
+ host.innerHTML='<div style="font-size:10.5px;font-weight:700;color:#5A6470;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Open notes for '+esc(moduleLabel(mod))+' ('+items.length+')</div>'+items.map(noteCard).join("");
+ bindNoteActions(host);}
+document.getElementById("nModule").addEventListener("change",renderPageNotes);
+function showCleared(){var s=WB.load();var items=s.notes.filter(function(n){return n.status==="archived";})
+  .sort(function(a,b){return (b.archivedAt||b.updatedAt||"")<(a.archivedAt||a.updatedAt||"")?-1:1;});
+ modal("Cleared notes — completed and updated by Claude",
+  items.length?('<div style="max-height:50vh;overflow:auto">'+items.map(function(n){
+   return '<div style="border-bottom:1px solid var(--hair);padding:8px 2px;font-size:12px"><b style="color:#1F6B3B">✓</b> '+esc(n.text.length>110?n.text.slice(0,110)+"…":n.text)+'<div style="font-size:10.5px;color:#5A6470;margin-top:2px">'+esc(moduleLabel(n.module))+" · cleared "+fmtTs(n.archivedAt||n.updatedAt)+"</div></div>";}).join("")+"</div>"):'<div class="empty">Nothing cleared yet.</div>',
+  [{label:"Close",primary:true}]);
+ curView="bypage";renderChips();showView();}
+function sweepDone(){var st=WB.load(),cleared=0;
+ st.notes.forEach(function(n){if(n.status==="done"){n.status="archived";n.archivedAt=n.archivedAt||nowIso();n.updatedAt=nowIso();cleared++;}});
+ if(cleared){WB.save();toast("✓ "+cleared+" completed note"+(cleared===1?"":"s")+" cleared — updated by Claude");}}
+
+/* ============ mission control ============ */
+function prefs(){var s=WB.load();if(!s.preferences)s.preferences={model:"fable",effort:"medium",updatedAt:""};return s.preferences;}
+function renderPrefs(){var p=prefs();
+ ["segModel","segEffort"].forEach(function(id){var host=document.getElementById(id);if(!host)return;
+  var key=id==="segModel"?"model":"effort";
+  Array.prototype.forEach.call(host.querySelectorAll("button"),function(b){b.classList.toggle("on",b.dataset.v===p[key]);});});}
+["segModel","segEffort"].forEach(function(id){var host=document.getElementById(id);if(!host)return;
+ host.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  var p=prefs();p[id==="segModel"?"model":"effort"]=b.dataset.v;p.updatedAt=nowIso();WB.save();renderPrefs();
+  toast((id==="segModel"?"Model preference: ":"Effort preference: ")+b.textContent);});});
+function cap(x){return x?x.charAt(0).toUpperCase()+x.slice(1):"";}
+function annotSummary(){try{var a=JSON.parse(localStorage.getItem("dmssbx-annotations")||"{}");
+ var parts=[];Object.keys(a).sort().forEach(function(pg){var n=(a[pg]&&a[pg].items||[]).length;if(n>0)parts.push(pg.replace(/^(\d\d).*/,"$1")+" ("+n+")");});
+ return parts.length?parts.join(", "):"none yet";}catch(e){return "none yet";}}
+function buildKickoff(){var s=WB.load(),p=prefs();
+ var open=s.notes.filter(function(n){return n.status!=="archived"&&n.status!=="done";});
+ var c={inbox:0,planned:0,inprogress:0};open.forEach(function(n){if(c[n.status]!=null)c[n.status]++;});
+ var gpA=s.gamePlan.filter(function(g){return g.status==="agreed";}).length;
+ var gpP=s.gamePlan.filter(function(g){return g.status==="proposed";}).length;
+ return ["check my sandbox notes",
+  "Preferences: model="+cap(p.model)+" · effort="+cap(p.effort),
+  "Open notes: "+open.length+" (inbox "+c.inbox+" · planned "+c.planned+" · in progress "+c.inprogress+") · Game plan: "+gpA+" approved and waiting to build, "+gpP+" proposed",
+  "Page markups: "+annotSummary(),
+  "Notes are grouped by page in the Workbench; each note says what/where/why. Read DMS_ERP_v2_Sandbox/claude_notes.json AND claude_annotations.json, reply to each note, build approved game-plan items directly in the sandbox files, and set finished notes to status done — the board clears them automatically."].join("\n");}
+function tryClaudeApp(){var f=document.createElement("iframe");f.style.display="none";f.src="claude://";document.body.appendChild(f);setTimeout(function(){f.remove();},1500);}
+document.getElementById("btnGo").onclick=function(){
+ var fin=function(){var brief=buildKickoff();
+  (navigator.clipboard?navigator.clipboard.writeText(brief):Promise.reject()).then(function(){},function(){});
+  modal("Kickoff message copied ✓",
+   '<div class="steps">'+
+   '<b>1.</b> Open the Claude app (Cowork) — button below.<br>'+
+   '<b>2.</b> Go to your <b>ERP project</b> → <b>New chat</b> (blank screen).<br>'+
+   '<b>3.</b> Paste (Ctrl+V) and send — Claude reads your notes + markups and makes the changes in this sandbox.</div>'+
+   '<div style="font-size:11.5px;color:#5A6470;line-height:1.6">Model '+esc(cap(prefs().model))+' · Effort '+esc(cap(prefs().effort))+' are in the message. Set the app’s model picker to match.<br>'+
+   '<a href="#" id="mcWeb" style="color:#14253D">Or open claude.ai on the web ↗</a> — good for talking it through, but web Claude can’t edit these local files.</div>',
+   [{label:"Open Claude app",primary:true,onClick:function(){tryClaudeApp();return false;}},{label:"Done"}]);
+  var w=document.getElementById("mcWeb");
+  if(w)w.onclick=function(ev){ev.preventDefault();window.open("https://claude.ai/new?q="+encodeURIComponent(buildKickoff().slice(0,1500)),"_blank");};
+ };
+ if(FS.dir){fullSync(true).then(function(){fin();});}else{fin();}
+};
+
+/* ============ boot ============ */
+(function(){WB.load();
+ if(!fsOK()){document.getElementById("btnConnect").style.display="none";document.getElementById("btnSync").style.display="none";
+  setDot("","This browser can't sync folders (phones can't). Use Copy brief / Download / Import.");
+  document.getElementById("hint").textContent="Tip: on your phone, add notes here, then Copy brief for Claude and paste it into the Claude app. On the desktop, Connect sandbox folder once and it's automatic.";}
+ else{document.getElementById("hint").innerHTML="One-time setup: click <b>Connect sandbox folder</b> and pick the DMS_ERP_v2_Sandbox folder. Notes then save to <span style=\"font-family:Consolas,monospace\">"+FILE+"</span> automatically, and Claude's replies appear here."+(window.top!==window?" If the picker is blocked inside the shell, use <b>Open full page ↗</b> in the top bar first.":"");
+  idbGet("dir").then(function(h){if(h){FS.dir=h;fullSync(false);}});}
+ renderAll();})();
+</script>
+</body>
+</html>
